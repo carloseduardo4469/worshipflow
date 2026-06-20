@@ -1,6 +1,9 @@
 const API = window.WorshipFlowApi;
 const App = window.WorshipFlow;
 
+let equipe = [];
+let teamSearch = null;
+
 function photo(member) {
   if (member?.fotoPerfil) {
     const type = member.fotoPerfilTipo || "image/png";
@@ -18,9 +21,9 @@ function skills(value = "") {
     : "<p>Habilidades nao informadas.</p>";
 }
 
-function renderTeam(equipe) {
+function renderTeam(items = equipe) {
   const grid = document.getElementById("team-grid");
-  grid.innerHTML = equipe.length ? equipe.map((member) => `
+  grid.innerHTML = items.length ? items.map((member) => `
     <article class="team-card">
       <div class="team-photo">${photo(member)}</div>
       <div class="team-info">
@@ -29,7 +32,9 @@ function renderTeam(equipe) {
         ${skills(member.habilidades)}
       </div>
     </article>
-  `).join("") : '<div class="empty">Nenhum integrante ativo cadastrado.</div>';
+  `).join("") : equipe.length
+    ? '<div class="empty">Nenhum integrante encontrado para a pesquisa.</div>'
+    : '<div class="empty">Nenhum integrante ativo cadastrado.</div>';
 }
 
 (async function init() {
@@ -38,7 +43,15 @@ function renderTeam(equipe) {
   App.setupShell(user, "equipe");
 
   try {
-    renderTeam(await API.getData("/usuarios/equipe"));
+    equipe = await API.getData("/usuarios/equipe");
+    teamSearch = window.WorshipFlowSearch.create({
+      input: "#team-search",
+      clearButton: "#team-search-clear",
+      counter: "#team-search-count",
+      fields: ["nome", "instrumentoPrincipal", "habilidades"],
+      items: equipe,
+      onChange: renderTeam
+    });
   } catch (error) {
     App.showToast(error.message, "error");
   }

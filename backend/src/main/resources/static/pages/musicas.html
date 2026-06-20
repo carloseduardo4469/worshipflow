@@ -59,6 +59,7 @@
     </style>
     <script src="/js/api.js" defer></script>
     <script src="/js/common.js" defer></script>
+    <script src="/js/search.js" defer></script>
     <script src="/js/musicas.js" defer></script>
   </head>
   <body>
@@ -118,7 +119,17 @@
                   </div>
                 </form>
                 <article class="panel">
-                  <h2>Registros</h2>
+                  <div class="panel-heading">
+                    <h2>Registros</h2>
+                    <span class="result-count" id="music-search-count">0 registros</span>
+                  </div>
+                  <div class="quick-search" role="search">
+                    <label class="search-field" for="music-search">
+                      <span>Pesquisar musicas</span>
+                      <input id="music-search" type="search" placeholder="Buscar por titulo, artista, tom ou BPM" autocomplete="off" />
+                    </label>
+                    <button class="button small" type="button" id="music-search-clear" hidden>Limpar</button>
+                  </div>
                   <div class="music-record-list" id="musicas-list"><div class="empty compact">Carregando...</div></div>
                 </article>
               </section>

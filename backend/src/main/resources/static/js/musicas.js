@@ -3,6 +3,7 @@ const App = window.WorshipFlow;
 
 let musicas = [];
 let user = null;
+let musicSearch = null;
 
 const form = document.getElementById("musica-form");
 const list = document.getElementById("musicas-list");
@@ -83,14 +84,16 @@ function showCifraDialog(musica) {
   });
 }
 
-function renderList() {
-  if (!musicas.length) {
-    list.innerHTML = '<div class="empty compact">Nenhuma musica cadastrada.</div>';
+function renderList(items = musicas) {
+  if (!items.length) {
+    list.innerHTML = musicas.length
+      ? '<div class="empty compact">Nenhuma musica encontrada para a pesquisa.</div>'
+      : '<div class="empty compact">Nenhuma musica cadastrada.</div>';
     return;
   }
 
   const favorites = new Set((user?.musicasFavoritas || []).map((musica) => musica.id));
-  list.innerHTML = musicas.map((musica) => `
+  list.innerHTML = items.map((musica) => `
     <article class="music-record">
       <div class="music-record-main">
         <button class="music-title-button" type="button" data-action="open-cifra" data-id="${musica.id}" ${hasCifra(musica) ? "" : "disabled"} title="${hasCifra(musica) ? "Abrir cifra" : "Sem link de cifra"}">
@@ -114,7 +117,11 @@ function renderList() {
 
 async function loadMusicas() {
   musicas = await API.getData("/musicas");
-  renderList();
+  if (musicSearch) {
+    musicSearch.setItems(musicas);
+    return;
+  }
+  renderList(musicas);
 }
 
 form.addEventListener("submit", async (event) => {
@@ -167,7 +174,7 @@ list.addEventListener("click", async (event) => {
       user = response.data;
       App.updateStoredUser(user);
       App.showToast(response.message || "Musica favorita atualizada.");
-      renderList();
+      musicSearch?.apply() || renderList(musicas);
     } catch (error) {
       App.showToast(error.message, "error");
     }
@@ -182,4 +189,12 @@ document.getElementById("refresh-button").addEventListener("click", loadMusicas)
   if (!user) return;
   App.setupShell(user, "musicas");
   await loadMusicas();
+  musicSearch = window.WorshipFlowSearch.create({
+    input: "#music-search",
+    clearButton: "#music-search-clear",
+    counter: "#music-search-count",
+    fields: ["titulo", "artista", "tonalidade", "bpm"],
+    items: musicas,
+    onChange: renderList
+  });
 })();
