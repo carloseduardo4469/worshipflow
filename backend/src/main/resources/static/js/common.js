@@ -98,10 +98,13 @@ async function requireAuth({ admin = false } = {}) {
 function initTheme() {
   if (document.querySelector(".login-page")) {
     document.documentElement.dataset.theme = "light";
+    document.documentElement.classList.remove("dark");
     return;
   }
 
-  document.documentElement.dataset.theme = localStorage.getItem("worshipflow:theme") || "light";
+  const theme = localStorage.getItem("worshipflow:theme") || "light";
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.classList.toggle("dark", theme === "dark");
 }
 
 function showToast(message, type = "success") {
@@ -182,6 +185,7 @@ function setupShell(user, activePage) {
     if (action === "toggle-theme") {
       const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
       document.documentElement.dataset.theme = next;
+      document.documentElement.classList.toggle("dark", next === "dark");
       localStorage.setItem("worshipflow:theme", next);
       actionTarget.innerHTML = icon(next === "dark" ? "sun" : "moon");
     }

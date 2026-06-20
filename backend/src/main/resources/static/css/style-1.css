@@ -1,0 +1,251 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800;9..144,900&family=JetBrains+Mono:wght@600;700;800&family=Manrope:wght@500;600;700;800;900&display=swap");
+
+:root {
+  color-scheme: light;
+  --wf-bg: #edf3f8;
+  --wf-bg-grid: rgba(16, 36, 63, 0.055);
+  --wf-surface: rgba(255, 255, 255, 0.86);
+  --wf-surface-strong: #ffffff;
+  --wf-sidebar: rgba(255, 255, 255, 0.9);
+  --wf-text: #172033;
+  --wf-muted: #667085;
+  --wf-border: rgba(16, 36, 63, 0.12);
+  --wf-hero: #07111f;
+  --wf-gold: #d7a927;
+  --wf-gold-soft: #fff1bc;
+  --wf-cyan: #22c8df;
+  --wf-purple: #7c3aed;
+  --wf-shadow: 0 24px 70px rgba(7, 17, 31, 0.14);
+  --wf-font-display: "Fraunces", serif;
+  --wf-font-body: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --wf-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+.dark {
+  color-scheme: dark;
+  --wf-bg: #030914;
+  --wf-bg-grid: rgba(255, 255, 255, 0.055);
+  --wf-surface: rgba(11, 26, 48, 0.88);
+  --wf-surface-strong: #0b1a30;
+  --wf-sidebar: rgba(7, 17, 31, 0.92);
+  --wf-text: #f4f7fb;
+  --wf-muted: #c7d2df;
+  --wf-border: rgba(255, 255, 255, 0.13);
+  --wf-hero: #07111f;
+  --wf-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  background: var(--wf-bg);
+  color: var(--wf-text);
+  font-family: var(--wf-font-body);
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 20% 12%, rgba(34, 200, 223, 0.14), transparent 30%),
+    radial-gradient(circle at 78% 4%, rgba(124, 58, 237, 0.13), transparent 30%),
+    linear-gradient(var(--wf-bg-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--wf-bg-grid) 1px, transparent 1px),
+    var(--wf-bg);
+  background-size: auto, auto, 28px 28px, 28px 28px, auto;
+  color: var(--wf-text);
+}
+
+.sidebar {
+  background: var(--wf-sidebar) !important;
+  border-color: var(--wf-border) !important;
+  color: var(--wf-text) !important;
+  box-shadow: var(--wf-shadow);
+}
+
+.main {
+  color: var(--wf-text);
+}
+
+.topbar {
+  background: color-mix(in srgb, var(--wf-bg) 84%, transparent) !important;
+  border-color: var(--wf-border) !important;
+  color: var(--wf-text) !important;
+}
+
+.wf-nav-link {
+  color: var(--wf-muted) !important;
+  border-color: transparent !important;
+  text-decoration: none;
+}
+
+.wf-nav-link:hover {
+  color: var(--wf-text) !important;
+  background: color-mix(in srgb, var(--wf-surface-strong) 72%, transparent) !important;
+  border-color: var(--wf-border) !important;
+}
+
+.wf-nav-link.is-active {
+  color: #2f2508 !important;
+  border-color: rgba(215, 169, 39, 0.42) !important;
+  background: linear-gradient(135deg, rgba(215, 169, 39, 0.28), rgba(255, 241, 188, 0.38)) !important;
+  box-shadow: inset 0 0 0 1px rgba(215, 169, 39, 0.2), 0 18px 42px rgba(215, 169, 39, 0.16);
+}
+
+.dark .wf-nav-link.is-active {
+  color: #fff1bc !important;
+  border-color: rgba(246, 217, 107, 0.4) !important;
+  background: linear-gradient(135deg, rgba(215, 169, 39, 0.24), rgba(215, 169, 39, 0.08)) !important;
+}
+
+.wf-brand-title,
+.wf-page-title,
+.wf-display,
+.wf-card-number,
+.wf-panel-title {
+  color: var(--wf-text) !important;
+  font-family: var(--wf-font-display);
+}
+
+.wf-label,
+.wf-eyebrow {
+  font-family: var(--wf-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+}
+
+.wf-muted {
+  color: var(--wf-muted) !important;
+}
+
+.wf-icon-button,
+.wf-profile-pill {
+  background: var(--wf-surface-strong) !important;
+  border: 1px solid var(--wf-border) !important;
+  color: var(--wf-text) !important;
+  box-shadow: 0 10px 28px rgba(7, 17, 31, 0.08);
+}
+
+.dark .wf-icon-button,
+.dark .wf-profile-pill {
+  background: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none;
+}
+
+.wf-hero {
+  background:
+    radial-gradient(circle at 16% 20%, rgba(34, 200, 223, 0.22), transparent 30%),
+    radial-gradient(circle at 88% 24%, rgba(124, 58, 237, 0.24), transparent 28%),
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    var(--wf-hero) !important;
+  background-size: auto, auto, 34px 34px, 34px 34px, auto;
+  color: #ffffff !important;
+}
+
+.wf-hero-title,
+.wf-hero-title * {
+  color: inherit;
+  font-family: var(--wf-font-display);
+}
+
+.wf-hero-copy {
+  color: rgba(255, 255, 255, 0.76) !important;
+}
+
+.wf-card,
+.wf-panel {
+  background: var(--wf-surface) !important;
+  border: 1px solid var(--wf-border) !important;
+  color: var(--wf-text) !important;
+  box-shadow: var(--wf-shadow);
+}
+
+.wf-soft-row {
+  background: color-mix(in srgb, var(--wf-surface-strong) 62%, transparent) !important;
+  border-color: var(--wf-border) !important;
+}
+
+.wf-scale-summary {
+  background: color-mix(in srgb, var(--wf-surface-strong) 62%, transparent) !important;
+  border-color: var(--wf-border) !important;
+}
+
+.wf-theme-dark-only {
+  display: none;
+}
+
+.dark .wf-theme-light-only {
+  display: none;
+}
+
+.dark .wf-theme-dark-only {
+  display: inline;
+}
+
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 30px;
+  overflow: hidden;
+  border-radius: 999px;
+  color: #07111f;
+  background: linear-gradient(135deg, #f6d96b, #22c8df);
+}
+
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-avatar svg {
+  width: 17px;
+  height: 17px;
+}
+
+.toast-root {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 80;
+  display: grid;
+  gap: 10px;
+}
+
+.toast {
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 13px 15px;
+  border-radius: 14px;
+  color: #ffffff;
+  background: #067647;
+  box-shadow: 0 18px 42px rgba(7, 17, 31, 0.18);
+}
+
+.toast-error {
+  background: #d92d20;
+}
+
+@media (max-width: 1023px) {
+  .wf-label-sidebar,
+  .wf-nav-text,
+  .wf-brand-copy {
+    display: none !important;
+  }
+}
