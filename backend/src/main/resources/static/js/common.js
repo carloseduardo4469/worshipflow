@@ -166,6 +166,10 @@ function setupShell(user, activePage) {
     button.innerHTML = icon("menu");
   });
 
+  document.querySelectorAll("[data-action='close-drawer'][data-drawer-close-icon]").forEach((button) => {
+    button.innerHTML = icon("xCircle");
+  });
+
   document.querySelectorAll("[data-action='logout']").forEach((button) => {
     button.innerHTML = icon("logOut");
   });
