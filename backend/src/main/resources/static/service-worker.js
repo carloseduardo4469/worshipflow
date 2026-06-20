@@ -1,10 +1,33 @@
-const CACHE_NAME = "worshipflow-mvp-v17";
+const CACHE_NAME = "worshipflow-mvp-v33";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
-  "./src/app.js",
-  "./src/styles/main.css"
+  "./css/style.css",
+  "./js/api.js",
+  "./js/common.js",
+  "./js/login.js",
+  "./js/cadastro.js",
+  "./js/esqueci-senha.js",
+  "./js/redefinir-senha.js",
+  "./js/dashboard.js",
+  "./js/musicas.js",
+  "./js/escalas.js",
+  "./js/usuarios.js",
+  "./js/perfil.js",
+  "./js/equipe.js",
+  "./pages/login.html",
+  "./pages/cadastro.html",
+  "./pages/esqueci-senha.html",
+  "./pages/redefinir-senha.html",
+  "./pages/dashboard.html",
+  "./pages/musicas.html",
+  "./pages/escalas.html",
+  "./pages/usuarios.html",
+  "./pages/perfil.html",
+  "./pages/equipe.html",
+  "./pages/termos.html",
+  "./pages/privacidade.html"
 ];
 
 self.addEventListener("install", (event) => {

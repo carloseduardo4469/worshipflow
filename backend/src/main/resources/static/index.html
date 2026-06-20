@@ -6,14 +6,31 @@
     <meta name="description" content="WorshipFlow, MVP para gestão de ministério de louvor." />
     <meta name="theme-color" content="#10243f" />
     <title>WorshipFlow | Gestão de Louvor</title>
-    <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="icon" href="../assets/icon-192.png" />
-    <link rel="stylesheet" href="./src/styles/main.css" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/assets/icon-192.png" />
+    <script>
+      const auth = localStorage.getItem("worshipflow:auth");
+      const hash = location.hash.replace("#/", "").split("?")[0];
+      const query = location.hash.split("?")[1] || "";
+
+      if (hash === "redefinir-senha") {
+        location.replace(`/pages/redefinir-senha.html?${query}`);
+      } else if (hash === "register") {
+        location.replace("/pages/cadastro.html");
+      } else if (hash === "forgot") {
+        location.replace("/pages/esqueci-senha.html");
+      } else if (hash === "termos") {
+        location.replace("/pages/termos.html");
+      } else if (hash === "privacidade") {
+        location.replace("/pages/privacidade.html");
+      } else if (auth) {
+        location.replace("/pages/dashboard.html");
+      } else {
+        location.replace("/pages/login.html");
+      }
+    </script>
   </head>
   <body>
     <noscript>Este aplicativo precisa de JavaScript para funcionar.</noscript>
-    <div id="app"></div>
-    <div id="toast-root" class="toast-root" aria-live="polite"></div>
-    <script type="module" src="./src/app.js"></script>
   </body>
 </html>

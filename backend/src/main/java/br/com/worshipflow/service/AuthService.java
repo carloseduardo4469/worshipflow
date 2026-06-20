@@ -67,7 +67,7 @@ public class AuthService {
         usuario.setEmail(email);
         usuario.setSenhaHash(passwordEncoder.encode(request.senha()));
         usuario.setTelefone(normalizeOptionalText(request.telefone()));
-        usuario.setInstrumentoPrincipal(request.instrumentoPrincipal().trim());
+        usuario.setInstrumentoPrincipal(normalizeOptionalText(request.instrumentoPrincipal()));
         usuario.setHabilidades(normalizeOptionalText(request.habilidades()));
         usuario.setPerfil(PerfilUsuario.MEMBRO);
 

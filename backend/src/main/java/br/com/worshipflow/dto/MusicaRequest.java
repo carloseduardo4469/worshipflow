@@ -10,21 +10,17 @@ public record MusicaRequest(
         @Size(max = 140, message = "Titulo deve ter no maximo 140 caracteres")
         String titulo,
 
-        @Size(max = 120, message = "Artista deve ter no máximo 120 caracteres")
+        @Size(max = 120, message = "Artista deve ter no maximo 120 caracteres")
         String artista,
 
-        @Size(max = 12, message = "Tonalidade deve ter no máximo 12 caracteres")
+        @Size(max = 12, message = "Tonalidade deve ter no maximo 12 caracteres")
         String tonalidade,
 
         @Min(value = 30, message = "BPM minimo e 30")
-        @Max(value = 240, message = "BPM máximo é 240")
+        @Max(value = 240, message = "BPM maximo e 240")
         Integer bpm,
 
-        @Size(max = 80, message = "Categoria deve ter no máximo 80 caracteres")
-        String categoria,
-
-        @Size(max = 500, message = "Link deve ter no máximo 500 caracteres")
+        @Size(max = 500, message = "Link deve ter no maximo 500 caracteres")
         String linkCifra
 ) {
 }
-

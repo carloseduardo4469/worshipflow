@@ -1,0 +1,118 @@
+const API = window.WorshipFlowApi;
+const App = window.WorshipFlow;
+
+let usuarios = [];
+
+const form = document.getElementById("usuario-form");
+const list = document.getElementById("usuarios-list");
+const cancelButton = document.getElementById("cancel-edit");
+
+function statusClass(status) {
+  return {
+    ATIVO: "status-success",
+    INATIVO: "status-neutral",
+    EM_PAUSA: "status-warning",
+    BLOQUEADO: "status-danger",
+    DESLIGADO: "status-danger"
+  }[status] || "status-neutral";
+}
+
+function resetForm() {
+  form.reset();
+  form.elements.id.value = "";
+  cancelButton.hidden = true;
+}
+
+function fillForm(usuario) {
+  form.elements.id.value = usuario.id;
+  form.elements.nome.value = usuario.nome || "";
+  form.elements.email.value = usuario.email || "";
+  form.elements.telefone.value = usuario.telefone || "";
+  form.elements.instrumentoPrincipal.value = usuario.instrumentoPrincipal || "";
+  form.elements.habilidades.value = usuario.habilidades || "";
+  form.elements.perfil.value = usuario.perfil || "MEMBRO";
+  form.elements.statusMinisterio.value = usuario.statusMinisterio || "ATIVO";
+  cancelButton.hidden = false;
+  form.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderList() {
+  if (!usuarios.length) {
+    list.innerHTML = '<div class="empty">Nenhum usuario cadastrado.</div>';
+    return;
+  }
+
+  list.innerHTML = usuarios.map((usuario) => `
+    <article class="record-card">
+      <div class="record-card-header">
+        <strong>${App.escapeHtml(usuario.nome)}</strong>
+        <span class="status ${statusClass(usuario.statusMinisterio)}">${App.escapeHtml(usuario.statusMinisterio || "-")}</span>
+      </div>
+      <dl class="record-details">
+        <div><dt>Instrumento</dt><dd>${App.escapeHtml(usuario.instrumentoPrincipal || "-")}</dd></div>
+        <div><dt>Telefone</dt><dd>${App.escapeHtml(usuario.telefone || "-")}</dd></div>
+        <div><dt>E-mail</dt><dd>${App.escapeHtml(usuario.email || "-")}</dd></div>
+        <div><dt>Perfil</dt><dd>${App.escapeHtml(usuario.perfil || "-")}</dd></div>
+      </dl>
+      <div class="form-actions">
+        <button class="button small" type="button" data-action="edit" data-id="${usuario.id}">Editar</button>
+        <button class="button small danger" type="button" data-action="delete" data-id="${usuario.id}">Excluir</button>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function loadUsuarios() {
+  usuarios = await API.getData("/usuarios");
+  renderList();
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const data = App.formToObject(form);
+  const id = data.id;
+  if (!id) {
+    App.showToast("Selecione um usuario para editar.", "error");
+    return;
+  }
+  delete data.id;
+
+  try {
+    const response = await API.putData(`/usuarios/${id}`, data);
+    App.showToast(response.message || "Usuario salvo com sucesso.");
+    resetForm();
+    await loadUsuarios();
+  } catch (error) {
+    App.showToast(error.message, "error");
+  }
+});
+
+list.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-action]");
+  if (!button) return;
+
+  const id = Number(button.dataset.id);
+  const usuario = usuarios.find((item) => item.id === id);
+
+  if (button.dataset.action === "edit" && usuario) fillForm(usuario);
+
+  if (button.dataset.action === "delete" && await App.confirmDelete("Excluir usuario?")) {
+    try {
+      const response = await API.deleteData(`/usuarios/${id}`);
+      App.showToast(response.message || "Usuario removido com sucesso.");
+      await loadUsuarios();
+    } catch (error) {
+      App.showToast(error.message, "error");
+    }
+  }
+});
+
+cancelButton.addEventListener("click", resetForm);
+document.getElementById("refresh-button").addEventListener("click", loadUsuarios);
+
+(async function init() {
+  const user = await App.requireAuth({ admin: true });
+  if (!user) return;
+  App.setupShell(user, "usuarios");
+  await loadUsuarios();
+})();

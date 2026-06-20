@@ -9,10 +9,10 @@ import java.util.Optional;
 public interface EscalaRepository extends JpaRepository<Escala, Long> {
 
     @Override
-    @EntityGraph(attributePaths = {"evento", "usuarios", "musicas"})
+    @EntityGraph(attributePaths = {"usuarios", "musicas"})
     List<Escala> findAll();
 
     @Override
-    @EntityGraph(attributePaths = {"evento", "usuarios", "musicas"})
+    @EntityGraph(attributePaths = {"usuarios", "musicas"})
     Optional<Escala> findById(Long id);
 }

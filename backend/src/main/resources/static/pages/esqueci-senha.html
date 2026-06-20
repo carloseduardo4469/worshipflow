@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Recuperação de senha do WorshipFlow." />
+    <meta name="theme-color" content="#10243f" />
+    <title>WorshipFlow | Esqueci a senha</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/assets/icon-192.png" />
+    <script>document.documentElement.dataset.theme = "light";</script>
+    <link rel="stylesheet" href="/css/style.css" />
+    <script src="/js/api.js" defer></script>
+    <script src="/js/common.js" defer></script>
+    <script src="/js/esqueci-senha.js" defer></script>
+  </head>
+  <body>
+    <main class="login-page">
+      <div class="auth-page-inner">
+        <section class="auth-card auth-accent-right" aria-label="Recuperação de senha">
+          <section class="auth-form-panel auth-form-panel-narrow">
+            <div class="auth-title">
+              <span class="auth-logo">WF</span>
+              <h1>Redefinir senha</h1>
+            </div>
+            <p class="auth-subtitle">Informe seu e-mail para receber um link temporário.</p>
+            <form id="esqueci-senha-form" class="auth-form">
+              <label><span>E-mail</span><input name="email" type="email" autocomplete="email" placeholder="Digite seu e-mail" required /></label>
+              <button class="button primary auth-submit" type="submit">Enviar link</button>
+            </form>
+          </section>
+
+          <aside class="auth-hero-panel">
+            <span class="auth-brand-mark">WF</span>
+            <h2>Lembrou sua senha?</h2>
+            <p>Volte para o acesso principal e continue organizando o ministério.</p>
+            <a class="button outline-light" href="/pages/login.html">Voltar para login</a>
+          </aside>
+        </section>
+      </div>
+    </main>
+    <div id="toast-root" class="toast-root" aria-live="polite"></div>
+  </body>
+</html>

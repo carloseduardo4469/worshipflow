@@ -11,7 +11,7 @@ Aplicacao web para gestao de ministerio de louvor. O projeto foi reorganizado em
 ## Funcionalidades do MVP
 
 - Login simples local, preparado para futura troca por JWT.
-- Gestão de usuarios/membros, musicas, eventos e escalas.
+- Gestão de usuarios/membros, musicas e escalas.
 - Respostas JSON padronizadas.
 - Tema claro/escuro, toasts e estados de loading.
 - Layout responsivo com sidebar no desktop e navegacao inferior no mobile.
@@ -24,11 +24,10 @@ Entidades iniciais:
 - usuarios/membros
 - escalas
 - musicas
-- eventos
 - ministerios
 - repertorios
 
-As escalas se relacionam com um evento, varios usuarios/membros e varias musicas.
+As escalas se relacionam com varios usuarios/membros e varias musicas.
 
 ## Como executar pelo Spring Boot
 
@@ -106,6 +105,19 @@ incremental sem recriar a base:
 mysql -h localhost -P 3306 -u root -p < database/2026-05-25-fix-usuarios-administrador.sql
 ```
 
+Se sua base ainda tem a tabela/coluna de eventos, execute a remocao
+incremental:
+
+```bash
+mysql -h localhost -P 3306 -u root -p < database/2026-06-19-remover-eventos.sql
+```
+
+Se sua base ainda tem a coluna de categoria em musicas, execute:
+
+```bash
+mysql -h localhost -P 3306 -u root -p < database/2026-06-19-remover-categoria-musicas.sql
+```
+
 Depois configure o backend Spring Boot com os dados do seu banco:
 
 ```bash
@@ -172,7 +184,6 @@ As chaves e senhas devem ficar em variaveis de ambiente ou em `backend/.env`. O 
 O mesmo padrao vale para:
 
 - `/api/musicas`
-- `/api/eventos`
 - `/api/escalas`
 
 ## Decisoes importantes

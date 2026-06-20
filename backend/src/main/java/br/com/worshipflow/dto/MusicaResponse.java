@@ -6,7 +6,6 @@ public record MusicaResponse(
         String artista,
         String tonalidade,
         Integer bpm,
-        String categoria,
         String linkCifra
 ) {
 }

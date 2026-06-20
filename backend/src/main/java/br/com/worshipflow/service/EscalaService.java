@@ -17,18 +17,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class EscalaService {
 
     private final EscalaRepository escalaRepository;
-    private final EventoService eventoService;
     private final MusicaService musicaService;
     private final UsuarioService usuarioService;
 
     public EscalaService(
             EscalaRepository escalaRepository,
-            EventoService eventoService,
             MusicaService musicaService,
             UsuarioService usuarioService
     ) {
         this.escalaRepository = escalaRepository;
-        this.eventoService = eventoService;
         this.musicaService = musicaService;
         this.usuarioService = usuarioService;
     }
@@ -95,7 +92,6 @@ public class EscalaService {
                 escala.getTitulo(),
                 escala.getStatus(),
                 escala.getObservacoes(),
-                eventoService.toResponse(escala.getEvento()),
                 escala.getUsuarios().stream().map(usuarioService::toResponse).toList(),
                 escala.getMusicas().stream().map(musicaService::toResponse).toList()
         );
@@ -105,7 +101,6 @@ public class EscalaService {
         escala.setTitulo(request.titulo());
         escala.setStatus(request.status() == null ? StatusEscala.RASCUNHO : request.status());
         escala.setObservacoes(request.observacoes());
-        escala.setEvento(eventoService.findById(request.eventoId()));
 
         List<Long> usuarioIds = request.usuarioIds() == null ? List.of() : request.usuarioIds();
         List<Long> musicaIds = request.musicaIds() == null ? List.of() : request.musicaIds();

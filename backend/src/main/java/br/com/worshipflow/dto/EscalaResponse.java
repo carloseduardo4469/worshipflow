@@ -8,7 +8,6 @@ public record EscalaResponse(
         String titulo,
         StatusEscala status,
         String observacoes,
-        EventoResponse evento,
         List<UsuarioResponse> usuarios,
         List<MusicaResponse> musicas
 ) {

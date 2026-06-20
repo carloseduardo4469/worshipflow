@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Redefinição de senha do WorshipFlow." />
+    <meta name="theme-color" content="#10243f" />
+    <title>WorshipFlow | Nova senha</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/assets/icon-192.png" />
+    <script>document.documentElement.dataset.theme = "light";</script>
+    <link rel="stylesheet" href="/css/style.css" />
+    <script src="/js/api.js" defer></script>
+    <script src="/js/common.js" defer></script>
+    <script src="/js/redefinir-senha.js" defer></script>
+  </head>
+  <body>
+    <main class="login-page">
+      <div class="auth-page-inner">
+        <section class="auth-card auth-accent-right" aria-label="Nova senha">
+          <section class="auth-form-panel auth-form-panel-narrow">
+            <div class="auth-title">
+              <span class="auth-logo">WF</span>
+              <h1>Nova senha</h1>
+            </div>
+            <p class="auth-subtitle">Cadastre uma nova senha para sua conta.</p>
+            <form id="redefinir-senha-form" class="auth-form">
+              <input name="token" type="hidden" />
+              <label><span>Nova senha</span><input name="novaSenha" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo de 8 caracteres" required /></label>
+              <label><span>Confirmar senha</span><input name="confirmarNovaSenha" type="password" autocomplete="new-password" minlength="8" placeholder="Repita a nova senha" required /></label>
+              <button class="button primary auth-submit" type="submit">Salvar senha</button>
+            </form>
+          </section>
+
+          <aside class="auth-hero-panel">
+            <span class="auth-brand-mark">WF</span>
+            <h2>Segurança restaurada</h2>
+            <p>Atualize sua senha e retorne ao painel do WorshipFlow.</p>
+            <a class="button outline-light" href="/pages/login.html">Voltar para login</a>
+          </aside>
+        </section>
+      </div>
+    </main>
+    <div id="toast-root" class="toast-root" aria-live="polite"></div>
+  </body>
+</html>

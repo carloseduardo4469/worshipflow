@@ -29,9 +29,6 @@ public class Musica {
 
     private Integer bpm;
 
-    @Column(length = 80)
-    private String categoria;
-
     @Column(length = 500)
     private String linkCifra;
 
@@ -77,14 +74,6 @@ public class Musica {
 
     public void setBpm(Integer bpm) {
         this.bpm = bpm;
-    }
-
-    public String getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
     }
 
     public String getLinkCifra() {

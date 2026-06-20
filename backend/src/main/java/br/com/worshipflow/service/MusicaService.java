@@ -60,7 +60,6 @@ public class MusicaService {
                 musica.getArtista(),
                 musica.getTonalidade(),
                 musica.getBpm(),
-                musica.getCategoria(),
                 musica.getLinkCifra()
         );
     }
@@ -70,7 +69,6 @@ public class MusicaService {
         musica.setArtista(request.artista());
         musica.setTonalidade(request.tonalidade());
         musica.setBpm(request.bpm());
-        musica.setCategoria(request.categoria());
         musica.setLinkCifra(request.linkCifra());
     }
 }

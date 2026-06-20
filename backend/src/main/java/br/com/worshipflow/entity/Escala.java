@@ -35,10 +35,6 @@ public class Escala {
     private String observacoes;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "evento_id", nullable = false)
-    private Evento evento;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ministerio_id")
     private Ministerio ministerio;
 
@@ -88,14 +84,6 @@ public class Escala {
 
     public void setObservacoes(String observacoes) {
         this.observacoes = observacoes;
-    }
-
-    public Evento getEvento() {
-        return evento;
-    }
-
-    public void setEvento(Evento evento) {
-        this.evento = evento;
     }
 
     public Ministerio getMinisterio() {

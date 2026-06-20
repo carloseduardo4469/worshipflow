@@ -1,7 +1,7 @@
 {
   "name": "WorshipFlow - Gestão de Louvor",
   "short_name": "WorshipFlow",
-  "description": "MVP para organizar membros, músicas, eventos e escalas.",
+  "description": "MVP para organizar membros, músicas e escalas.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
