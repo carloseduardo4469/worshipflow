@@ -8,26 +8,40 @@
     <title>WorshipFlow | Login</title>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/assets/icon-192.png" />
-    <script>document.documentElement.dataset.theme = "light";</script>
+    <script>
+      const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
+    </script>
     <link rel="stylesheet" href="/css/style.css" />
     <script src="/js/api.js" defer></script>
     <script src="/js/common.js" defer></script>
     <script src="/js/login.js" defer></script>
   </head>
   <body>
+    <button class="wf-icon-button public-theme-toggle" type="button" data-action="toggle-theme" aria-label="Alternar tema"></button>
     <main class="login-page">
       <div class="auth-page-inner">
         <section class="auth-card auth-accent-right" aria-label="Login no WorshipFlow">
           <section class="auth-form-panel">
             <div class="auth-title">
               <span class="auth-logo">WF</span>
+              <p class="wf-label auth-eyebrow">Acesso ministerial</p>
               <h1>Entrar</h1>
             </div>
+            <p class="auth-subtitle">Acesse sua conta para acompanhar escalas, equipe e repertório.</p>
             <form id="login-form" class="auth-form">
-              <label><span>E-mail</span><input name="email" type="email" autocomplete="email" placeholder="Digite seu e-mail" required /></label>
-              <label><span>Senha</span><input name="senha" type="password" autocomplete="current-password" placeholder="Digite sua senha" required /></label>
+              <label>
+                <span>E-mail</span>
+                <input name="email" type="email" autocomplete="email" placeholder="Digite seu e-mail" required />
+              </label>
+              <label>
+                <span>Senha</span>
+                <input name="senha" type="password" autocomplete="current-password" placeholder="Digite sua senha" required />
+              </label>
               <button class="button primary auth-submit" type="submit">Entrar</button>
-              <p class="auth-consent">Ao entrar, você concorda com os <a href="/pages/termos.html">Termos de Uso</a> e <a href="/pages/privacidade.html">Política de Privacidade</a>.</p>
+              <p class="auth-consent">
+                Ao entrar, você concorda com os <a href="/pages/termos.html">Termos de Uso</a> e a
+                <a href="/pages/privacidade.html">Política de Privacidade</a>.
+              </p>
             </form>
             <div class="auth-links compact">
               <a href="/pages/esqueci-senha.html">Esqueci minha senha</a>
@@ -36,19 +50,13 @@
 
           <aside class="auth-hero-panel">
             <span class="auth-brand-mark">WF</span>
-            <h2>Bem-vindo ao WorshipFlow</h2>
+            <h2>Bem-vindo ao WorshipFlow.</h2>
             <p>Organize escalas, repertórios e equipes do ministério de louvor em um único ambiente.</p>
             <a class="button outline-light" href="/pages/cadastro.html">Criar cadastro</a>
           </aside>
         </section>
 
-        <footer class="app-footer app-footer-compact">
-          <div class="app-footer-main public-footer-main">
-            <div class="footer-brand"><span class="brand-mark">WF</span><div><strong>WorshipFlow</strong><p>Gestão simples para ministérios de louvor.</p></div></div>
-            <nav class="footer-column" aria-label="Dados legais"><strong>Legal</strong><a href="/pages/termos.html">Termos de Uso</a><a href="/pages/privacidade.html">Política de Privacidade</a><span>Direitos Autorais 2026 WorshipFlow</span></nav>
-            <div class="footer-column"><strong>Contato</strong><a href="mailto:Lucasavilagodoi43@gmail.com">Lucasavilagodoi43@gmail.com</a><a href="mailto:Caduwerneck42@gmail.com">Caduwerneck42@gmail.com</a><a href="tel:+5511985520784">+55 (11) 98552-0784</a></div>
-          </div>
-        </footer>
+        
       </div>
     </main>
     <div id="toast-root" class="toast-root" aria-live="polite"></div>

@@ -96,15 +96,23 @@ async function requireAuth({ admin = false } = {}) {
 }
 
 function initTheme() {
-  if (document.querySelector(".login-page")) {
-    document.documentElement.dataset.theme = "light";
-    document.documentElement.classList.remove("dark");
-    return;
-  }
-
-  const theme = localStorage.getItem("worshipflow:theme") || "light";
+  const theme = localStorage.getItem("worshipflow:theme") || "dark";
   document.documentElement.dataset.theme = theme;
   document.documentElement.classList.toggle("dark", theme === "dark");
+}
+
+function updateThemeButtons() {
+  document.querySelectorAll("[data-action='toggle-theme']").forEach((button) => {
+    button.innerHTML = icon(document.documentElement.dataset.theme === "dark" ? "sun" : "moon");
+  });
+}
+
+function toggleTheme() {
+  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  document.documentElement.classList.toggle("dark", next === "dark");
+  localStorage.setItem("worshipflow:theme", next);
+  updateThemeButtons();
 }
 
 function showToast(message, type = "success") {
@@ -158,9 +166,7 @@ function setupShell(user, activePage) {
     element.classList.toggle("is-active", element.dataset.page === activePage);
   });
 
-  document.querySelectorAll("[data-action='toggle-theme']").forEach((button) => {
-    button.innerHTML = icon(document.documentElement.dataset.theme === "dark" ? "sun" : "moon");
-  });
+  updateThemeButtons();
 
   document.querySelectorAll("[data-action='open-drawer']").forEach((button) => {
     button.innerHTML = icon("menu");
@@ -187,11 +193,7 @@ function setupShell(user, activePage) {
       location.href = loginUrl();
     }
     if (action === "toggle-theme") {
-      const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-      document.documentElement.dataset.theme = next;
-      document.documentElement.classList.toggle("dark", next === "dark");
-      localStorage.setItem("worshipflow:theme", next);
-      actionTarget.innerHTML = icon(next === "dark" ? "sun" : "moon");
+      toggleTheme();
     }
     if (action === "back-to-top") {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -208,6 +210,14 @@ function formToObject(form) {
 }
 
 initTheme();
+updateThemeButtons();
+
+document.addEventListener("click", (event) => {
+  const actionTarget = event.target.closest("[data-action]");
+  if (actionTarget?.dataset.action === "toggle-theme" && !actionTarget.closest(".app-shell")) {
+    toggleTheme();
+  }
+});
 
 window.WorshipFlow = {
   icon,
@@ -222,6 +232,8 @@ window.WorshipFlow = {
   loginUrl,
   requireAuth,
   setupShell,
+  updateThemeButtons,
+  toggleTheme,
   showToast,
   confirmDelete,
   formToObject

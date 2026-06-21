@@ -8,35 +8,69 @@
     <title>WorshipFlow | Esqueci a senha</title>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/assets/icon-192.png" />
-    <script>document.documentElement.dataset.theme = "light";</script>
+    <script>
+      const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
+    </script>
     <link rel="stylesheet" href="/css/style.css" />
     <script src="/js/api.js" defer></script>
     <script src="/js/common.js" defer></script>
     <script src="/js/esqueci-senha.js" defer></script>
   </head>
   <body>
+    <button class="wf-icon-button public-theme-toggle" type="button" data-action="toggle-theme" aria-label="Alternar tema"></button>
     <main class="login-page">
       <div class="auth-page-inner">
         <section class="auth-card auth-accent-right" aria-label="Recuperação de senha">
           <section class="auth-form-panel auth-form-panel-narrow">
             <div class="auth-title">
               <span class="auth-logo">WF</span>
+              <p class="wf-label auth-eyebrow">Recuperação</p>
               <h1>Redefinir senha</h1>
             </div>
-            <p class="auth-subtitle">Informe seu e-mail para receber um link temporário.</p>
+            <p class="auth-subtitle">Informe seu e-mail para receber um link temporário de recuperação.</p>
             <form id="esqueci-senha-form" class="auth-form">
-              <label><span>E-mail</span><input name="email" type="email" autocomplete="email" placeholder="Digite seu e-mail" required /></label>
+              <label>
+                <span>E-mail</span>
+                <input name="email" type="email" autocomplete="email" placeholder="Digite seu e-mail" required />
+              </label>
               <button class="button primary auth-submit" type="submit">Enviar link</button>
             </form>
+            <div class="auth-links compact">
+              <a href="/pages/login.html">Voltar para login</a>
+            </div>
           </section>
 
           <aside class="auth-hero-panel">
             <span class="auth-brand-mark">WF</span>
-            <h2>Lembrou sua senha?</h2>
-            <p>Volte para o acesso principal e continue organizando o ministério.</p>
-            <a class="button outline-light" href="/pages/login.html">Voltar para login</a>
+            <h2>Acesso protegido.</h2>
+            <p>Recupere sua senha com segurança e continue acompanhando a rotina do ministério.</p>
+            <a class="button outline-light" href="/pages/cadastro.html">Criar cadastro</a>
           </aside>
         </section>
+
+        <footer class="app-footer app-footer-compact">
+          <div class="app-footer-main public-footer-main">
+            <div class="footer-brand">
+              <span class="brand-mark">WF</span>
+              <div>
+                <strong>WorshipFlow</strong>
+                <p>Gestão simples para ministérios de louvor.</p>
+              </div>
+            </div>
+            <nav class="footer-column" aria-label="Dados legais">
+              <strong>Legal</strong>
+              <a href="/pages/termos.html">Termos de Uso</a>
+              <a href="/pages/privacidade.html">Política de Privacidade</a>
+              <span>Direitos Autorais 2026 WorshipFlow</span>
+            </nav>
+            <div class="footer-column">
+              <strong>Contato</strong>
+              <a href="mailto:Lucasavilagodoi43@gmail.com">Lucasavilagodoi43@gmail.com</a>
+              <a href="mailto:Caduwerneck42@gmail.com">Caduwerneck42@gmail.com</a>
+              <a href="tel:+5511985520784">+55 (11) 98552-0784</a>
+            </div>
+          </div>
+        </footer>
       </div>
     </main>
     <div id="toast-root" class="toast-root" aria-live="polite"></div>

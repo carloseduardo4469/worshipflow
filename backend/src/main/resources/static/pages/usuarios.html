@@ -10,8 +10,7 @@
     <link rel="icon" href="/assets/icon-192.png" />
     <link rel="stylesheet" href="/css/style.css" />
     <script>
-      document.documentElement.classList.toggle("dark", localStorage.getItem("worshipflow:theme") === "dark");
-      document.documentElement.dataset.theme = localStorage.getItem("worshipflow:theme") || "light";
+      const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
     </script>
     <script src="/js/tailwind-theme.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>

@@ -8,9 +8,16 @@
     <title>WorshipFlow | Política de Privacidade</title>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/assets/icon-192.png" />
+    <script>
+      const theme = localStorage.getItem("worshipflow:theme") || "dark";
+      document.documentElement.classList.toggle("dark", theme === "dark");
+      document.documentElement.dataset.theme = theme;
+    </script>
     <link rel="stylesheet" href="/css/style.css" />
+    <script src="/js/common.js" defer></script>
   </head>
   <body>
+    <button class="wf-icon-button public-theme-toggle" type="button" data-action="toggle-theme" aria-label="Alternar tema"></button>
     <main class="public-page legal-page">
       <section class="public-content legal-shell">
         <header class="legal-hero">
@@ -18,7 +25,10 @@
             <span class="eyebrow">Privacidade e proteção de dados</span>
             <h1>Política de Privacidade</h1>
             <p>
-              Esta Política explica como o WorshipFlow coleta, utiliza, armazena e protege dados pessoais, em alinhamento com a LGPD e com princípios de proteção integral de crianças e adolescentes previstos no ECA e no ECA Digital.
+              Esta Política explica como o WorshipFlow coleta, utiliza, armazena e protege dados pessoais.
+            </p>
+            <p>
+              O documento segue princípios da LGPD e considera a proteção integral de crianças e adolescentes prevista no ECA e no ECA Digital.
             </p>
           </div>
           <div class="legal-actions">
@@ -52,10 +62,13 @@
           <article class="panel legal-section" id="introducao">
             <h2>1. Introdução</h2>
             <p>
-              O WorshipFlow respeita a privacidade dos usuários. Os dados pessoais tratados pelo sistema são utilizados exclusivamente para viabilizar cadastro, autenticação, organização de membros, escalas, músicas, ensaios e comunicação interna.
+              O WorshipFlow respeita a privacidade dos usuários. Os dados pessoais tratados pelo sistema são utilizados exclusivamente para viabilizar seu funcionamento.
             </p>
             <p>
-              Esta Política adota linguagem simples para que usuários, administradores, responsáveis e avaliadores do TCC compreendam como os dados são tratados.
+              Isso inclui cadastro, autenticação, organização de membros, escalas, músicas, ensaios e comunicação interna.
+            </p>
+            <p>
+              Esta Política usa linguagem simples para que usuários, administradores, responsáveis e avaliadores do TCC compreendam como os dados são tratados.
             </p>
           </article>
 
@@ -67,8 +80,12 @@
               <li>E-mail.</li>
               <li>Senha armazenada de forma protegida.</li>
               <li>Telefone.</li>
+              <li>Informações ministeriais, como instrumento, habilidades e função, quando informadas.</li>
+              <li>Foto de perfil, quando enviada pelo próprio usuário.</li>
             </ul>
-            <p>O sistema não coleta documentos pessoais, dados bancários, geolocalização, reconhecimento facial ou dados pessoais sensíveis.</p>
+            <p>
+              O sistema não coleta documentos pessoais, dados bancários, geolocalização, reconhecimento facial ou dados pessoais sensíveis.
+            </p>
           </article>
 
           <article class="panel legal-section" id="finalidade">
@@ -85,9 +102,12 @@
 
           <article class="panel legal-section" id="base-legal">
             <h2>4. Base legal conforme a LGPD</h2>
-            <p>
-              O tratamento de dados pessoais no WorshipFlow se apoia principalmente na execução de contrato ou procedimentos relacionados ao uso do sistema, no legítimo interesse para operação segura e organizada da plataforma, e no cumprimento de obrigações legais quando aplicável.
-            </p>
+            <p>O tratamento de dados pessoais no WorshipFlow se apoia principalmente em:</p>
+            <ul class="legal-list">
+              <li>Execução de contrato ou procedimentos relacionados ao uso do sistema.</li>
+              <li>Legítimo interesse para operação segura e organizada da plataforma.</li>
+              <li>Cumprimento de obrigações legais, quando aplicável.</li>
+            </ul>
             <p>
               Quando o uso envolver menor de idade, o tratamento deve observar o melhor interesse da criança ou adolescente, com transparência, necessidade e participação de pais ou responsáveis quando cabível.
             </p>
@@ -131,21 +151,30 @@
           <article class="panel legal-section" id="correcao-exclusao">
             <h2>8. Solicitação de correção ou exclusão</h2>
             <p>
-              O usuário pode solicitar atualização, correção ou remoção de dados pessoais pelos canais de contato indicados nesta Política. A exclusão poderá ser limitada quando houver necessidade de manter dados para segurança, cumprimento legal, auditoria, defesa de direitos ou continuidade operacional autorizada.
+              O usuário pode solicitar atualização, correção ou remoção de dados pessoais pelos canais de contato indicados nesta Política.
+            </p>
+            <p>
+              A exclusão poderá ser limitada quando houver necessidade de manter dados para segurança, cumprimento legal, auditoria, defesa de direitos ou continuidade operacional autorizada.
             </p>
           </article>
 
           <article class="panel legal-section" id="cookies">
             <h2>9. Uso de cookies e armazenamento local</h2>
             <p>
-              O WorshipFlow pode utilizar recursos técnicos do navegador, como armazenamento local, para manter a sessão do usuário, preferências de tema e dados necessários ao funcionamento da interface. Esses recursos não são usados para publicidade comportamental ou venda de dados.
+              O WorshipFlow pode utilizar recursos técnicos do navegador, como armazenamento local, para manter a sessão do usuário, preferências de tema e dados necessários ao funcionamento da interface.
+            </p>
+            <p>
+              Esses recursos não são usados para publicidade comportamental ou venda de dados.
             </p>
           </article>
 
           <article class="panel legal-section" id="terceiros">
             <h2>10. Compartilhamento de dados com terceiros</h2>
             <p>
-              O WorshipFlow não vende dados pessoais e não realiza compartilhamento comercial. Os dados podem ser acessados apenas por usuários autorizados, administradores do sistema e provedores técnicos estritamente necessários para hospedagem, e-mail, banco de dados ou manutenção, sempre conforme a finalidade do sistema.
+              O WorshipFlow não vende dados pessoais e não realiza compartilhamento comercial.
+            </p>
+            <p>
+              Os dados podem ser acessados apenas por usuários autorizados, administradores do sistema e provedores técnicos estritamente necessários para hospedagem, e-mail, banco de dados ou manutenção, sempre conforme a finalidade do sistema.
             </p>
           </article>
 
@@ -159,24 +188,43 @@
             </p>
           </article>
 
-          <article class="panel legal-section" id="contato">
-            <h2>12. Canal de contato para privacidade</h2>
-            <p>
-              Solicitações de privacidade, correção, exclusão, dúvidas sobre tratamento de dados ou comunicação de incidente podem ser enviadas para:
-            </p>
-            <ul class="legal-list">
-              <li><a href="mailto:Lucasavilagodoi43@gmail.com">Lucasavilagodoi43@gmail.com</a></li>
-              <li><a href="mailto:Caduwerneck42@gmail.com">Caduwerneck42@gmail.com</a></li>
-            </ul>
-          </article>
+         
         </section>
       </section>
 
       <footer class="app-footer app-footer-compact">
         <div class="app-footer-main public-footer-main">
-          <div class="footer-brand"><span class="brand-mark">WF</span><div><strong>WorshipFlow</strong><p>Gestão simples para ministérios de louvor.</p></div></div>
-          <nav class="footer-column" aria-label="Dados legais"><strong>Legal</strong><a href="/pages/termos.html">Termos de Uso</a><a href="/pages/privacidade.html">Política de Privacidade</a><span>Direitos Autorais 2026 WorshipFlow</span></nav>
-          <div class="footer-column"><strong>Contato</strong><a href="mailto:Lucasavilagodoi43@gmail.com">Lucasavilagodoi43@gmail.com</a><a href="mailto:Caduwerneck42@gmail.com">Caduwerneck42@gmail.com</a><a href="tel:+5511985520784">+55 (11) 98552-0784</a></div>
+          <div class="footer-brand">
+            <span class="brand-mark">WF</span>
+            <div>
+              <strong>WorshipFlow</strong>
+              <p>Gestão simples para ministérios de louvor.</p>
+            </div>
+          </div>
+          <nav class="footer-column" aria-label="Dados legais">
+            <strong>Legal</strong>
+            <a href="/pages/termos.html">Termos de Uso</a>
+            <a href="/pages/privacidade.html">Política de Privacidade</a>
+            <span>Direitos Autorais 2026 WorshipFlow</span>
+          </nav>
+          <div class="footer-column">
+          <strong>Contato</strong>
+          <br>
+          <p>
+            Email:
+            <a href="mailto:lucasavilagodoi43@gmail.com">lucasavilagodoi43@gmail.com</a>
+            Fone:
+            <a href="tel:+5511985520784">+55 (11) 98552-0784</a>
+          </p>
+          <br>
+          <p>
+            Email:
+            <a href="mailto:caduwerneck42@gmail.com">caduwerneck42@gmail.com</a>
+            Fone:
+            <a href="tel:+5511985520784">+55 (11) 97328-9270</a>
+          </p>
+
+        </div>
         </div>
       </footer>
     </main>

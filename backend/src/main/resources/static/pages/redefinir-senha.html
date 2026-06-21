@@ -8,35 +8,48 @@
     <title>WorshipFlow | Nova senha</title>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/assets/icon-192.png" />
-    <script>document.documentElement.dataset.theme = "light";</script>
+    <script>
+      const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
+    </script>
     <link rel="stylesheet" href="/css/style.css" />
     <script src="/js/api.js" defer></script>
     <script src="/js/common.js" defer></script>
     <script src="/js/redefinir-senha.js" defer></script>
   </head>
   <body>
+    <button class="wf-icon-button public-theme-toggle" type="button" data-action="toggle-theme" aria-label="Alternar tema"></button>
     <main class="login-page">
       <div class="auth-page-inner">
         <section class="auth-card auth-accent-right" aria-label="Nova senha">
           <section class="auth-form-panel auth-form-panel-narrow">
             <div class="auth-title">
               <span class="auth-logo">WF</span>
+              <p class="wf-label auth-eyebrow auth-eyebrow-gold">Nova credencial</p>
               <h1>Nova senha</h1>
             </div>
-            <p class="auth-subtitle">Cadastre uma nova senha para sua conta.</p>
+            <p class="auth-subtitle">Cadastre uma nova senha com pelo menos 8 caracteres para proteger sua conta.</p>
             <form id="redefinir-senha-form" class="auth-form">
               <input name="token" type="hidden" />
-              <label><span>Nova senha</span><input name="novaSenha" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo de 8 caracteres" required /></label>
-              <label><span>Confirmar senha</span><input name="confirmarNovaSenha" type="password" autocomplete="new-password" minlength="8" placeholder="Repita a nova senha" required /></label>
+              <label>
+                <span>Nova senha</span>
+                <input name="novaSenha" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo de 8 caracteres" required />
+              </label>
+              <label>
+                <span>Confirmar senha</span>
+                <input name="confirmarNovaSenha" type="password" autocomplete="new-password" minlength="8" placeholder="Repita a nova senha" required />
+              </label>
               <button class="button primary auth-submit" type="submit">Salvar senha</button>
             </form>
+            <div class="auth-links compact">
+              <a href="/pages/login.html">Voltar para login</a>
+            </div>
           </section>
 
           <aside class="auth-hero-panel">
             <span class="auth-brand-mark">WF</span>
-            <h2>Segurança restaurada</h2>
-            <p>Atualize sua senha e retorne ao painel do WorshipFlow.</p>
-            <a class="button outline-light" href="/pages/login.html">Voltar para login</a>
+            <h2>Segurança restaurada.</h2>
+            <p>Atualize sua senha e retorne ao painel do WorshipFlow com acesso protegido.</p>
+            <a class="button outline-light" href="/pages/login.html">Entrar</a>
           </aside>
         </section>
       </div>
