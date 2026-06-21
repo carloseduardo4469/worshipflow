@@ -450,10 +450,23 @@ a {
 
 @media (max-width: 767px) {
   .sidebar {
+    max-height: 100dvh;
     width: min(318px, calc(100vw - 54px)) !important;
-    padding: 18px !important;
+    padding: 18px 18px calc(28px + env(safe-area-inset-bottom)) !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
     transform: translateX(-110%);
     transition: transform 180ms ease;
+  }
+
+  .sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .sidebar::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--wf-muted) 34%, transparent);
   }
 
   .drawer-open .sidebar {
@@ -494,6 +507,26 @@ a {
     top: 18px;
     right: 18px;
     display: grid;
+  }
+
+  .sidebar > a[aria-label="WorshipFlow"] {
+    justify-content: flex-start !important;
+    min-height: 52px;
+    padding-right: 56px;
+  }
+
+  .sidebar .wf-brand-copy {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .sidebar .wf-brand-title {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 22px;
   }
 
   .topbar .wf-page-title {
