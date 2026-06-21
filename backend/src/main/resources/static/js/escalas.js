@@ -68,14 +68,71 @@ function fillForm(escala) {
   form.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+function statusInfo(value) {
+  const status = String(value || "RASCUNHO").toUpperCase();
+  const map = {
+    RASCUNHO: {
+      label: "Rascunho",
+      className: "status-rascunho",
+      title: "Escala em edição. Ainda não foi publicada para o ministério."
+    },
+    PUBLICADA: {
+      label: "Publicada",
+      className: "status-publicada",
+      title: "Escala publicada e visível para a equipe."
+    },
+    CONCLUIDA: {
+      label: "Concluída",
+      className: "status-concluida",
+      title: "Escala já concluída."
+    },
+    CANCELADA: {
+      label: "Cancelada",
+      className: "status-cancelada",
+      title: "Escala cancelada. Não deve ser considerada no planejamento."
+    }
+  };
+
+  return map[status] || {
+    label: status,
+    className: "status-indefinido",
+    title: "Status não reconhecido."
+  };
+}
+
+function songCard(musica) {
+  return `
+    <li class="scale-song-card">
+      <div class="scale-song-card-header">
+        <strong>${App.escapeHtml(musica.titulo || "Musica sem titulo")}</strong>
+      </div>
+      <dl class="scale-song-meta">
+        <div>
+          <dt>Artista</dt>
+          <dd>${App.escapeHtml(musica.artista || "Artista nao informado")}</dd>
+        </div>
+        <div>
+          <dt>Tom</dt>
+          <dd>${App.escapeHtml(musica.tonalidade || "-")}</dd>
+        </div>
+        <div>
+          <dt>BPM</dt>
+          <dd>${App.escapeHtml(musica.bpm || "-")}</dd>
+        </div>
+      </dl>
+    </li>
+  `;
+}
+
 function card(escala, canManage) {
   const escalaMusicas = escala.musicas || [];
   const escalaUsuarios = escala.usuarios || [];
+  const status = statusInfo(escala.status);
   return `
     <article class="scale-card">
       <div class="scale-card-header">
         <div><strong>${App.escapeHtml(escala.titulo)}</strong></div>
-        <span class="status">${App.escapeHtml(escala.status || "-")}</span>
+        <span class="status scale-status ${status.className}" title="${App.escapeHtml(status.title)}"><span aria-hidden="true"></span>${App.escapeHtml(status.label)}</span>
       </div>
       <div class="scale-detail-grid">
         <section class="scale-section">
@@ -84,7 +141,7 @@ function card(escala, canManage) {
         </section>
         <section class="scale-section">
           <h3>Repert&oacute;rio</h3>
-          ${escalaMusicas.length ? `<ul class="scale-song-list">${escalaMusicas.map((musica) => `<li><strong>${App.escapeHtml(musica.titulo)}</strong><span>${App.escapeHtml(musica.tonalidade || "Tom nao informado")}</span></li>`).join("")}</ul>` : '<p class="muted-text">Nenhuma musica selecionada.</p>'}
+          ${escalaMusicas.length ? `<ul class="scale-song-list">${escalaMusicas.map(songCard).join("")}</ul>` : '<p class="muted-text">Nenhuma musica selecionada.</p>'}
         </section>
       </div>
       ${escala.observacoes ? `<p class="scale-note">${App.escapeHtml(escala.observacoes)}</p>` : ""}

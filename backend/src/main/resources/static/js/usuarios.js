@@ -17,6 +17,25 @@ function statusClass(status) {
   }[status] || "status-neutral";
 }
 
+function statusLabel(status) {
+  return {
+    ATIVO: "Ativo",
+    INATIVO: "Inativo",
+    EM_PAUSA: "Em pausa",
+    BLOQUEADO: "Bloqueado",
+    DESLIGADO: "Desligado"
+  }[status] || status || "-";
+}
+
+function perfilLabel(perfil) {
+  return {
+    ADMIN: "Administrador",
+    LIDER: "Líder",
+    MUSICO: "Músico",
+    MEMBRO: "Membro"
+  }[perfil] || perfil || "-";
+}
+
 function resetForm() {
   form.reset();
   form.elements.id.value = "";
@@ -46,13 +65,13 @@ function renderList() {
     <article class="record-card">
       <div class="record-card-header">
         <strong>${App.escapeHtml(usuario.nome)}</strong>
-        <span class="status ${statusClass(usuario.statusMinisterio)}">${App.escapeHtml(usuario.statusMinisterio || "-")}</span>
+        <span class="status user-status ${statusClass(usuario.statusMinisterio)}"><span aria-hidden="true"></span>${App.escapeHtml(statusLabel(usuario.statusMinisterio))}</span>
       </div>
       <dl class="record-details">
         <div><dt>Instrumento</dt><dd>${App.escapeHtml(usuario.instrumentoPrincipal || "-")}</dd></div>
         <div><dt>Telefone</dt><dd>${App.escapeHtml(usuario.telefone || "-")}</dd></div>
         <div><dt>E-mail</dt><dd>${App.escapeHtml(usuario.email || "-")}</dd></div>
-        <div><dt>Perfil</dt><dd>${App.escapeHtml(usuario.perfil || "-")}</dd></div>
+        <div><dt>Perfil</dt><dd>${App.escapeHtml(perfilLabel(usuario.perfil))}</dd></div>
       </dl>
       <div class="form-actions">
         <button class="button small" type="button" data-action="edit" data-id="${usuario.id}">Editar</button>

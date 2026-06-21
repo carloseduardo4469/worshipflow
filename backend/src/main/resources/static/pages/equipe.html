@@ -8,7 +8,13 @@
     <title>WorshipFlow | Equipe</title>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/assets/icon-192.png" />
-    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/style-1.css" />
+    <script>
+      document.documentElement.classList.toggle("dark", localStorage.getItem("worshipflow:theme") === "dark");
+      document.documentElement.dataset.theme = localStorage.getItem("worshipflow:theme") || "light";
+    </script>
+    <script src="/js/tailwind-theme.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="/js/api.js" defer></script>
     <script src="/js/common.js" defer></script>
     <script src="/js/search.js" defer></script>
@@ -16,22 +22,144 @@
   </head>
   <body>
     <div class="app-shell">
-      <div class="app-layout">
-        <aside class="sidebar">
-          <div class="brand"><span class="brand-mark">WF</span><div><strong>WorshipFlow</strong></div></div>
-          <nav class="nav-list">
-            <div class="nav-group"><span class="nav-group-label">Membro</span><a class="nav-link" data-page="dashboard" href="/pages/dashboard.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg><span>Início</span></a><a class="nav-link" data-page="perfil" href="/pages/perfil.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Perfil</span></a><a class="nav-link" data-page="equipe" href="/pages/equipe.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg><span>Equipe</span></a><a class="nav-link" data-page="musicas" href="/pages/musicas.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span>Músicas</span></a><a class="nav-link" data-page="escalas" href="/pages/escalas.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="m9 16 2 2 4-5"/></svg><span>Escalas</span></a></div>
-            <div class="nav-group" data-admin-only hidden><span class="nav-group-label">Administrador</span><a class="nav-link" data-page="usuarios" href="/pages/usuarios.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg><span>Registros de usuários</span></a><a class="nav-link" data-page="registro-escalas" href="/pages/escalas.html?modo=admin"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="m9 16 2 2 4-5"/></svg><span>Registro de escalas</span></a></div>
-          </nav>
-        </aside>
-        <button class="drawer-backdrop" data-action="close-drawer" aria-label="Fechar menu"></button>
-        <main class="main">
-          <header class="topbar"><button class="icon-button menu-button" data-action="open-drawer" aria-label="Abrir menu">Menu</button><div class="topbar-title"><strong>Equipe</strong></div><div class="topbar-actions"><button class="icon-button" data-action="toggle-theme" aria-label="Alternar tema"></button><a class="ghost-user" href="/pages/perfil.html" aria-label="Abrir perfil"><span data-user-avatar></span><span data-user-name>Usuário</span></a><button class="icon-button" data-action="logout" aria-label="Sair">Sair</button></div></header>
-          <section class="content"><div class="page-stack"><section class="page-heading"><div><span class="eyebrow">Equipe ministerial</span><h1>Equipe</h1><p>Conheça os integrantes ativos do ministério, suas funções e habilidades.</p></div></section><section class="panel"><div class="panel-heading"><h2>Integrantes</h2><span class="result-count" id="team-search-count">0 registros</span></div><div class="quick-search" role="search"><label class="search-field" for="team-search"><span>Pesquisar membros</span><input id="team-search" type="search" placeholder="Buscar por nome, instrumento ou habilidade" autocomplete="off" /></label><button class="button small" type="button" id="team-search-clear" hidden>Limpar</button></div><div class="team-grid" id="team-grid"><div class="empty">Carregando...</div></div></section></div></section>
-          <footer class="app-footer"><div class="app-footer-main"><div class="footer-brand"><span class="brand-mark">WF</span><div><strong>WorshipFlow</strong><p>Gestão simples para ministérios de louvor, equipes e repertórios.</p></div></div><nav class="footer-column" aria-label="Links rápidos"><strong>Links rápidos</strong><a href="/pages/dashboard.html">Início</a><a href="/pages/equipe.html">Equipe</a><a href="/pages/musicas.html">Músicas</a><a href="/pages/escalas.html">Escalas</a></nav><nav class="footer-column" aria-label="Dados legais"><strong>Legal</strong><a href="/pages/termos.html">Termos de Uso</a><a href="/pages/privacidade.html">Política de Privacidade</a><span>Direitos Autorais 2026 WorshipFlow</span></nav><div class="footer-column"><strong>Contato</strong><a href="mailto:Lucasavilagodoi43@gmail.com">lucasavilagodoi43@gmail.com</a><a href="mailto:Caduwerneck42@gmail.com">caduwerneck42@gmail.com</a><a href="tel:+5511985520784">+55 (11) 98552-0784</a><span>Atendimento para usuários e administradores.</span></div></div><div class="footer-bottom"><small>Uso interno e colaborativo. Seus dados são tratados com sigilo e finalidade definida.</small><button class="button small footer-top-button" type="button" data-action="back-to-top">Voltar ao topo</button></div></footer>
-        </main>
-      </div>
-      <nav class="bottom-nav"><a class="bottom-link" data-page="dashboard" href="/pages/dashboard.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg><span>Início</span></a><a class="bottom-link" data-page="perfil" href="/pages/perfil.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Perfil</span></a><a class="bottom-link" data-page="equipe" href="/pages/equipe.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg><span>Equipe</span></a><a class="bottom-link" data-page="musicas" href="/pages/musicas.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span>Músicas</span></a><a class="bottom-link" data-page="escalas" href="/pages/escalas.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="m9 16 2 2 4-5"/></svg><span>Escalas</span></a></nav>
+      <aside class="sidebar fixed inset-y-0 left-0 z-40 flex w-20 flex-col border-r px-3 py-5 backdrop-blur-2xl lg:w-72 lg:px-5">
+        <button class="wf-drawer-close wf-icon-button size-10 place-items-center rounded-full transition" type="button" data-action="close-drawer" data-drawer-close-icon aria-label="Fechar menu"></button>
+        <a class="mb-8 flex items-center justify-center gap-3 lg:justify-start" href="/pages/dashboard.html" aria-label="WorshipFlow">
+          <span class="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-gold-300 via-gold-400 to-cyan-400 font-display text-lg font-black text-navy-950 shadow-gold">WF</span>
+          <span class="wf-brand-copy hidden min-w-0 lg:grid">
+            <strong class="wf-brand-title text-2xl leading-none">WorshipFlow</strong>
+            <small class="wf-label mt-1 text-[10px] font-bold wf-muted">Ministério de louvor</small>
+          </span>
+        </a>
+
+        <nav class="nav-list flex flex-1 flex-col gap-7">
+          <div class="nav-group grid gap-2">
+            <span class="wf-label wf-label-sidebar nav-group-label hidden px-3 text-[10px] font-extrabold wf-muted lg:block">Membro</span>
+            <a class="wf-nav-link nav-link flex min-h-12 items-center justify-center gap-3 rounded-2xl border px-3 transition lg:justify-start" data-page="dashboard" href="/pages/dashboard.html">
+              <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>
+              <span class="wf-nav-text hidden font-bold lg:inline">Início</span>
+            </a>
+            <a class="wf-nav-link nav-link flex min-h-12 items-center justify-center gap-3 rounded-2xl border px-3 transition lg:justify-start" data-page="perfil" href="/pages/perfil.html">
+              <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+              <span class="wf-nav-text hidden font-bold lg:inline">Perfil</span>
+            </a>
+            <a class="wf-nav-link nav-link flex min-h-12 items-center justify-center gap-3 rounded-2xl border px-3 transition lg:justify-start" data-page="equipe" href="/pages/equipe.html">
+              <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg>
+              <span class="wf-nav-text hidden font-bold lg:inline">Equipe</span>
+            </a>
+            <a class="wf-nav-link nav-link flex min-h-12 items-center justify-center gap-3 rounded-2xl border px-3 transition lg:justify-start" data-page="musicas" href="/pages/musicas.html">
+              <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              <span class="wf-nav-text hidden font-bold lg:inline">Músicas</span>
+            </a>
+            <a class="wf-nav-link nav-link flex min-h-12 items-center justify-center gap-3 rounded-2xl border px-3 transition lg:justify-start" data-page="escalas" href="/pages/escalas.html">
+              <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="m9 16 2 2 4-5"/></svg>
+              <span class="wf-nav-text hidden font-bold lg:inline">Escalas</span>
+            </a>
+          </div>
+
+          <div class="nav-group grid gap-2" data-admin-only hidden>
+            <span class="wf-label wf-label-sidebar nav-group-label hidden px-3 text-[10px] font-extrabold wf-muted lg:block">Administrador</span>
+            <a class="wf-nav-link nav-link flex min-h-12 items-center justify-center gap-3 rounded-2xl border px-3 transition lg:justify-start" data-page="usuarios" href="/pages/usuarios.html">
+              <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg>
+              <span class="wf-nav-text hidden font-bold lg:inline">Registros de usuários</span>
+            </a>
+            <a class="wf-nav-link nav-link flex min-h-12 items-center justify-center gap-3 rounded-2xl border px-3 transition lg:justify-start" data-page="registro-escalas" href="/pages/escalas.html?modo=admin">
+              <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="m9 16 2 2 4-5"/></svg>
+              <span class="wf-nav-text hidden font-bold lg:inline">Registro de escalas</span>
+            </a>
+          </div>
+        </nav>
+      </aside>
+      <button class="drawer-backdrop" type="button" data-action="close-drawer" aria-label="Fechar menu"></button>
+
+      <main class="main min-h-dvh pl-20 lg:pl-72">
+        <header class="topbar sticky top-0 z-30 flex min-h-20 items-center justify-between gap-4 border-b px-4 backdrop-blur-2xl sm:px-7">
+          <button class="wf-menu-button wf-icon-button size-11 place-items-center rounded-full transition hover:-translate-y-0.5" type="button" data-action="open-drawer" aria-label="Abrir menu"></button>
+          <div class="min-w-0 flex-1">
+            <p class="wf-label text-[10px] font-extrabold text-cyan-500">Equipe • Ministério ativo</p>
+            <h1 class="wf-page-title mt-1 truncate text-2xl font-black sm:text-3xl">Equipe ministerial</h1>
+          </div>
+          <div class="topbar-actions flex shrink-0 items-center gap-2">
+            <button class="wf-icon-button grid size-11 place-items-center rounded-full transition hover:-translate-y-0.5" data-action="toggle-theme" aria-label="Alternar tema"></button>
+            <a class="wf-profile-pill ghost-user flex min-h-11 max-w-[190px] items-center gap-2 rounded-full px-2.5 text-sm font-extrabold" href="/pages/perfil.html" aria-label="Abrir perfil">
+              <span data-user-avatar></span>
+              <span class="hidden truncate sm:inline" data-user-name>Usuário</span>
+            </a>
+            <button class="wf-icon-button grid size-11 place-items-center rounded-full transition hover:-translate-y-0.5 hover:text-red-600" data-action="logout" aria-label="Sair"></button>
+          </div>
+        </header>
+
+        <section class="content mx-auto w-full max-w-7xl px-4 py-6 sm:px-7 lg:py-8">
+          <div class="page-stack grid gap-6">
+            <section class="wf-hero relative overflow-hidden rounded-[2rem] border px-6 py-8 shadow-premium sm:px-8 lg:px-10">
+              <div class="absolute -left-20 top-8 h-72 w-72 rounded-full bg-cyan-400/[0.18] blur-3xl"></div>
+              <div class="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-purple-500/[0.18] blur-3xl"></div>
+              <div class="relative z-10 max-w-3xl">
+                <p class="wf-label text-[11px] font-extrabold text-cyan-300">Equipe ministerial</p>
+                <h2 class="wf-hero-title mt-5 text-4xl font-black leading-[0.96] tracking-tight sm:text-5xl lg:text-6xl">
+                  Encontre os <span class="text-gold-300">integrantes</span> certos para cada <span class="text-cyan-300">escala</span>.
+                </h2>
+                <p class="wf-hero-copy mt-5 max-w-2xl text-base font-semibold leading-8 sm:text-lg">Consulte músicos, vocalistas, instrumentos e habilidades em uma visão rápida preparada para a rotina do ministério.</p>
+              </div>
+            </section>
+
+            <section class="wf-panel rounded-[1.5rem] p-5 sm:p-6">
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p class="wf-label text-[10px] font-extrabold text-gold-500">Integrantes</p>
+                  <h2 class="wf-panel-title mt-2 text-3xl font-black">Membros ativos</h2>
+                </div>
+                <span class="wf-result-count result-count" id="team-search-count">0 registros</span>
+              </div>
+
+              <div class="quick-search mt-6" role="search">
+                <label class="search-field" for="team-search">
+                  <span>Pesquisar membros</span>
+                  <input id="team-search" type="search" placeholder="Buscar por nome, instrumento ou habilidade" autocomplete="off" />
+                </label>
+                <button class="wf-secondary-button button small" type="button" id="team-search-clear" hidden>Limpar</button>
+              </div>
+
+              <div class="team-grid mt-6" id="team-grid">
+                <div class="empty">Carregando...</div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <footer class="border-t px-4 py-6 text-sm font-semibold wf-muted sm:px-7">
+          <div class="mx-auto flex w-full max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p>WorshipFlow • Gestão simples para ministérios de louvor.</p>
+            <div class="flex flex-wrap gap-4">
+              <a class="hover:text-gold-500" href="/pages/termos.html">Termos</a>
+              <a class="hover:text-gold-500" href="/pages/privacidade.html">Privacidade</a>
+              <button class="font-bold hover:text-gold-500" type="button" data-action="back-to-top">Voltar ao topo</button>
+            </div>
+          </div>
+        </footer>
+      </main>
+      <nav class="wf-bottom-nav" aria-label="Navegação principal">
+        <a class="wf-bottom-link" data-page="dashboard" href="/pages/dashboard.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>
+          <span>Início</span>
+        </a>
+        <a class="wf-bottom-link" data-page="perfil" href="/pages/perfil.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+          <span>Perfil</span>
+        </a>
+        <a class="wf-bottom-link" data-page="equipe" href="/pages/equipe.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg>
+          <span>Equipe</span>
+        </a>
+        <a class="wf-bottom-link" data-page="musicas" href="/pages/musicas.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          <span>Músicas</span>
+        </a>
+        <a class="wf-bottom-link" data-page="escalas" href="/pages/escalas.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="m9 16 2 2 4-5"/></svg>
+          <span>Escalas</span>
+        </a>
+      </nav>
     </div>
     <div id="toast-root" class="toast-root" aria-live="polite"></div>
   </body>
