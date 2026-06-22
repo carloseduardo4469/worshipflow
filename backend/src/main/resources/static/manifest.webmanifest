@@ -2,7 +2,7 @@
   "name": "WorshipFlow - Gestão de Louvor",
   "short_name": "WorshipFlow",
   "description": "MVP para organizar membros, músicas e escalas.",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f6f8fb",
@@ -10,12 +10,12 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "../assets/icon-192.png",
+      "src": "assets/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "../assets/icon-512.png",
+      "src": "assets/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

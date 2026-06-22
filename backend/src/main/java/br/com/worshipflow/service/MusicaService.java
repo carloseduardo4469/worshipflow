@@ -5,7 +5,12 @@ import br.com.worshipflow.dto.MusicaResponse;
 import br.com.worshipflow.entity.Musica;
 import br.com.worshipflow.exception.ResourceNotFoundException;
 import br.com.worshipflow.repository.MusicaRepository;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +25,22 @@ public class MusicaService {
 
     @Transactional(readOnly = true)
     public List<MusicaResponse> listar() {
-        return musicaRepository.findAll().stream().map(this::toResponse).toList();
+        return listar(null, 0, 200);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MusicaResponse> listar(String query, int page, int size) {
+        Pageable pageable = PageRequest.of(safePage(page), safeSize(size), Sort.by("titulo").ascending());
+        List<Musica> musicas = hasText(query)
+                ? musicaRepository.findByTituloContainingIgnoreCaseOrArtistaContainingIgnoreCaseOrTonalidadeContainingIgnoreCase(
+                        query.trim(),
+                        query.trim(),
+                        query.trim(),
+                        pageable
+                ).getContent()
+                : musicaRepository.findAll(pageable).getContent();
+
+        return musicas.stream().map(this::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
@@ -53,6 +73,15 @@ public class MusicaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Música não encontrada."));
     }
 
+    List<Musica> findAllByIds(List<Long> ids) {
+        Set<Long> uniqueIds = new HashSet<>(ids);
+        List<Musica> musicas = musicaRepository.findAllById(uniqueIds);
+        if (musicas.size() != uniqueIds.size()) {
+            throw new ResourceNotFoundException("Uma ou mais musicas nao foram encontradas.");
+        }
+        return musicas;
+    }
+
     MusicaResponse toResponse(Musica musica) {
         return new MusicaResponse(
                 musica.getId(),
@@ -70,6 +99,18 @@ public class MusicaService {
         musica.setTonalidade(request.tonalidade());
         musica.setBpm(request.bpm());
         musica.setLinkCifra(request.linkCifra());
+    }
+
+    private int safePage(int page) {
+        return Math.max(page, 0);
+    }
+
+    private int safeSize(int size) {
+        return Math.min(Math.max(size, 1), 200);
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 }
 

@@ -15,11 +15,15 @@ import br.com.worshipflow.entity.Usuario;
 import br.com.worshipflow.repository.UsuarioRepository;
 import br.com.worshipflow.security.AccessDeniedException;
 import br.com.worshipflow.security.AuthTokenService;
+import br.com.worshipflow.security.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,6 +34,8 @@ public class AuthService {
 
     private static final String BEARER_PREFIX = "Bearer ";
     private static final int MAX_PROFILE_PHOTO_BASE64_LENGTH = 1_400_000;
+    private static final int MAX_FAILED_LOGIN_ATTEMPTS = 5;
+    private static final Duration LOGIN_BLOCK_DURATION = Duration.ofMinutes(10);
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
@@ -38,6 +44,7 @@ public class AuthService {
     private final MusicaService musicaService;
     private final String frontendBaseUrl;
     private final boolean exposeResetLink;
+    private final Map<String, LoginAttempt> loginAttempts = new ConcurrentHashMap<>();
 
     public AuthService(UsuarioRepository usuarioRepository,
                        PasswordEncoder passwordEncoder,
@@ -45,7 +52,7 @@ public class AuthService {
                        AuthEmailService authEmailService,
                        MusicaService musicaService,
                        @Value("${app.frontend.base-url:http://localhost:8080}") String frontendBaseUrl,
-                       @Value("${app.auth.expose-reset-link:true}") boolean exposeResetLink) {
+                       @Value("${app.auth.expose-reset-link:false}") boolean exposeResetLink) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
@@ -76,10 +83,12 @@ public class AuthService {
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
-        Usuario usuario = usuarioRepository.findByEmail(normalizeEmail(request.email()))
-                .orElseThrow(() -> new IllegalArgumentException("Email ou senha invalidos."));
+        String email = normalizeEmail(request.email());
+        assertLoginAllowed(email);
+        Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
 
-        if (!passwordEncoder.matches(request.senha(), usuario.getSenhaHash())) {
+        if (usuario == null || !passwordEncoder.matches(request.senha(), usuario.getSenhaHash())) {
+            registerFailedLogin(email);
             throw new IllegalArgumentException("Email ou senha invalidos.");
         }
 
@@ -87,6 +96,7 @@ public class AuthService {
             throw new AccessDeniedException("Usuario sem acesso ativo ao ministerio.");
         }
 
+        loginAttempts.remove(email);
         return autenticar(usuario);
     }
 
@@ -129,10 +139,10 @@ public class AuthService {
     public Usuario getAuthenticatedUser(HttpServletRequest request) {
         String token = extractToken(request);
         Usuario usuario = usuarioRepository.findByApiTokenHash(tokenService.hash(token))
-                .orElseThrow(() -> new AccessDeniedException("Sessao invalida ou expirada."));
+                .orElseThrow(() -> new UnauthorizedException("Sessao invalida ou expirada."));
 
         if (usuario.getApiTokenExpiraEm() == null || usuario.getApiTokenExpiraEm().isBefore(LocalDateTime.now())) {
-            throw new AccessDeniedException("Sessao invalida ou expirada.");
+            throw new UnauthorizedException("Sessao invalida ou expirada.");
         }
 
         if (usuario.getStatusMinisterio() == StatusMinisterio.BLOQUEADO || usuario.getStatusMinisterio() == StatusMinisterio.DESLIGADO) {
@@ -211,7 +221,7 @@ public class AuthService {
     }
 
     public String buildResetPageLink(String token) {
-        return normalizedFrontendBaseUrl() + "/#/redefinir-senha?token=" + urlEncode(token);
+        return normalizedFrontendBaseUrl() + "/pages/redefinir-senha.html?token=" + urlEncode(token);
     }
 
     private AuthResponse autenticar(Usuario usuario) {
@@ -224,7 +234,7 @@ public class AuthService {
     private String extractToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         if (header == null || !header.startsWith(BEARER_PREFIX) || header.length() <= BEARER_PREFIX.length()) {
-            throw new AccessDeniedException("Token de autenticação não informado.");
+            throw new UnauthorizedException("Token de autenticacao nao informado.");
         }
         return header.substring(BEARER_PREFIX.length()).trim();
     }
@@ -270,6 +280,41 @@ public class AuthService {
 
     private boolean isAdmin(Usuario usuario) {
         return PerfilUsuario.ADMIN.equals(usuario.getPerfil());
+    }
+
+    private void assertLoginAllowed(String email) {
+        purgeExpiredLoginAttempts();
+        LoginAttempt attempt = loginAttempts.get(email);
+        if (attempt != null && attempt.isBlocked()) {
+            throw new AccessDeniedException("Muitas tentativas de login. Aguarde alguns minutos e tente novamente.");
+        }
+    }
+
+    private void registerFailedLogin(String email) {
+        loginAttempts.merge(email, LoginAttempt.first(), (current, ignored) -> current.next());
+    }
+
+    private void purgeExpiredLoginAttempts() {
+        loginAttempts.entrySet().removeIf(entry -> entry.getValue().isExpired());
+    }
+
+    private record LoginAttempt(int failures, LocalDateTime lastFailureAt) {
+        static LoginAttempt first() {
+            return new LoginAttempt(1, LocalDateTime.now());
+        }
+
+        LoginAttempt next() {
+            return new LoginAttempt(failures + 1, LocalDateTime.now());
+        }
+
+        boolean isBlocked() {
+            return failures >= MAX_FAILED_LOGIN_ATTEMPTS
+                    && lastFailureAt.plus(LOGIN_BLOCK_DURATION).isAfter(LocalDateTime.now());
+        }
+
+        boolean isExpired() {
+            return lastFailureAt.plus(LOGIN_BLOCK_DURATION).isBefore(LocalDateTime.now());
+        }
     }
 }
 

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -30,14 +31,19 @@ public class UsuarioController {
     }
 
     @GetMapping("/equipe")
-    public ApiResponse<List<EquipeResponse>> listarEquipe() {
-        return ApiResponse.ok("Equipe listada com sucesso.", usuarioService.listarEquipe());
+    public ApiResponse<List<EquipeResponse>> listarEquipe(@RequestParam(value = "query", required = false) String query,
+                                                          @RequestParam(value = "page", defaultValue = "0") int page,
+                                                          @RequestParam(value = "size", defaultValue = "200") int size) {
+        return ApiResponse.ok("Equipe listada com sucesso.", usuarioService.listarEquipe(query, page, size));
     }
 
     @GetMapping
-    public ApiResponse<List<UsuarioResponse>> listar(HttpServletRequest request) {
+    public ApiResponse<List<UsuarioResponse>> listar(HttpServletRequest request,
+                                                     @RequestParam(value = "query", required = false) String query,
+                                                     @RequestParam(value = "page", defaultValue = "0") int page,
+                                                     @RequestParam(value = "size", defaultValue = "200") int size) {
         authService.requireAdmin(request);
-        return ApiResponse.ok("Usuarios listados com sucesso.", usuarioService.listar());
+        return ApiResponse.ok("Usuarios listados com sucesso.", usuarioService.listar(query, page, size));
     }
 
     @GetMapping("/{id}")

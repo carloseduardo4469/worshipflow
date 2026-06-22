@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,9 +35,11 @@ public class EscalaController {
     }
 
     @GetMapping
-    public ApiResponse<List<EscalaResponse>> listar(HttpServletRequest httpRequest) {
+    public ApiResponse<List<EscalaResponse>> listar(HttpServletRequest httpRequest,
+                                                    @RequestParam(value = "page", defaultValue = "0") int page,
+                                                    @RequestParam(value = "size", defaultValue = "200") int size) {
         Usuario usuario = authService.getAuthenticatedUser(httpRequest);
-        List<EscalaResponse> escalas = isAdmin(usuario) ? escalaService.listar() : escalaService.listarVisiveis();
+        List<EscalaResponse> escalas = isAdmin(usuario) ? escalaService.listar(page, size) : escalaService.listarVisiveis(page, size);
         return ApiResponse.ok("Escalas listadas com sucesso.", escalas);
     }
 

@@ -4,13 +4,13 @@ Aplicacao web para gestao de ministerio de louvor. O projeto foi reorganizado em
 
 ## Arquitetura
 
-- `frontend/`: SPA mobile-first em HTML, CSS e JavaScript puro.
-- `backend/`: API REST Spring Boot em camadas (`controller`, `service`, `repository`, `entity`, `dto`, `config`, `exception`).
-- `docker-compose.yml`: MySQL 8.4 e backend.
+- `backend/`: API REST Spring Boot em camadas (`controller`, `service`, `repository`, `entity`, `dto`, `config`, `exception`, `security`).
+- `backend/src/main/resources/static/`: frontend mobile-first em HTML, CSS e JavaScript puro, servido pelo Spring Boot.
+- `database/`: dump e scripts SQL incrementais para ambientes locais.
 
 ## Funcionalidades do MVP
 
-- Login simples local, preparado para futura troca por JWT.
+- Login local com senha criptografada, token de sessao e protecao basica contra tentativas repetidas.
 - Gestão de usuarios/membros, musicas e escalas.
 - Respostas JSON padronizadas.
 - Tema claro/escuro, toasts e estados de loading.
@@ -32,6 +32,12 @@ As escalas se relacionam com varios usuarios/membros e varias musicas.
 ## Como executar pelo Spring Boot
 
 O frontend foi colocado dentro do proprio Spring Web. Voce nao precisa rodar `npm`, `node server.js` nem Docker para abrir a tela.
+
+Requisito recomendado para o backend:
+
+```text
+JDK 21 LTS
+```
 
 Rode apenas o backend:
 
@@ -131,7 +137,7 @@ DB_PASSWORD=
 
 ## Envio de e-mail para redefinicao de senha
 
-O fluxo de redefinicao gera um token local do WorshipFlow e envia um link temporario para `/api/auth/redefinir-senha?token=...`. Essa rota valida o formato do acesso e redireciona o navegador para `/#/redefinir-senha?token=...`.
+O fluxo de redefinicao gera um token local do WorshipFlow e envia um link temporario para `/api/auth/redefinir-senha?token=...`. Essa rota valida o formato do acesso e redireciona o navegador para `/pages/redefinir-senha.html?token=...`.
 
 O provedor e definido por:
 
@@ -185,6 +191,18 @@ O mesmo padrao vale para:
 
 - `/api/musicas`
 - `/api/escalas`
+
+As listagens aceitam parametros opcionais de paginacao:
+
+```text
+?page=0&size=50
+```
+
+As listagens de usuarios e musicas tambem aceitam busca textual:
+
+```text
+?query=violao
+```
 
 ## Decisoes importantes
 

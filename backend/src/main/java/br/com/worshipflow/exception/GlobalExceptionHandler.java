@@ -2,6 +2,7 @@ package br.com.worshipflow.exception;
 
 import br.com.worshipflow.dto.ApiResponse;
 import br.com.worshipflow.security.AccessDeniedException;
+import br.com.worshipflow.security.UnauthorizedException;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -44,6 +45,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException exception) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.fail(exception.getMessage(), null));
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUnauthorized(UnauthorizedException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.fail(exception.getMessage(), null));
     }
 

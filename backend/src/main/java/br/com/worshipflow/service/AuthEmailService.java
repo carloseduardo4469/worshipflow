@@ -100,24 +100,23 @@ public class AuthEmailService implements InitializingBean {
             return true;
         }
 
-        LOGGER.warn("Nenhum provedor de redefinicao de senha configurado. Link de redefinicao para {}: {}", destinatario, link);
+        LOGGER.warn("Nenhum provedor de redefinicao de senha configurado para {}.", maskEmail(destinatario));
         return false;
     }
 
     private boolean enviarViaSmtp(String destinatario, String nome, String link) {
         if (mailSender == null) {
-            LOGGER.warn("SMTP nao configurado: JavaMailSender indisponivel. Link de redefinicao para {}: {}", destinatario, link);
+            LOGGER.warn("SMTP nao configurado: JavaMailSender indisponivel para {}.", maskEmail(destinatario));
             return false;
         }
 
         if (!isSmtpConfigured()) {
-            LOGGER.warn("SMTP incompleto: host={}, from={}, usernamePresente={}, passwordPresente={}. Link de redefinicao para {}: {}",
+            LOGGER.warn("SMTP incompleto: host={}, from={}, usernamePresente={}, passwordPresente={}. Destinatario={}",
                     safeValue(host),
                     safeValue(from),
                     hasText(username),
                     hasText(password),
-                    destinatario,
-                    link);
+                    maskEmail(destinatario));
             return false;
         }
 
@@ -138,16 +137,15 @@ public class AuthEmailService implements InitializingBean {
             mailSender.send(message);
             return true;
         } catch (MailException exception) {
-            LOGGER.error("Falha ao enviar email de redefinicao para {}. Link: {}", destinatario, link, exception);
+            LOGGER.error("Falha ao enviar email de redefinicao para {}.", maskEmail(destinatario), exception);
             return false;
         }
     }
 
     private boolean enviarViaSupabaseAuth(String destinatario, String nome, String link) {
         if (!isSupabaseConfigured()) {
-            LOGGER.warn("Supabase Auth nao configurado: informe SUPABASE_URL e SUPABASE_ANON_KEY ou SUPABASE_SERVICE_ROLE_KEY. Link de redefinicao para {}: {}",
-                    destinatario,
-                    link);
+            LOGGER.warn("Supabase Auth nao configurado: informe SUPABASE_URL e SUPABASE_ANON_KEY ou SUPABASE_SERVICE_ROLE_KEY. Destinatario={}",
+                    maskEmail(destinatario));
             return false;
         }
 
@@ -267,6 +265,19 @@ public class AuthEmailService implements InitializingBean {
 
     private String safeValue(String value) {
         return hasText(value) ? value : "<vazio>";
+    }
+
+    private String maskEmail(String email) {
+        if (!hasText(email)) {
+            return "<vazio>";
+        }
+
+        int atIndex = email.indexOf('@');
+        if (atIndex <= 1) {
+            return "***";
+        }
+
+        return email.charAt(0) + "***" + email.substring(atIndex);
     }
 
     private String safeResponseBody(RestClientResponseException exception) {

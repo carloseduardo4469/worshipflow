@@ -3,13 +3,14 @@ package br.com.worshipflow.service;
 import br.com.worshipflow.dto.EscalaRequest;
 import br.com.worshipflow.dto.EscalaResponse;
 import br.com.worshipflow.entity.Escala;
-import br.com.worshipflow.entity.Musica;
 import br.com.worshipflow.entity.StatusEscala;
-import br.com.worshipflow.entity.Usuario;
 import br.com.worshipflow.exception.ResourceNotFoundException;
 import br.com.worshipflow.repository.EscalaRepository;
 import java.util.HashSet;
 import java.util.List;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,15 +33,25 @@ public class EscalaService {
 
     @Transactional(readOnly = true)
     public List<EscalaResponse> listar() {
-        return escalaRepository.findAll().stream().map(this::toResponse).toList();
+        return listar(0, 200);
+    }
+
+    @Transactional(readOnly = true)
+    public List<EscalaResponse> listar(int page, int size) {
+        Pageable pageable = PageRequest.of(safePage(page), safeSize(size), Sort.by("id").descending());
+        return escalaRepository.findAll(pageable).getContent().stream().map(this::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
     public List<EscalaResponse> listarVisiveis() {
-        return escalaRepository.findAll().stream()
-                .filter(this::isVisivelParaMembros)
-                .map(this::toResponse)
-                .toList();
+        return listarVisiveis(0, 200);
+    }
+
+    @Transactional(readOnly = true)
+    public List<EscalaResponse> listarVisiveis(int page, int size) {
+        Pageable pageable = PageRequest.of(safePage(page), safeSize(size), Sort.by("id").descending());
+        return escalaRepository.findByStatusNot(StatusEscala.RASCUNHO, pageable).getContent().stream()
+                .map(this::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
@@ -105,13 +116,17 @@ public class EscalaService {
         List<Long> usuarioIds = request.usuarioIds() == null ? List.of() : request.usuarioIds();
         List<Long> musicaIds = request.musicaIds() == null ? List.of() : request.musicaIds();
 
-        HashSet<Usuario> usuarios = new HashSet<>();
-        usuarioIds.forEach(id -> usuarios.add(usuarioService.findById(id)));
-        escala.setUsuarios(usuarios);
+        escala.setUsuarios(new HashSet<>(usuarioService.findAllByIds(usuarioIds)));
 
-        HashSet<Musica> musicas = new HashSet<>();
-        musicaIds.forEach(id -> musicas.add(musicaService.findById(id)));
-        escala.setMusicas(musicas);
+        escala.setMusicas(new HashSet<>(musicaService.findAllByIds(musicaIds)));
+    }
+
+    private int safePage(int page) {
+        return Math.max(page, 0);
+    }
+
+    private int safeSize(int size) {
+        return Math.min(Math.max(size, 1), 200);
     }
 }
 

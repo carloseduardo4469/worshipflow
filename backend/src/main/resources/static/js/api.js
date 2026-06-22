@@ -1,4 +1,4 @@
-const API_BASE_URL = localStorage.getItem("worshipflow:apiUrl") || "/api";
+const API_BASE_URL = "/api";
 const AUTH_STORAGE_KEY = "worshipflow:auth";
 
 function getStoredAuth() {
@@ -30,6 +30,9 @@ async function request(endpoint, options = {}) {
   const payload = await response.json().catch(() => null);
 
   if (!response.ok || payload?.success === false) {
+    if (response.status === 401 || response.status === 403) {
+      clearAuth();
+    }
     throw new Error(payload?.message || "Nao foi possivel concluir a operacao.");
   }
 
