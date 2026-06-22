@@ -1,6 +1,6 @@
 # WorshipFlow MVP
 
-Aplicacao web para gestao de ministerio de louvor. O projeto foi reorganizado em frontend Vanilla JS e backend Java Spring Boot com MySQL.
+Aplicacao web para gestao de ministerio de louvor. O projeto foi reorganizado em frontend Vanilla JS e backend Java Spring Boot com PostgreSQL/Supabase.
 
 ## Arquitetura
 
@@ -68,72 +68,59 @@ E execute como aplicacao Java/Spring Boot.
 
 ## Banco configurado
 
-O projeto esta configurado para usar MySQL com:
+O projeto esta configurado para usar PostgreSQL, pronto para Supabase:
 
 ```text
-Banco: worshipflow
-Usuario: root
-Senha: vazia por padrao
-Host padrao: localhost
-Porta: 3306
+Banco padrao: postgres
+Usuario padrao: postgres
+Host local padrao: localhost
+Porta padrao: 5432
+SSL: require
 ```
 
 Configuracao local padrao:
 
 ```bash
-DB_URL=jdbc:mysql://localhost:3306/worshipflow?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Sao_Paulo
+DB_URL=jdbc:postgresql://localhost:5432/postgres?sslmode=require
 DB_HOST=localhost
-DB_PORT=3306
-DB_DATABASE=worshipflow
-DB_USERNAME=root
+DB_PORT=5432
+DB_DATABASE=postgres
+DB_USERNAME=postgres
 DB_PASSWORD=
+DB_SSLMODE=require
+JPA_DDL_AUTO=validate
 ```
 
-## Banco externo e importacao SQL
+## Supabase e importacao SQL
 
-Se voce vai usar um banco MySQL externo, importe o arquivo:
-
-```bash
-mysql -h localhost -P 3306 -u root -p < database/worshipflow.sql
-```
-
-Tambem da para importar pelo phpMyAdmin, DBeaver, MySQL Workbench ou outro painel, usando o arquivo:
+No Supabase, execute os scripts pelo SQL Editor nesta ordem:
 
 ```text
-database/worshipflow.sql
+database/postgresql/001_schema.sql
+database/postgresql/002_seed_current_data.sql
+database/postgresql/003_seed_100_musicas_usuarios.sql
 ```
 
-Se voce ja tinha uma versao antiga do banco e o cadastro falhar com
-`Field 'administrador' doesn't have a default value`, execute a correcao
-incremental sem recriar a base:
+Tambem existe um arquivo consolidado, util para um banco limpo:
 
-```bash
-mysql -h localhost -P 3306 -u root -p < database/2026-05-25-fix-usuarios-administrador.sql
+```text
+database/postgresql/worshipflow-postgresql-full.sql
 ```
 
-Se sua base ainda tem a tabela/coluna de eventos, execute a remocao
-incremental:
+Depois configure o backend Spring Boot com os dados do seu banco Supabase:
 
-```bash
-mysql -h localhost -P 3306 -u root -p < database/2026-06-19-remover-eventos.sql
+```text
+DB_URL=jdbc:postgresql://db.SEUPROJETO.supabase.co:5432/postgres?sslmode=require
+DB_HOST=db.SEUPROJETO.supabase.co
+DB_PORT=5432
+DB_DATABASE=postgres
+DB_USERNAME=postgres
+DB_PASSWORD=sua-senha-do-banco
+DB_SSLMODE=require
+JPA_DDL_AUTO=validate
 ```
 
-Se sua base ainda tem a coluna de categoria em musicas, execute:
-
-```bash
-mysql -h localhost -P 3306 -u root -p < database/2026-06-19-remover-categoria-musicas.sql
-```
-
-Depois configure o backend Spring Boot com os dados do seu banco:
-
-```bash
-DB_URL=jdbc:mysql://localhost:3306/worshipflow?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Sao_Paulo
-DB_HOST=localhost
-DB_PORT=3306
-DB_DATABASE=worshipflow
-DB_USERNAME=root
-DB_PASSWORD=
-```
+Use a senha do banco definida em Supabase > Project Settings > Database. Nao use a anon key como senha do banco.
 
 ## Envio de e-mail para redefinicao de senha
 

@@ -10,7 +10,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -62,7 +61,7 @@ public class Usuario {
 
     private LocalDateTime apiTokenExpiraEm;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String fotoPerfil;
 
     @Column(length = 60)
