@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#10243f" />
     <title>WorshipFlow | Músicas</title>
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/assets/icon-192.png" />
+    <link rel="icon" href="/assets/LogoWorshipFlow.png" />
     <link rel="stylesheet" href="/css/style.css" />
     <script>
       const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
@@ -23,7 +23,7 @@
       <aside class="sidebar fixed inset-y-0 left-0 z-40 flex w-20 flex-col border-r px-3 py-5 backdrop-blur-2xl lg:w-72 lg:px-5">
         <button class="wf-drawer-close wf-icon-button size-10 place-items-center rounded-full transition" type="button" data-action="close-drawer" data-drawer-close-icon aria-label="Fechar menu"></button>
         <a class="mb-8 flex items-center justify-center gap-3 lg:justify-start" href="/pages/dashboard.html" aria-label="WorshipFlow">
-          <span class="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-gold-300 via-gold-400 to-cyan-400 font-display text-lg font-black text-navy-950 shadow-gold">WF</span>
+          <img class="wf-logo-mark" src="/assets/LogoWorshipFlow.png" alt="" width="48" height="48" />
           <span class="wf-brand-copy hidden min-w-0 lg:grid">
             <strong class="wf-brand-title text-2xl leading-none">WorshipFlow</strong>
             <small class="wf-label mt-1 text-[10px] font-bold wf-muted">Ministério de louvor</small>
@@ -100,7 +100,6 @@
                   </h2>
                   <p class="wf-hero-copy mt-5 max-w-2xl text-base font-semibold leading-8 sm:text-lg">Cadastre louvores com tom, BPM e link de cifra, mantendo a base musical organizada para toda a equipe.</p>
                 </div>
-                <button class="wf-secondary-button button" type="button" id="refresh-button">Atualizar</button>
               </div>
             </section>
 
@@ -121,10 +120,13 @@
                     <input name="artista" required />
                   </label>
                   <label>
-                    <span class="field-label">Tom <span class="required-field"><span class="required-marker" tabindex="0" aria-describedby="tom-required">*</span><span class="required-tooltip" id="tom-required" role="tooltip">Item obrigatório</span></span></span>
-                    <input name="tonalidade" required />
+                    <span class="field-label">Tom <span class="required-field"><span class="required-marker" tabindex="0" aria-describedby="tonalidade-required">*</span><span class="required-tooltip" id="tonalidade-required" role="tooltip">Item obrigatório</span></span></span>
+                    <input name="tonalidade" pattern="[A-Ga-g](#|b)?m?" maxlength="4" placeholder="Ex.: C, C#, Bm, A#m" title="Use um tom válido, como C, D, E, F, G, A, B, C#, Bm ou A#m." required />
                   </label>
-                  <label>BPM<input name="bpm" type="number" inputmode="numeric" /></label>
+                  <label>
+                    <span class="field-label">BPM <span class="required-field"><span class="required-marker" tabindex="0" aria-describedby="bpm-required">*</span><span class="required-tooltip" id="bpm-required" role="tooltip">Item obrigatório</span></span></span>
+                    <input name="bpm" type="number" inputmode="numeric" min="30" max="240" required />
+                  </label>
                 </div>
                 <label>Link da cifra<input name="linkCifra" type="url" /></label>
                 <div class="form-actions">

@@ -74,9 +74,7 @@ public class AuthService {
         usuario.setEmail(email);
         usuario.setSenhaHash(passwordEncoder.encode(request.senha()));
         usuario.setTelefone(normalizeOptionalText(request.telefone()));
-        usuario.setInstrumentoPrincipal(normalizeOptionalText(request.instrumentoPrincipal()));
-        usuario.setHabilidades(normalizeOptionalText(request.habilidades()));
-        usuario.setPerfil(PerfilUsuario.MEMBRO);
+        usuario.setPerfil(PerfilUsuario.USER);
 
         return autenticar(usuarioRepository.save(usuario));
     }
@@ -90,10 +88,6 @@ public class AuthService {
         if (usuario == null || !passwordEncoder.matches(request.senha(), usuario.getSenhaHash())) {
             registerFailedLogin(email);
             throw new IllegalArgumentException("Email ou senha invalidos.");
-        }
-
-        if (usuario.getStatusMinisterio() == StatusMinisterio.BLOQUEADO || usuario.getStatusMinisterio() == StatusMinisterio.DESLIGADO) {
-            throw new AccessDeniedException("Usuario sem acesso ativo ao ministerio.");
         }
 
         loginAttempts.remove(email);
@@ -145,10 +139,6 @@ public class AuthService {
             throw new UnauthorizedException("Sessao invalida ou expirada.");
         }
 
-        if (usuario.getStatusMinisterio() == StatusMinisterio.BLOQUEADO || usuario.getStatusMinisterio() == StatusMinisterio.DESLIGADO) {
-            throw new AccessDeniedException("Usuario sem acesso ativo ao ministerio.");
-        }
-
         return usuario;
     }
 
@@ -178,7 +168,6 @@ public class AuthService {
 
         usuario.setNome(perfilRequest.nome().trim());
         usuario.setTelefone(normalizeOptionalText(perfilRequest.telefone()));
-        usuario.setInstrumentoPrincipal(perfilRequest.instrumentoPrincipal().trim());
         usuario.setHabilidades(normalizeOptionalText(perfilRequest.habilidades()));
 
         if (Boolean.TRUE.equals(perfilRequest.removerFoto())) {
@@ -211,7 +200,6 @@ public class AuthService {
                 usuario.getEmail(),
                 usuario.getPerfil(),
                 usuario.getTelefone(),
-                usuario.getInstrumentoPrincipal(),
                 usuario.getHabilidades(),
                 usuario.getStatusMinisterio(),
                 usuario.getFotoPerfil(),
@@ -234,7 +222,7 @@ public class AuthService {
     private String extractToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         if (header == null || !header.startsWith(BEARER_PREFIX) || header.length() <= BEARER_PREFIX.length()) {
-            throw new UnauthorizedException("Token de autenticacao nao informado.");
+            throw new UnauthorizedException("Token de autenticacao não informado.");
         }
         return header.substring(BEARER_PREFIX.length()).trim();
     }
@@ -317,4 +305,3 @@ public class AuthService {
         }
     }
 }
-

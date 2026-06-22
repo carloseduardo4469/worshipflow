@@ -13,9 +13,10 @@ form.elements.telefone.addEventListener("input", (event) => {
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   form.elements.telefone.value = onlyDigits(form.elements.telefone.value);
+  const data = App.formToObject(event.currentTarget);
 
   try {
-    const response = await API.postData("/auth/cadastro", App.formToObject(event.currentTarget));
+    const response = await API.postData("/auth/cadastro", data);
     API.saveAuth(response);
     App.showToast(response.message || "Cadastro realizado com sucesso.");
     location.href = "/pages/dashboard.html";

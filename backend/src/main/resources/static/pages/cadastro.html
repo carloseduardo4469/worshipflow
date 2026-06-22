@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#10243f" />
     <title>WorshipFlow | Cadastro</title>
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/assets/icon-192.png" />
+    <link rel="icon" href="/assets/LogoWorshipFlow.png" />
     <script>
       const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
     </script>
@@ -23,35 +23,27 @@
         <section class="auth-card auth-accent-left" aria-label="Cadastro no WorshipFlow">
           <section class="auth-form-panel">
             <div class="auth-title">
-              <span class="auth-logo">WF</span>
+              <img class="auth-logo wf-logo-image" src="/assets/LogoWorshipFlow.png" alt="" width="48" height="48" />
               <p class="wf-label auth-eyebrow auth-eyebrow-gold">Novo membro</p>
               <h1>Criar conta</h1>
             </div>
             <p class="auth-subtitle">Cadastre seus dados ministeriais para participar das escalas e repertórios.</p>
             <form id="cadastro-form" class="auth-form auth-form-register">
               <label>
-                <span>Nome</span>
+                <span class="field-label">Nome <span class="required-field"><span class="required-marker" tabindex="0" title="Este campo é obrigatório." aria-describedby="cadastro-nome-required">*</span><span class="required-tooltip" id="cadastro-nome-required" role="tooltip">Este campo é obrigatório.</span></span></span>
                 <input name="nome" autocomplete="name" placeholder="Nome completo" required />
               </label>
               <label>
-                <span>E-mail</span>
+                <span class="field-label">E-mail <span class="required-field"><span class="required-marker" tabindex="0" title="Este campo é obrigatório." aria-describedby="cadastro-email-required">*</span><span class="required-tooltip" id="cadastro-email-required" role="tooltip">Este campo é obrigatório.</span></span></span>
                 <input name="email" type="email" autocomplete="email" placeholder="Digite seu e-mail" required />
               </label>
               <label>
-                <span>Senha</span>
+                <span class="field-label">Senha <span class="required-field"><span class="required-marker" tabindex="0" title="Este campo é obrigatório." aria-describedby="cadastro-senha-required">*</span><span class="required-tooltip" id="cadastro-senha-required" role="tooltip">Este campo é obrigatório.</span></span></span>
                 <input name="senha" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo de 8 caracteres" required />
               </label>
               <label>
-                <span>Telefone</span>
-                <input name="telefone" type="text" inputmode="numeric" autocomplete="tel" maxlength="30" pattern="[0-9]*" placeholder="Opcional" />
-              </label>
-              <label>
-                <span>Instrumento principal</span>
-                <input name="instrumentoPrincipal" maxlength="80" placeholder="Ex.: violão, teclado, voz" />
-              </label>
-              <label class="auth-wide">
-                <span>Habilidades</span>
-                <textarea name="habilidades" maxlength="300" placeholder="Ex.: violão, baixo, bateria"></textarea>
+                <span class="field-label">Telefone <span class="required-field"><span class="required-marker" tabindex="0" title="Este campo é obrigatório." aria-describedby="cadastro-telefone-required">*</span><span class="required-tooltip" id="cadastro-telefone-required" role="tooltip">Este campo é obrigatório.</span></span></span>
+                <input name="telefone" type="text" inputmode="numeric" autocomplete="tel" maxlength="30" pattern="[0-9]*" placeholder="Somente números" required />
               </label>
               <button class="button primary auth-submit" type="submit">Cadastrar</button>
               <p class="auth-consent">
@@ -62,7 +54,7 @@
           </section>
 
           <aside class="auth-hero-panel">
-            <span class="auth-brand-mark">WF</span>
+            <img class="auth-brand-mark wf-logo-image" src="/assets/LogoWorshipFlow.png" alt="" width="48" height="48" />
             <h2>Já faz parte da equipe?</h2>
             <p>Entre com sua conta para acompanhar escalas, ensaios e repertórios do ministério.</p>
             <a class="button outline-light" href="/pages/login.html">Entrar</a>

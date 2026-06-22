@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#10243f" />
     <title>WorshipFlow | Equipe</title>
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/assets/icon-192.png" />
+    <link rel="icon" href="/assets/LogoWorshipFlow.png" />
     <link rel="stylesheet" href="/css/style.css" />
     <script>
       const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
@@ -24,7 +24,7 @@
       <aside class="sidebar fixed inset-y-0 left-0 z-40 flex w-20 flex-col border-r px-3 py-5 backdrop-blur-2xl lg:w-72 lg:px-5">
         <button class="wf-drawer-close wf-icon-button size-10 place-items-center rounded-full transition" type="button" data-action="close-drawer" data-drawer-close-icon aria-label="Fechar menu"></button>
         <a class="mb-8 flex items-center justify-center gap-3 lg:justify-start" href="/pages/dashboard.html" aria-label="WorshipFlow">
-          <span class="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-gold-300 via-gold-400 to-cyan-400 font-display text-lg font-black text-navy-950 shadow-gold">WF</span>
+          <img class="wf-logo-mark" src="/assets/LogoWorshipFlow.png" alt="" width="48" height="48" />
           <span class="wf-brand-copy hidden min-w-0 lg:grid">
             <strong class="wf-brand-title text-2xl leading-none">WorshipFlow</strong>
             <small class="wf-label mt-1 text-[10px] font-bold wf-muted">Ministério de louvor</small>
@@ -98,7 +98,7 @@
                 <h2 class="wf-hero-title mt-5 text-4xl font-black leading-[0.96] tracking-tight sm:text-5xl lg:text-6xl">
                   Encontre os <span class="text-gold-300">integrantes</span> certos para cada <span class="text-cyan-300">escala</span>.
                 </h2>
-                <p class="wf-hero-copy mt-5 max-w-2xl text-base font-semibold leading-8 sm:text-lg">Consulte músicos, vocalistas, instrumentos e habilidades em uma visão rápida preparada para a rotina do ministério.</p>
+                <p class="wf-hero-copy mt-5 max-w-2xl text-base font-semibold leading-8 sm:text-lg">Consulte músicos, vocalistas e habilidades em uma visão rápida preparada para a rotina do ministério.</p>
               </div>
             </section>
 
@@ -114,7 +114,7 @@
               <div class="quick-search mt-6" role="search">
                 <label class="search-field" for="team-search">
                   <span>Pesquisar membros</span>
-                  <input id="team-search" type="search" placeholder="Buscar por nome, instrumento ou habilidade" autocomplete="off" />
+                  <input id="team-search" type="search" placeholder="Buscar por nome ou habilidade" autocomplete="off" />
                 </label>
                 <button class="wf-secondary-button button small" type="button" id="team-search-clear" hidden>Limpar</button>
               </div>

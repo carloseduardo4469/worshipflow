@@ -2,3 +2,6 @@
 backend/.env
 .vscode/launch.json
 backend/target/
+.tools/
+.m2/
+database/local/

@@ -94,11 +94,20 @@ public class MusicaService {
     }
 
     private void aplicarDados(Musica musica, MusicaRequest request) {
-        musica.setTitulo(request.titulo());
-        musica.setArtista(request.artista());
-        musica.setTonalidade(request.tonalidade());
+        musica.setTitulo(request.titulo().trim());
+        musica.setArtista(request.artista().trim());
+        musica.setTonalidade(normalizeTonalidade(request.tonalidade()));
         musica.setBpm(request.bpm());
         musica.setLinkCifra(request.linkCifra());
+    }
+
+    private String normalizeTonalidade(String tonalidade) {
+        if (tonalidade == null || tonalidade.isBlank()) {
+            return null;
+        }
+
+        String trimmed = tonalidade.trim();
+        return trimmed.substring(0, 1).toUpperCase() + trimmed.substring(1);
     }
 
     private int safePage(int page) {

@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#10243f" />
     <title>WorshipFlow | Escalas</title>
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/assets/icon-192.png" />
+    <link rel="icon" href="/assets/LogoWorshipFlow.png" />
     <link rel="stylesheet" href="/css/style.css" />
     <script>
       const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
@@ -23,7 +23,7 @@
       <aside class="sidebar fixed inset-y-0 left-0 z-40 flex w-20 flex-col border-r px-3 py-5 backdrop-blur-2xl lg:w-72 lg:px-5">
         <button class="wf-drawer-close wf-icon-button size-10 place-items-center rounded-full transition" type="button" data-action="close-drawer" data-drawer-close-icon aria-label="Fechar menu"></button>
         <a class="mb-8 flex items-center justify-center gap-3 lg:justify-start" href="/pages/dashboard.html" aria-label="WorshipFlow">
-          <span class="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-gold-300 via-gold-400 to-cyan-400 font-display text-lg font-black text-navy-950 shadow-gold">WF</span>
+          <img class="wf-logo-mark" src="/assets/LogoWorshipFlow.png" alt="" width="48" height="48" />
           <span class="wf-brand-copy hidden min-w-0 lg:grid">
             <strong class="wf-brand-title text-2xl leading-none">WorshipFlow</strong>
             <small class="wf-label mt-1 text-[10px] font-bold wf-muted">Ministério de louvor</small>
@@ -100,7 +100,6 @@
                   </h2>
                   <p class="wf-hero-copy mt-5 max-w-2xl text-base font-semibold leading-8 sm:text-lg" id="page-description">Consulte a equipe, o repertório e as observações das próximas escalas.</p>
                 </div>
-                <button class="wf-secondary-button button" type="button" id="refresh-button">Atualizar</button>
               </div>
             </section>
 
@@ -111,8 +110,9 @@
                   <h2 class="wf-panel-title mt-2 text-3xl font-black" id="form-title">Nova escala</h2>
                 </div>
                 <input name="id" type="hidden" />
-                <div class="grid gap-4 sm:grid-cols-2">
+                <div class="grid gap-4">
                   <label>Título<input name="titulo" required /></label>
+                  <label>Data<input name="dataEscala" type="date" /></label>
                   <label>Status<select name="status"><option>RASCUNHO</option><option>PUBLICADA</option><option>CONCLUIDA</option><option>CANCELADA</option></select></label>
                 </div>
                 <fieldset class="checkbox-fieldset">

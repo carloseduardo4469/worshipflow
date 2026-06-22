@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#10243f" />
     <title>WorshipFlow | Perfil</title>
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/assets/icon-192.png" />
+    <link rel="icon" href="/assets/LogoWorshipFlow.png" />
     <link rel="stylesheet" href="/css/style.css" />
     <script>
       const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
@@ -23,7 +23,7 @@
       <aside class="sidebar fixed inset-y-0 left-0 z-40 flex w-20 flex-col border-r px-3 py-5 backdrop-blur-2xl lg:w-72 lg:px-5">
         <button class="wf-drawer-close wf-icon-button size-10 place-items-center rounded-full transition" type="button" data-action="close-drawer" data-drawer-close-icon aria-label="Fechar menu"></button>
         <a class="mb-8 flex items-center justify-center gap-3 lg:justify-start" href="/pages/dashboard.html" aria-label="WorshipFlow">
-          <span class="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-gold-300 via-gold-400 to-cyan-400 font-display text-lg font-black text-navy-950 shadow-gold">WF</span>
+          <img class="wf-logo-mark" src="/assets/LogoWorshipFlow.png" alt="" width="48" height="48" />
           <span class="wf-brand-copy hidden min-w-0 lg:grid">
             <strong class="wf-brand-title text-2xl leading-none">WorshipFlow</strong>
             <small class="wf-label mt-1 text-[10px] font-bold wf-muted">Ministério de louvor</small>
@@ -93,7 +93,9 @@
               <div class="absolute -left-20 top-8 h-72 w-72 rounded-full bg-cyan-400/[0.18] blur-3xl"></div>
               <div class="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-gold-300/[0.16] blur-3xl"></div>
               <div class="relative z-10 grid gap-6 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center">
-                <div class="wf-profile-photo profile-photo" id="profile-photo"><span>WF</span></div>
+                <div class="wf-profile-photo profile-photo" id="profile-photo">
+                  <img src="/assets/LogoWorshipFlow.png" alt="" width="112" height="112" />
+                </div>
                 <div class="min-w-0">
                   <p class="wf-label text-[11px] font-extrabold text-cyan-300">Perfil do usuário</p>
                   <h2 class="wf-hero-title mt-4 text-4xl font-black leading-[0.96] tracking-tight sm:text-5xl lg:text-6xl" id="profile-name">Usuário</h2>
@@ -110,7 +112,7 @@
                     <p class="wf-label text-[10px] font-extrabold text-gold-500">Competências</p>
                     <h2 class="wf-panel-title mt-2 text-3xl font-black">Habilidades</h2>
                   </div>
-                  <span class="size-3 rounded-full bg-gold-400 shadow-[0_0_24px_rgba(215,169,39,0.7)]"></span>
+                  <span class="size-3 rounded-full bg-cyan-300 shadow-[0_0_24px_rgba(34,200,223,0.75)]"></span>
                 </div>
                 <div id="skills-list" class="skill-list mt-6"></div>
               </article>
@@ -135,10 +137,28 @@
               <div class="grid gap-4 lg:grid-cols-2">
                 <label>Nome<input name="nome" maxlength="120" required /></label>
                 <label>Telefone<input name="telefone" type="text" inputmode="numeric" maxlength="30" pattern="[0-9]*" /></label>
-                <label>Instrumento principal<input name="instrumentoPrincipal" maxlength="80" required /></label>
-                <label>Foto de perfil<input name="foto" type="file" accept="image/png,image/jpeg,image/webp" /></label>
+                <div class="file-picker">
+                  <span class="file-picker-label">Foto de perfil</span>
+                  <div class="file-picker-control">
+                    <label class="wf-secondary-button button file-picker-button" for="profile-photo-input">Escolher foto</label>
+                    <span class="file-picker-name" id="profile-photo-file-name" hidden>Foto selecionada</span>
+                  </div>
+                  <input id="profile-photo-input" name="foto" type="file" accept="image/png,image/jpeg,image/webp" />
+                </div>
               </div>
-              <label>Habilidades<textarea name="habilidades" maxlength="300" placeholder="Ex: violão, baixo, bateria"></textarea></label>
+              <fieldset class="skill-picker">
+                <legend>Habilidades</legend>
+                <div class="skill-picker-grid">
+                  <label class="skill-check"><input type="checkbox" name="habilidades" value="Violão" /><span><strong>Violão</strong></span></label>
+                  <label class="skill-check"><input type="checkbox" name="habilidades" value="Guitarra" /><span><strong>Guitarra</strong></span></label>
+                  <label class="skill-check"><input type="checkbox" name="habilidades" value="Bateria" /><span><strong>Bateria</strong></span></label>
+                  <label class="skill-check"><input type="checkbox" name="habilidades" value="Baixo" /><span><strong>Baixo</strong></span></label>
+                  <label class="skill-check"><input type="checkbox" name="habilidades" value="Vocal de apoio 1" /><span><strong>Vocal de apoio 1</strong></span></label>
+                  <label class="skill-check"><input type="checkbox" name="habilidades" value="Vocal de apoio 2" /><span><strong>Vocal de apoio 2</strong></span></label>
+                  <label class="skill-check"><input type="checkbox" name="habilidades" value="Cantor principal" /><span><strong>Cantor principal</strong></span></label>
+                  <label class="skill-check"><input type="checkbox" name="habilidades" value="Mesa de som" /><span><strong>Mesa de som</strong></span></label>
+                </div>
+              </fieldset>
               <label class="inline-check" id="remove-photo-row" hidden><input name="removerFoto" type="checkbox" value="true" /> Remover foto atual</label>
               <div class="flex justify-end"><button class="wf-primary-button button primary" type="submit">Salvar perfil</button></div>
             </form>

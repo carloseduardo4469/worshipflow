@@ -19,14 +19,9 @@ public record CadastroRequest(
         @Size(min = 8, max = 80, message = "Senha deve ter entre 8 e 80 caracteres.")
         String senha,
 
+        @NotBlank(message = "Telefone e obrigatorio.")
         @Size(max = 30, message = "Telefone deve ter no maximo 30 caracteres.")
         @Pattern(regexp = "\\d*", message = "Telefone deve conter apenas numeros.")
-        String telefone,
-
-        @Size(max = 80, message = "Instrumento deve ter no maximo 80 caracteres.")
-        String instrumentoPrincipal,
-
-        @Size(max = 300, message = "Habilidades devem ter no maximo 300 caracteres.")
-        String habilidades
+        String telefone
 ) {
 }

@@ -15,10 +15,10 @@ function photo(member) {
 }
 
 function skills(value = "") {
-  const items = String(value).split(",").map((item) => item.trim()).filter(Boolean);
+  const items = App.formatSkills(value).split(",").map((item) => item.trim()).filter(Boolean);
   return items.length
     ? `<div class="team-skills">${items.map((item) => `<small>${App.escapeHtml(item)}</small>`).join("")}</div>`
-    : "<p>Habilidades nao informadas.</p>";
+    : "<p>Habilidades não informadas.</p>";
 }
 
 function renderTeam(items = equipe) {
@@ -28,7 +28,6 @@ function renderTeam(items = equipe) {
       <div class="team-photo">${photo(member)}</div>
       <div class="team-info">
         <strong>${App.escapeHtml(member.nome)}</strong>
-        <span>${App.escapeHtml(member.instrumentoPrincipal || "Funcao nao informada")}</span>
         ${skills(member.habilidades)}
       </div>
     </article>
@@ -48,7 +47,7 @@ function renderTeam(items = equipe) {
       input: "#team-search",
       clearButton: "#team-search-clear",
       counter: "#team-search-count",
-      fields: ["nome", "instrumentoPrincipal", "habilidades"],
+      fields: ["nome", "habilidades"],
       items: equipe,
       onChange: renderTeam
     });

@@ -83,15 +83,8 @@ public class UsuarioService {
         usuario.setNome(request.nome().trim());
         usuario.setEmail(email);
         usuario.setTelefone(normalizeOptionalText(request.telefone()));
-        usuario.setInstrumentoPrincipal(request.instrumentoPrincipal().trim());
-        usuario.setHabilidades(normalizeOptionalText(request.habilidades()));
-        usuario.setPerfil(request.perfil() == null ? PerfilUsuario.MEMBRO : request.perfil());
+        usuario.setPerfil(PerfilUsuario.ADMIN.equals(request.perfil()) ? PerfilUsuario.ADMIN : PerfilUsuario.USER);
         usuario.setStatusMinisterio(request.statusMinisterio() == null ? StatusMinisterio.ATIVO : request.statusMinisterio());
-
-        if (usuario.getStatusMinisterio() == StatusMinisterio.BLOQUEADO || usuario.getStatusMinisterio() == StatusMinisterio.DESLIGADO) {
-            usuario.setApiTokenHash(null);
-            usuario.setApiTokenExpiraEm(null);
-        }
 
         return authService.toResponse(usuario);
     }
@@ -119,6 +112,9 @@ public class UsuarioService {
         if (usuarios.size() != uniqueIds.size()) {
             throw new ResourceNotFoundException("Um ou mais usuarios nao foram encontrados.");
         }
+        if (usuarios.stream().anyMatch(usuario -> usuario.getStatusMinisterio() != StatusMinisterio.ATIVO)) {
+            throw new IllegalArgumentException("Usuarios inativos nao podem ser adicionados a escala.");
+        }
         return usuarios;
     }
 
@@ -126,7 +122,6 @@ public class UsuarioService {
         return new EquipeResponse(
                 usuario.getId(),
                 usuario.getNome(),
-                usuario.getInstrumentoPrincipal(),
                 usuario.getHabilidades(),
                 usuario.getFotoPerfil(),
                 usuario.getFotoPerfilTipo()
@@ -144,7 +139,6 @@ public class UsuarioService {
     private boolean matchesEquipeQuery(Usuario usuario, String query) {
         String normalizedQuery = query.trim().toLowerCase();
         return contains(usuario.getNome(), normalizedQuery)
-                || contains(usuario.getInstrumentoPrincipal(), normalizedQuery)
                 || contains(usuario.getHabilidades(), normalizedQuery);
     }
 

@@ -19,13 +19,6 @@ public record UsuarioAdminRequest(
         @Size(max = 30, message = "Telefone deve ter no máximo 30 caracteres.")
         String telefone,
 
-        @NotBlank(message = "Instrumento principal é obrigatório.")
-        @Size(max = 80, message = "Instrumento deve ter no máximo 80 caracteres.")
-        String instrumentoPrincipal,
-
-        @Size(max = 300, message = "Habilidades devem ter no máximo 300 caracteres.")
-        String habilidades,
-
         PerfilUsuario perfil,
         StatusMinisterio statusMinisterio
 ) {

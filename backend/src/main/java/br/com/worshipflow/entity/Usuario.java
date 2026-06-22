@@ -1,9 +1,8 @@
 package br.com.worshipflow.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -43,13 +42,13 @@ public class Usuario {
     @Column(length = 300)
     private String habilidades;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = StatusMinisterioConverter.class)
     @Column(nullable = false, length = 30)
     private StatusMinisterio statusMinisterio = StatusMinisterio.ATIVO;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = PerfilUsuarioConverter.class)
     @Column(nullable = false, length = 30)
-    private PerfilUsuario perfil = PerfilUsuario.MEMBRO;
+    private PerfilUsuario perfil = PerfilUsuario.USER;
 
     @Column(length = 128)
     private String resetTokenHash;

@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#10243f" />
     <title>WorshipFlow | Dashboard</title>
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/assets/icon-192.png" />
+    <link rel="icon" href="/assets/LogoWorshipFlow.png" />
     <link rel="stylesheet" href="/css/style.css" />
     <script>
       const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
@@ -23,7 +23,7 @@
       <aside class="sidebar fixed inset-y-0 left-0 z-40 flex w-20 flex-col border-r px-3 py-5 backdrop-blur-2xl lg:w-72 lg:px-5">
         <button class="wf-drawer-close wf-icon-button size-10 place-items-center rounded-full transition" type="button" data-action="close-drawer" data-drawer-close-icon aria-label="Fechar menu"></button>
         <a class="mb-8 flex items-center justify-center gap-3 lg:justify-start" href="/pages/dashboard.html" aria-label="WorshipFlow">
-          <span class="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-gold-300 via-gold-400 to-cyan-400 font-display text-lg font-black text-navy-950 shadow-gold">WF</span>
+          <img class="wf-logo-mark" src="/assets/LogoWorshipFlow.png" alt="" width="48" height="48" />
           <span class="wf-brand-copy hidden min-w-0 lg:grid">
             <strong class="wf-brand-title text-2xl leading-none">WorshipFlow</strong>
             <small class="wf-label mt-1 text-[10px] font-bold wf-muted">Ministério de louvor</small>
@@ -79,6 +79,16 @@
           </div>
           <div class="topbar-actions flex shrink-0 items-center gap-2">
             <button class="wf-icon-button grid size-11 place-items-center rounded-full transition hover:-translate-y-0.5" data-action="toggle-theme" aria-label="Alternar tema"></button>
+            <aside class="profile-onboarding" id="profile-onboarding" aria-live="polite" hidden>
+              <svg class="profile-onboarding-arrow" viewBox="0 0 64 54" fill="none" aria-hidden="true">
+                <path d="M7 47C25 43 42 30 49 10" />
+                <path d="M38 16 50 8l5 13" />
+              </svg>
+              <a class="profile-onboarding-card" href="/pages/perfil.html">
+                <span class="profile-onboarding-icon" aria-hidden="true">✦</span>
+                <span><strong>Complete seu cadastro</strong><small>Abra o perfil e informe suas habilidades.</small></span>
+              </a>
+            </aside>
             <a class="wf-profile-pill ghost-user flex min-h-11 max-w-[190px] items-center gap-2 rounded-full px-2.5 text-sm font-extrabold" href="/pages/perfil.html" aria-label="Abrir perfil">
               <span data-user-avatar></span>
               <span class="hidden truncate sm:inline" data-user-name>Usuário</span>
@@ -105,14 +115,24 @@
                   Organize o <span class="text-gold-300">louvor</span> sem depender de <span class="text-cyan-300">planilhas soltas</span>.
                 </h2>
                 <p class="wf-hero-copy mt-5 max-w-2xl text-base font-semibold leading-8 sm:text-lg">Centralize equipe, repertório, escalas e próximos passos em um painel preparado para a rotina real do ministério.</p>
-                <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-                  <a class="inline-flex min-h-12 items-center justify-center rounded-full bg-gold-300 px-6 text-sm font-black text-navy-950 shadow-gold transition hover:-translate-y-0.5 hover:bg-gold-100" href="/pages/escalas.html?modo=admin">Montar nova escala</a>
-                  <a class="inline-flex min-h-12 items-center justify-center rounded-full border border-white/[0.22] px-6 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-white/10" href="/pages/musicas.html">Ver repertório</a>
+                <div class="dashboard-hero-snapshot mt-8" id="hero-snapshot">
+                  <div>
+                    <span>Escalas ativas</span>
+                    <strong id="hero-active-scales">0</strong>
+                  </div>
+                  <div>
+                    <span>Louvores prontos</span>
+                    <strong id="hero-ready-songs">0</strong>
+                  </div>
+                  <div>
+                    <span>Equipe disponível</span>
+                    <strong id="hero-team-ready">0</strong>
+                  </div>
                 </div>
               </div>
             </section>
 
-            <section class="grid gap-4 md:grid-cols-3">
+            <section class="grid gap-4 md:grid-cols-4">
               <article class="wf-card relative overflow-hidden rounded-[1.5rem] p-5">
                 <div class="absolute -right-10 -top-10 size-32 rounded-full bg-cyan-300/[0.18] blur-2xl"></div>
                 <span class="wf-label text-[10px] font-extrabold wf-muted">Membros ativos</span>
@@ -131,56 +151,67 @@
                 <strong class="wf-card-number mt-3 block text-4xl font-black" id="metric-escalas">0 escalas</strong>
                 <p class="mt-2 text-sm font-semibold wf-muted">Planejamento consolidado da operação.</p>
               </article>
+              <article class="wf-card relative overflow-hidden rounded-[1.5rem] p-5">
+                <div class="absolute -right-10 -top-10 size-32 rounded-full bg-cyan-300/[0.14] blur-2xl"></div>
+                <span class="wf-label text-[10px] font-extrabold wf-muted">Favoritos</span>
+                <strong class="wf-card-number mt-3 block text-4xl font-black" id="metric-favoritos">0 louvores</strong>
+                <p class="mt-2 text-sm font-semibold wf-muted">Repertório pessoal salvo para consulta rápida.</p>
+              </article>
             </section>
 
             <section class="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
               <article class="wf-panel rounded-[1.5rem] p-6">
                 <div class="flex items-center justify-between gap-4">
                   <div>
-                    <p class="wf-label text-[10px] font-extrabold text-gold-500">Resumo</p>
-                    <h2 class="wf-panel-title mt-2 text-3xl font-black">Resumo de escalas</h2>
+                    <p class="wf-label text-[10px] font-extrabold text-gold-500">Mês</p>
+                    <h2 class="wf-panel-title mt-2 text-3xl font-black">Escalas do mês</h2>
                   </div>
                   <span class="size-3 rounded-full bg-gold-400 shadow-[0_0_24px_rgba(215,169,39,0.7)]"></span>
                 </div>
-                <div class="wf-scale-summary mt-6 divide-y overflow-hidden rounded-2xl border" id="scale-summary">
-                  <p class="p-5 text-sm font-semibold wf-muted">Nenhuma escala cadastrada ainda.</p>
+                <div class="dashboard-feed mt-6" id="weekly-scales">
+                  <div class="empty compact">Carregando escalas...</div>
                 </div>
               </article>
 
               <article class="wf-panel rounded-[1.5rem] p-6">
                 <div class="flex items-center justify-between gap-4">
                   <div>
-                    <p class="wf-label text-[10px] font-extrabold text-cyan-500">Checklist</p>
-                    <h2 class="wf-panel-title mt-2 text-3xl font-black">Próximos passos</h2>
+                    <p class="wf-label text-[10px] font-extrabold text-cyan-500">Repertório</p>
+                    <h2 class="wf-panel-title mt-2 text-3xl font-black">Top louvores</h2>
                   </div>
                   <span class="size-3 rounded-full bg-cyan-300 shadow-[0_0_24px_rgba(34,200,223,0.75)]"></span>
                 </div>
-                <ul class="mt-6 grid gap-3">
-                  <li class="wf-soft-row flex gap-3 rounded-2xl border p-4">
-                    <span class="mt-1 grid size-5 place-items-center rounded-md border border-gold-400/60 bg-gold-300/[0.15]"></span>
-                    <div>
-                      <strong class="text-sm font-extrabold">Completar perfis dos membros</strong>
-                      <p class="mt-1 text-sm font-semibold wf-muted">Instrumentos principais e habilidades visíveis para escala.</p>
-                      <span class="mt-3 inline-flex rounded-full bg-gold-300/[0.18] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-gold-500 dark:text-gold-300">Equipe</span>
-                    </div>
-                  </li>
-                  <li class="wf-soft-row flex gap-3 rounded-2xl border p-4">
-                    <span class="mt-1 grid size-5 place-items-center rounded-md border border-cyan-400/60 bg-cyan-300/[0.15]"></span>
-                    <div>
-                      <strong class="text-sm font-extrabold">Montar repertório em músicas</strong>
-                      <p class="mt-1 text-sm font-semibold wf-muted">Tom, BPM e cifra reunidos em uma base única.</p>
-                      <span class="mt-3 inline-flex rounded-full bg-cyan-300/[0.18] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-500 dark:text-cyan-300">Repertório</span>
-                    </div>
-                  </li>
-                  <li class="wf-soft-row flex gap-3 rounded-2xl border p-4">
-                    <span class="mt-1 grid size-5 place-items-center rounded-md border border-purple-400/60 bg-purple-400/[0.15]"></span>
-                    <div>
-                      <strong class="text-sm font-extrabold">Publicar uma escala para a equipe</strong>
-                      <p class="mt-1 text-sm font-semibold wf-muted">Organize responsáveis, músicas e status da escala.</p>
-                      <span class="mt-3 inline-flex rounded-full bg-purple-400/[0.18] px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-purple-500 dark:text-purple-300">Escala</span>
-                    </div>
-                  </li>
-                </ul>
+                <div class="dashboard-rank mt-6" id="top-louvores">
+                  <div class="empty compact">Carregando repertório...</div>
+                </div>
+              </article>
+            </section>
+
+            <section class="grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
+              <article class="wf-panel rounded-[1.5rem] p-6">
+                <div class="flex items-center justify-between gap-4">
+                  <div>
+                    <p class="wf-label text-[10px] font-extrabold text-purple-500">Equipe</p>
+                    <h2 class="wf-panel-title mt-2 text-3xl font-black">Cobertura por função</h2>
+                  </div>
+                  <span class="size-3 rounded-full bg-cyan-300 shadow-[0_0_24px_rgba(34,200,223,0.75)]"></span>
+                </div>
+                <div class="dashboard-skill-grid mt-6" id="team-coverage">
+                  <div class="empty compact">Carregando equipe...</div>
+                </div>
+              </article>
+
+              <article class="wf-panel rounded-[1.5rem] p-6">
+                <div class="flex items-center justify-between gap-4">
+                  <div>
+                    <p class="wf-label text-[10px] font-extrabold text-cyan-500">Mês</p>
+                    <h2 class="wf-panel-title mt-2 text-3xl font-black">Resumo mensal</h2>
+                  </div>
+                  <span class="size-3 rounded-full bg-cyan-300 shadow-[0_0_24px_rgba(34,200,223,0.75)]"></span>
+                </div>
+                <div class="dashboard-insights mt-6" id="dashboard-insights">
+                  <div class="empty compact">Analisando dados...</div>
+                </div>
               </article>
             </section>
           </div>

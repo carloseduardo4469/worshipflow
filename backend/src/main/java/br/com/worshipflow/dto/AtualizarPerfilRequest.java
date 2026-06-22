@@ -13,10 +13,6 @@ public record AtualizarPerfilRequest(
         @Pattern(regexp = "\\d*", message = "Telefone deve conter apenas numeros.")
         String telefone,
 
-        @NotBlank(message = "Instrumento principal e obrigatorio.")
-        @Size(max = 80, message = "Instrumento deve ter no maximo 80 caracteres.")
-        String instrumentoPrincipal,
-
         @Size(max = 300, message = "Habilidades devem ter no maximo 300 caracteres.")
         String habilidades,
 

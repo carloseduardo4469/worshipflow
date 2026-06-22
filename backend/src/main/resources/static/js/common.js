@@ -209,6 +209,64 @@ function formToObject(form) {
   return Object.fromEntries(new FormData(form).entries());
 }
 
+function selectedSkills(form) {
+  return Array.from(form.querySelectorAll('input[name="habilidades"]:checked'))
+    .map((input) => input.value);
+}
+
+function selectedSkillsText(form) {
+  return selectedSkills(form).join(", ");
+}
+
+function normalizeSkillName(value = "") {
+  const normalized = String(value).trim().toLowerCase();
+  return {
+    "violao": "violão",
+    "violão": "violão",
+    "guitarra": "guitarra",
+    "bateria": "bateria",
+    "baixo": "baixo",
+    "back 1": "vocal de apoio 1",
+    "vocal de apoio 1": "vocal de apoio 1",
+    "back 2": "vocal de apoio 2",
+    "vocal de apoio 2": "vocal de apoio 2",
+    "cantor principal": "cantor principal",
+    "mesa de som": "mesa de som"
+  }[normalized] || normalized;
+}
+
+function formatSkillName(value = "") {
+  return {
+    "violão": "Violão",
+    "guitarra": "Guitarra",
+    "bateria": "Bateria",
+    "baixo": "Baixo",
+    "vocal de apoio 1": "Vocal de apoio 1",
+    "vocal de apoio 2": "Vocal de apoio 2",
+    "cantor principal": "Cantor principal",
+    "mesa de som": "Mesa de som"
+  }[normalizeSkillName(value)] || String(value).trim();
+}
+
+function formatSkills(value = "") {
+  return String(value)
+    .split(",")
+    .map(formatSkillName)
+    .filter(Boolean)
+    .join(", ");
+}
+
+function setSelectedSkills(form, value = "") {
+  const selected = new Set(String(value)
+    .split(",")
+    .map(normalizeSkillName)
+    .filter(Boolean));
+
+  form.querySelectorAll('input[name="habilidades"]').forEach((input) => {
+    input.checked = selected.has(normalizeSkillName(input.value));
+  });
+}
+
 initTheme();
 updateThemeButtons();
 
@@ -236,5 +294,10 @@ window.WorshipFlow = {
   toggleTheme,
   showToast,
   confirmDelete,
-  formToObject
+  formToObject,
+  selectedSkills,
+  selectedSkillsText,
+  formatSkillName,
+  formatSkills,
+  setSelectedSkills
 };

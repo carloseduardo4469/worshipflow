@@ -25,18 +25,89 @@ function resetForm() {
   document.querySelectorAll("#usuarios-options input, #musicas-options input").forEach((input) => {
     input.checked = false;
   });
+  updateMemberRoleVisibility();
 }
 
 function optionLabel(item, subtitle) {
-  return `<strong>${App.escapeHtml(item.nome || item.titulo)}</strong><small>${App.escapeHtml(subtitle || "Detalhes nao informados")}</small>`;
+  return `<strong>${App.escapeHtml(item.nome || item.titulo)}</strong><small>${App.escapeHtml(subtitle || "Detalhes não informados")}</small>`;
+}
+
+function memberSkills(usuario) {
+  return App.formatSkills(usuario.habilidades)
+    .split(",")
+    .map((skill) => skill.trim())
+    .filter(Boolean);
+}
+
+function memberRolePicker(usuario) {
+  const skills = memberSkills(usuario);
+  if (!skills.length) {
+    return '<p class="member-role-empty">Cadastre habilidades no perfil deste membro para escolher a função.</p>';
+  }
+
+  return `
+    <div class="member-role-options">
+      ${skills.map((skill) => `
+        <label class="member-role-chip">
+          <input type="radio" name="funcaoUsuario-${usuario.id}" value="${App.escapeHtml(skill)}" />
+          <span>${App.escapeHtml(skill)}</span>
+        </label>
+      `).join("")}
+    </div>
+  `;
+}
+
+function updateMemberRoleVisibility() {
+  document.querySelectorAll("[data-member-option]").forEach((option) => {
+    const checkbox = option.querySelector('input[name="usuarioIds"]');
+    const rolePicker = option.querySelector("[data-role-picker]");
+    if (!checkbox || !rolePicker) return;
+
+    rolePicker.hidden = !checkbox.checked;
+
+    if (!checkbox.checked) {
+      option.querySelectorAll('input[type="radio"]').forEach((radio) => {
+        radio.checked = false;
+      });
+      return;
+    }
+
+    if (checkbox.checked && !option.querySelector('input[type="radio"]:checked')) {
+      const firstRole = option.querySelector('input[type="radio"]');
+      if (firstRole) firstRole.checked = true;
+    }
+  });
+}
+
+function findRoleInput(usuarioId, funcao) {
+  return Array.from(form.querySelectorAll(`input[name="funcaoUsuario-${usuarioId}"]`))
+    .find((input) => input.value === funcao);
+}
+
+function scaleDateLabel(value) {
+  if (!value) return "Data não definida";
+  const [year, month, day] = String(value).split("-").map(Number);
+  if (!year || !month || !day) return "Data não definida";
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    weekday: "short"
+  }).format(new Date(year, month - 1, day)).replace(".", "");
 }
 
 function renderFormOptions() {
   document.getElementById("usuarios-options").innerHTML = usuarios.length ? usuarios.map((usuario) => `
-    <label class="check-option">
-      <input type="checkbox" name="usuarioIds" value="${usuario.id}" />
-      <span>${optionLabel(usuario, usuario.instrumentoPrincipal || "Funcao nao informada")}</span>
-    </label>
+    <article class="check-option member-option" data-member-option>
+      <label class="member-main-check">
+        <input type="checkbox" name="usuarioIds" value="${usuario.id}" />
+        <span>${optionLabel(usuario, App.formatSkills(usuario.habilidades) || "Habilidades não informadas")}</span>
+      </label>
+      <div class="member-role-picker" data-role-picker hidden>
+        <strong>Função nesta escala</strong>
+        ${memberRolePicker(usuario)}
+      </div>
+    </article>
   `).join("") : '<div class="empty compact">Nenhum membro cadastrado.</div>';
 
   document.getElementById("musicas-options").innerHTML = musicas.length ? musicas.map((musica) => `
@@ -50,18 +121,30 @@ function renderFormOptions() {
 function fillForm(escala) {
   form.elements.id.value = escala.id;
   form.elements.titulo.value = escala.titulo || "";
+  form.elements.dataEscala.value = escala.dataEscala || "";
   form.elements.status.value = escala.status || "RASCUNHO";
   form.elements.observacoes.value = escala.observacoes || "";
 
   const selectedUsers = new Set((escala.usuarios || []).map((item) => String(item.id)));
   const selectedSongs = new Set((escala.musicas || []).map((item) => String(item.id)));
+  const funcoesUsuarios = escala.funcoesUsuarios || {};
 
   document.querySelectorAll("#usuarios-options input").forEach((input) => {
-    input.checked = selectedUsers.has(input.value);
+    if (input.name === "usuarioIds") {
+      input.checked = selectedUsers.has(input.value);
+    }
   });
   document.querySelectorAll("#musicas-options input").forEach((input) => {
     input.checked = selectedSongs.has(input.value);
   });
+  document.querySelectorAll('#usuarios-options input[type="radio"]').forEach((input) => {
+    input.checked = false;
+  });
+  Object.entries(funcoesUsuarios).forEach(([usuarioId, funcao]) => {
+    const radio = findRoleInput(usuarioId, funcao);
+    if (radio) radio.checked = true;
+  });
+  updateMemberRoleVisibility();
 
   document.getElementById("form-title").textContent = "Editar escala";
   cancelButton.hidden = false;
@@ -109,7 +192,7 @@ function songCard(musica) {
       <dl class="scale-song-meta">
         <div>
           <dt>Artista</dt>
-          <dd>${App.escapeHtml(musica.artista || "Artista nao informado")}</dd>
+          <dd>${App.escapeHtml(musica.artista || "Artista não informado")}</dd>
         </div>
         <div>
           <dt>Tom</dt>
@@ -124,20 +207,39 @@ function songCard(musica) {
   `;
 }
 
+function assignedMemberRole(funcoesUsuarios, usuarioId) {
+  return funcoesUsuarios?.[usuarioId] || funcoesUsuarios?.[String(usuarioId)] || "Função não definida";
+}
+
+function memberScaleCard(usuario, funcoesUsuarios) {
+  return `
+    <article class="scale-person">
+      <div>
+        <strong>${App.escapeHtml(usuario.nome)}</strong>
+        <p>${App.escapeHtml(assignedMemberRole(funcoesUsuarios, usuario.id))}</p>
+      </div>
+    </article>
+  `;
+}
+
 function card(escala, canManage) {
   const escalaMusicas = escala.musicas || [];
   const escalaUsuarios = escala.usuarios || [];
+  const funcoesUsuarios = escala.funcoesUsuarios || {};
   const status = statusInfo(escala.status);
   return `
     <article class="scale-card">
       <div class="scale-card-header">
-        <div><strong>${App.escapeHtml(escala.titulo)}</strong></div>
+        <div>
+          <strong>${App.escapeHtml(escala.titulo)}</strong>
+          <p class="muted-text">${App.escapeHtml(scaleDateLabel(escala.dataEscala))}</p>
+        </div>
         <span class="status scale-status ${status.className}" title="${App.escapeHtml(status.title)}"><span aria-hidden="true"></span>${App.escapeHtml(status.label)}</span>
       </div>
       <div class="scale-detail-grid">
         <section class="scale-section">
           <h3>Equipe</h3>
-          ${escalaUsuarios.length ? escalaUsuarios.map((usuario) => `<article class="scale-person"><div><strong>${App.escapeHtml(usuario.nome)}</strong><p>${App.escapeHtml(usuario.instrumentoPrincipal || "Funcao nao informada")}${usuario.habilidades ? ` - ${App.escapeHtml(usuario.habilidades)}` : ""}</p></div><small>Louvores: ${escalaMusicas.length ? escalaMusicas.map((musica) => App.escapeHtml(musica.titulo)).join(", ") : "nenhuma musica definida"}</small></article>`).join("") : '<p class="muted-text">Nenhum membro selecionado.</p>'}
+          ${escalaUsuarios.length ? escalaUsuarios.map((usuario) => memberScaleCard(usuario, funcoesUsuarios)).join("") : '<p class="muted-text">Nenhum membro selecionado.</p>'}
         </section>
         <section class="scale-section">
           <h3>Repert&oacute;rio</h3>
@@ -161,7 +263,7 @@ async function loadEscalas() {
 
   if (isAdminMode()) {
     [usuarios, musicas] = await Promise.all([
-      API.getData("/usuarios"),
+      API.getData("/usuarios/equipe"),
       API.getData("/musicas")
     ]);
     renderFormOptions();
@@ -174,11 +276,19 @@ form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(form);
   const id = formData.get("id");
+  const funcoesUsuarios = {};
+  formData.getAll("usuarioIds").forEach((usuarioId) => {
+    const funcao = formData.get(`funcaoUsuario-${usuarioId}`);
+    if (funcao) funcoesUsuarios[usuarioId] = funcao;
+  });
+
   const payload = {
     titulo: formData.get("titulo"),
+    dataEscala: formData.get("dataEscala") || null,
     status: formData.get("status"),
     observacoes: formData.get("observacoes"),
     usuarioIds: formData.getAll("usuarioIds").map(Number),
+    funcoesUsuarios,
     musicaIds: formData.getAll("musicaIds").map(Number)
   };
 
@@ -213,7 +323,7 @@ adminList.addEventListener("click", async (event) => {
 });
 
 cancelButton.addEventListener("click", resetForm);
-document.getElementById("refresh-button").addEventListener("click", loadEscalas);
+document.getElementById("usuarios-options").addEventListener("change", updateMemberRoleVisibility);
 
 (async function init() {
   user = await App.requireAuth();

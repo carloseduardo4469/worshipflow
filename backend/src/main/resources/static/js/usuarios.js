@@ -10,30 +10,19 @@ const cancelButton = document.getElementById("cancel-edit");
 function statusClass(status) {
   return {
     ATIVO: "status-success",
-    INATIVO: "status-neutral",
-    EM_PAUSA: "status-warning",
-    BLOQUEADO: "status-danger",
-    DESLIGADO: "status-danger"
+    INATIVO: "status-neutral"
   }[status] || "status-neutral";
 }
 
 function statusLabel(status) {
   return {
     ATIVO: "Ativo",
-    INATIVO: "Inativo",
-    EM_PAUSA: "Em pausa",
-    BLOQUEADO: "Bloqueado",
-    DESLIGADO: "Desligado"
+    INATIVO: "Inativo"
   }[status] || status || "-";
 }
 
 function perfilLabel(perfil) {
-  return {
-    ADMIN: "Administrador",
-    LIDER: "Líder",
-    MUSICO: "Músico",
-    MEMBRO: "Membro"
-  }[perfil] || perfil || "-";
+  return perfil === "ADMIN" ? "Administrador" : "Usuário";
 }
 
 function resetForm() {
@@ -47,9 +36,7 @@ function fillForm(usuario) {
   form.elements.nome.value = usuario.nome || "";
   form.elements.email.value = usuario.email || "";
   form.elements.telefone.value = usuario.telefone || "";
-  form.elements.instrumentoPrincipal.value = usuario.instrumentoPrincipal || "";
-  form.elements.habilidades.value = usuario.habilidades || "";
-  form.elements.perfil.value = usuario.perfil || "MEMBRO";
+  form.elements.perfil.value = usuario.perfil === "ADMIN" ? "ADMIN" : "USER";
   form.elements.statusMinisterio.value = usuario.statusMinisterio || "ATIVO";
   cancelButton.hidden = false;
   form.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -68,7 +55,6 @@ function renderList() {
         <span class="status user-status ${statusClass(usuario.statusMinisterio)}"><span aria-hidden="true"></span>${App.escapeHtml(statusLabel(usuario.statusMinisterio))}</span>
       </div>
       <dl class="record-details">
-        <div><dt>Instrumento</dt><dd>${App.escapeHtml(usuario.instrumentoPrincipal || "-")}</dd></div>
         <div><dt>Telefone</dt><dd>${App.escapeHtml(usuario.telefone || "-")}</dd></div>
         <div><dt>E-mail</dt><dd>${App.escapeHtml(usuario.email || "-")}</dd></div>
         <div><dt>Perfil</dt><dd>${App.escapeHtml(perfilLabel(usuario.perfil))}</dd></div>
@@ -95,7 +81,6 @@ form.addEventListener("submit", async (event) => {
     return;
   }
   delete data.id;
-
   try {
     const response = await API.putData(`/usuarios/${id}`, data);
     App.showToast(response.message || "Usuario salvo com sucesso.");
@@ -127,7 +112,6 @@ list.addEventListener("click", async (event) => {
 });
 
 cancelButton.addEventListener("click", resetForm);
-document.getElementById("refresh-button").addEventListener("click", loadUsuarios);
 
 (async function init() {
   const user = await App.requireAuth({ admin: true });

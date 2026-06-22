@@ -10,7 +10,6 @@ public record UsuarioResponse(
         String email,
         PerfilUsuario perfil,
         String telefone,
-        String instrumentoPrincipal,
         String habilidades,
         StatusMinisterio statusMinisterio,
         String fotoPerfil,

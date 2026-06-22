@@ -13,6 +13,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,12 +28,18 @@ public class Escala {
     @Column(nullable = false, length = 140)
     private String titulo;
 
+    @Column(name = "data_escala")
+    private LocalDate dataEscala;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private StatusEscala status = StatusEscala.RASCUNHO;
 
     @Column(length = 600)
     private String observacoes;
+
+    @Column(name = "funcoes_usuarios", length = 2000)
+    private String funcoesUsuarios;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ministerio_id")
@@ -70,6 +77,14 @@ public class Escala {
         this.titulo = titulo;
     }
 
+    public LocalDate getDataEscala() {
+        return dataEscala;
+    }
+
+    public void setDataEscala(LocalDate dataEscala) {
+        this.dataEscala = dataEscala;
+    }
+
     public StatusEscala getStatus() {
         return status;
     }
@@ -84,6 +99,14 @@ public class Escala {
 
     public void setObservacoes(String observacoes) {
         this.observacoes = observacoes;
+    }
+
+    public String getFuncoesUsuarios() {
+        return funcoesUsuarios;
+    }
+
+    public void setFuncoesUsuarios(String funcoesUsuarios) {
+        this.funcoesUsuarios = funcoesUsuarios;
     }
 
     public Ministerio getMinisterio() {

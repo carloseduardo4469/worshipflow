@@ -59,6 +59,16 @@ function normalizeUrl(value) {
   return /^https?:\/\//i.test(url) ? url : `https://${url}`;
 }
 
+function normalizeKey(value) {
+  const key = String(value || "").trim();
+  if (!key) return "";
+
+  const match = key.match(/^([A-Ga-g])([#b]?)(m?)$/);
+  if (!match) return null;
+
+  return `${match[1].toUpperCase()}${match[2]}${match[3].toLowerCase()}`;
+}
+
 function showCifraDialog(musica) {
   return new Promise((resolve) => {
     const backdrop = document.createElement("div");
@@ -237,7 +247,20 @@ form.addEventListener("submit", async (event) => {
   const data = App.formToObject(form);
   const id = data.id;
   delete data.id;
+  data.titulo = String(data.titulo || "").trim();
+  data.artista = String(data.artista || "").trim();
+  data.tonalidade = normalizeKey(data.tonalidade);
   data.bpm = data.bpm ? Number(data.bpm) : null;
+
+  if (!data.titulo || !data.artista || !data.tonalidade || !data.bpm) {
+    App.showToast("Título, artista, tom e BPM são obrigatórios.", "error");
+    return;
+  }
+
+  if (data.tonalidade === null) {
+    App.showToast("Informe um tom válido, como C, D, E, F, G, A, B, C#, Bm ou A#m.", "error");
+    return;
+  }
 
   try {
     const response = id ? await API.putData(`/musicas/${id}`, data) : await API.postData("/musicas", data);
@@ -290,7 +313,6 @@ list.addEventListener("click", async (event) => {
 });
 
 cancelButton.addEventListener("click", resetForm);
-document.getElementById("refresh-button").addEventListener("click", () => loadMusicas({ reset: true }));
 
 searchInput?.addEventListener("input", scheduleSearch);
 searchClearButton?.addEventListener("click", () => {

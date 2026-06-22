@@ -2,6 +2,8 @@ const API = window.WorshipFlowApi;
 const App = window.WorshipFlow;
 
 const form = document.getElementById("profile-form");
+const photoInput = document.getElementById("profile-photo-input");
+const photoFileName = document.getElementById("profile-photo-file-name");
 
 function onlyDigits(value) {
   return String(value || "").replace(/\D/g, "");
@@ -9,6 +11,10 @@ function onlyDigits(value) {
 
 form.elements.telefone.addEventListener("input", (event) => {
   event.currentTarget.value = onlyDigits(event.currentTarget.value);
+});
+
+photoInput.addEventListener("change", () => {
+  photoFileName.hidden = !photoInput.files?.length;
 });
 
 function profilePhoto(user) {
@@ -21,12 +27,7 @@ function profilePhoto(user) {
 }
 
 function roleLabel(perfil) {
-  return {
-    ADMIN: "Administrador",
-    LIDER: "Lider",
-    MUSICO: "Musico",
-    MEMBRO: "Membro"
-  }[perfil] || "Membro";
+  return perfil === "ADMIN" ? "Administrador" : "Usuário";
 }
 
 function renderProfile(user) {
@@ -35,20 +36,21 @@ function renderProfile(user) {
   document.getElementById("profile-email").textContent = user.email || "";
   document.getElementById("profile-role").textContent = roleLabel(user.perfil);
 
-  const skills = String(user.habilidades || "").split(",").map((item) => item.trim()).filter(Boolean);
+  const skills = App.formatSkills(user.habilidades || "").split(",").map((item) => item.trim()).filter(Boolean);
   document.getElementById("skills-list").innerHTML = skills.length
     ? skills.map((skill) => `<span>${App.escapeHtml(skill)}</span>`).join("")
     : '<div class="empty compact">Nenhuma habilidade cadastrada.</div>';
 
   const favorites = user.musicasFavoritas || [];
   document.getElementById("favorites-list").innerHTML = favorites.length
-    ? favorites.map((musica) => `<article class="favorite-card"><span class="favorite-icon">${App.icon("star")}</span><div><strong>${App.escapeHtml(musica.titulo)}</strong><p>${App.escapeHtml(musica.artista || "Artista nao informado")} ${musica.tonalidade ? `- Tom ${App.escapeHtml(musica.tonalidade)}` : ""}</p></div></article>`).join("")
+    ? favorites.map((musica) => `<article class="favorite-card"><span class="favorite-icon">${App.icon("star")}</span><div><strong>${App.escapeHtml(musica.titulo)}</strong><p>${App.escapeHtml(musica.artista || "Artista não informado")} ${musica.tonalidade ? `- Tom ${App.escapeHtml(musica.tonalidade)}` : ""}</p></div></article>`).join("")
     : '<div class="empty compact">Marque musicas como favoritas pelo icone de estrela na tela de Musicas.</div>';
 
   form.elements.nome.value = user.nome || "";
   form.elements.telefone.value = user.telefone || "";
-  form.elements.instrumentoPrincipal.value = user.instrumentoPrincipal || "";
-  form.elements.habilidades.value = user.habilidades || "";
+  photoInput.value = "";
+  photoFileName.hidden = true;
+  App.setSelectedSkills(form, user.habilidades || "");
   document.getElementById("remove-photo-row").hidden = !user.fotoPerfil;
 }
 
@@ -67,8 +69,7 @@ async function payloadFromForm() {
   const payload = {
     nome: formData.get("nome"),
     telefone: onlyDigits(formData.get("telefone")),
-    instrumentoPrincipal: formData.get("instrumentoPrincipal"),
-    habilidades: formData.get("habilidades"),
+    habilidades: App.selectedSkillsText(form),
     removerFoto: formData.get("removerFoto") === "true"
   };
 

@@ -6,8 +6,13 @@ import br.com.worshipflow.entity.Escala;
 import br.com.worshipflow.entity.StatusEscala;
 import br.com.worshipflow.exception.ResourceNotFoundException;
 import br.com.worshipflow.repository.EscalaRepository;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -101,15 +106,18 @@ public class EscalaService {
         return new EscalaResponse(
                 escala.getId(),
                 escala.getTitulo(),
+                escala.getDataEscala(),
                 escala.getStatus(),
                 escala.getObservacoes(),
                 escala.getUsuarios().stream().map(usuarioService::toResponse).toList(),
+                deserializeFuncoes(escala.getFuncoesUsuarios()),
                 escala.getMusicas().stream().map(musicaService::toResponse).toList()
         );
     }
 
     private void aplicarDados(Escala escala, EscalaRequest request) {
         escala.setTitulo(request.titulo());
+        escala.setDataEscala(request.dataEscala());
         escala.setStatus(request.status() == null ? StatusEscala.RASCUNHO : request.status());
         escala.setObservacoes(request.observacoes());
 
@@ -117,8 +125,61 @@ public class EscalaService {
         List<Long> musicaIds = request.musicaIds() == null ? List.of() : request.musicaIds();
 
         escala.setUsuarios(new HashSet<>(usuarioService.findAllByIds(usuarioIds)));
+        escala.setFuncoesUsuarios(serializeFuncoes(request.funcoesUsuarios(), usuarioIds));
 
         escala.setMusicas(new HashSet<>(musicaService.findAllByIds(musicaIds)));
+    }
+
+    private String serializeFuncoes(Map<Long, String> funcoes, List<Long> usuarioIds) {
+        if (funcoes == null || funcoes.isEmpty() || usuarioIds.isEmpty()) {
+            return null;
+        }
+
+        Set<Long> selecionados = new HashSet<>(usuarioIds);
+        StringBuilder builder = new StringBuilder();
+
+        funcoes.forEach((usuarioId, funcao) -> {
+            if (usuarioId == null || !selecionados.contains(usuarioId) || funcao == null || funcao.isBlank()) {
+                return;
+            }
+
+            String encoded = Base64.getUrlEncoder()
+                    .withoutPadding()
+                    .encodeToString(funcao.trim().getBytes(StandardCharsets.UTF_8));
+
+            if (!builder.isEmpty()) {
+                builder.append(";");
+            }
+            builder.append(usuarioId).append(":").append(encoded);
+        });
+
+        return builder.isEmpty() ? null : builder.toString();
+    }
+
+    private Map<Long, String> deserializeFuncoes(String value) {
+        Map<Long, String> funcoes = new LinkedHashMap<>();
+        if (value == null || value.isBlank()) {
+            return funcoes;
+        }
+
+        for (String entry : value.split(";")) {
+            String[] parts = entry.split(":", 2);
+            if (parts.length != 2) {
+                continue;
+            }
+
+            try {
+                Long usuarioId = Long.valueOf(parts[0]);
+                String funcao = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+                if (!funcao.isBlank()) {
+                    funcoes.put(usuarioId, funcao);
+                }
+            } catch (IllegalArgumentException ignored) {
+                // Ignore old or malformed stored entries.
+            }
+        }
+
+        return funcoes;
     }
 
     private int safePage(int page) {
