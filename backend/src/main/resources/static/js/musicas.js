@@ -3,11 +3,26 @@ const App = window.WorshipFlow;
 
 let musicas = [];
 let user = null;
-let musicSearch = null;
+let page = 0;
+let hasMore = true;
+let loading = false;
+let pendingReset = false;
+let currentQuery = "";
+let loadObserver = null;
+let searchTimer = null;
+
+const PAGE_SIZE = 20;
 
 const form = document.getElementById("musica-form");
 const list = document.getElementById("musicas-list");
 const cancelButton = document.getElementById("cancel-edit");
+const searchInput = document.getElementById("music-search");
+const searchClearButton = document.getElementById("music-search-clear");
+const searchCounter = document.getElementById("music-search-count");
+const loadMoreSentinel = document.createElement("div");
+
+loadMoreSentinel.className = "empty compact";
+loadMoreSentinel.id = "musicas-load-sentinel";
 
 function resetForm() {
   form.reset();
@@ -84,16 +99,38 @@ function showCifraDialog(musica) {
   });
 }
 
-function renderList(items = musicas) {
-  if (!items.length) {
-    list.innerHTML = musicas.length
-      ? '<div class="empty compact">Nenhuma musica encontrada para a pesquisa.</div>'
-      : '<div class="empty compact">Nenhuma musica cadastrada.</div>';
+function updateCounter() {
+  if (!searchCounter) return;
+  const suffix = hasMore ? "carregados" : "registros";
+  searchCounter.textContent = currentQuery
+    ? `${musicas.length} resultados ${suffix}`
+    : `${musicas.length} ${suffix}`;
+}
+
+function updateLoadState() {
+  loadMoreSentinel.hidden = !musicas.length && !loading;
+  loadMoreSentinel.textContent = loading
+    ? "Carregando mais musicas..."
+    : hasMore
+      ? "Continue descendo para carregar mais."
+      : "Fim da lista.";
+}
+
+function renderList() {
+  updateCounter();
+
+  if (!musicas.length) {
+    list.innerHTML = loading
+      ? '<div class="empty compact">Carregando musicas...</div>'
+      : currentQuery
+        ? '<div class="empty compact">Nenhuma musica encontrada para a pesquisa.</div>'
+        : '<div class="empty compact">Nenhuma musica cadastrada.</div>';
+    updateLoadState();
     return;
   }
 
   const favorites = new Set((user?.musicasFavoritas || []).map((musica) => musica.id));
-  list.innerHTML = items.map((musica) => `
+  list.innerHTML = musicas.map((musica) => `
     <article class="music-record">
       <div class="music-record-main">
         <button class="music-title-button" type="button" data-action="open-cifra" data-id="${musica.id}" ${hasCifra(musica) ? "" : "disabled"} title="${hasCifra(musica) ? "Abrir cifra" : "Sem link de cifra"}">
@@ -113,15 +150,86 @@ function renderList(items = musicas) {
       </div>
     </article>
   `).join("");
+
+  updateLoadState();
+  list.appendChild(loadMoreSentinel);
 }
 
-async function loadMusicas() {
-  musicas = await API.getData("/musicas");
-  if (musicSearch) {
-    musicSearch.setItems(musicas);
+function buildEndpoint() {
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(PAGE_SIZE)
+  });
+
+  if (currentQuery) params.set("query", currentQuery);
+  return `/musicas?${params.toString()}`;
+}
+
+async function loadMusicas({ reset = false } = {}) {
+  if (loading) {
+    if (reset) pendingReset = true;
     return;
   }
-  renderList(musicas);
+  if (!reset && !hasMore) return;
+
+  if (reset) {
+    page = 0;
+    hasMore = true;
+    musicas = [];
+    renderList();
+  }
+
+  loading = true;
+  updateLoadState();
+
+  try {
+    const nextItems = await API.getData(buildEndpoint());
+    const items = Array.isArray(nextItems) ? nextItems : [];
+    const knownIds = new Set(musicas.map((musica) => musica.id));
+    const uniqueItems = items.filter((musica) => !knownIds.has(musica.id));
+
+    musicas = reset ? items : [...musicas, ...uniqueItems];
+    hasMore = items.length === PAGE_SIZE;
+    if (items.length) page += 1;
+  } catch (error) {
+    App.showToast(error.message, "error");
+    hasMore = false;
+  } finally {
+    loading = false;
+    if (pendingReset) {
+      pendingReset = false;
+      loadMusicas({ reset: true });
+      return;
+    }
+    renderList();
+  }
+}
+
+function scheduleSearch() {
+  window.clearTimeout(searchTimer);
+  searchTimer = window.setTimeout(() => {
+    currentQuery = String(searchInput?.value || "").trim();
+    if (searchClearButton) searchClearButton.hidden = !currentQuery;
+    loadMusicas({ reset: true });
+  }, 250);
+}
+
+function setupInfiniteScroll() {
+  if (!("IntersectionObserver" in window)) {
+    window.addEventListener("scroll", () => {
+      const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 600;
+      if (nearBottom) loadMusicas();
+    }, { passive: true });
+    return;
+  }
+
+  loadObserver = new IntersectionObserver((entries) => {
+    if (entries.some((entry) => entry.isIntersecting)) {
+      loadMusicas();
+    }
+  }, { rootMargin: "520px 0px" });
+
+  loadObserver.observe(loadMoreSentinel);
 }
 
 form.addEventListener("submit", async (event) => {
@@ -135,7 +243,7 @@ form.addEventListener("submit", async (event) => {
     const response = id ? await API.putData(`/musicas/${id}`, data) : await API.postData("/musicas", data);
     App.showToast(response.message || "Louvor salvo com sucesso.");
     resetForm();
-    await loadMusicas();
+    await loadMusicas({ reset: true });
   } catch (error) {
     App.showToast(error.message, "error");
   }
@@ -162,7 +270,7 @@ list.addEventListener("click", async (event) => {
     try {
       const response = await API.deleteData(`/musicas/${id}`);
       App.showToast(response.message || "Musica removida com sucesso.");
-      await loadMusicas();
+      await loadMusicas({ reset: true });
     } catch (error) {
       App.showToast(error.message, "error");
     }
@@ -174,7 +282,7 @@ list.addEventListener("click", async (event) => {
       user = response.data;
       App.updateStoredUser(user);
       App.showToast(response.message || "Musica favorita atualizada.");
-      musicSearch?.apply() || renderList(musicas);
+      renderList();
     } catch (error) {
       App.showToast(error.message, "error");
     }
@@ -182,19 +290,20 @@ list.addEventListener("click", async (event) => {
 });
 
 cancelButton.addEventListener("click", resetForm);
-document.getElementById("refresh-button").addEventListener("click", loadMusicas);
+document.getElementById("refresh-button").addEventListener("click", () => loadMusicas({ reset: true }));
+
+searchInput?.addEventListener("input", scheduleSearch);
+searchClearButton?.addEventListener("click", () => {
+  searchInput.value = "";
+  currentQuery = "";
+  searchClearButton.hidden = true;
+  loadMusicas({ reset: true });
+});
 
 (async function init() {
   user = await App.requireAuth();
   if (!user) return;
   App.setupShell(user, "musicas");
-  await loadMusicas();
-  musicSearch = window.WorshipFlowSearch.create({
-    input: "#music-search",
-    clearButton: "#music-search-clear",
-    counter: "#music-search-count",
-    fields: ["titulo", "artista", "tonalidade", "bpm"],
-    items: musicas,
-    onChange: renderList
-  });
+  setupInfiniteScroll();
+  await loadMusicas({ reset: true });
 })();
