@@ -247,7 +247,7 @@ function setupInfiniteScroll() {
 }
 
 function setupToneFilter() {
-  if (!window.WorshipFlowSearch) return;
+  if (typeof window.WorshipFlowSearch?.createToneFilter !== "function") return;
 
   toneFilter = window.WorshipFlowSearch.createToneFilter({
     button: "#music-tone-filter",

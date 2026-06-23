@@ -155,7 +155,7 @@ function setupFormSearches() {
     });
   }
 
-  if (!scaleMusicToneFilter) {
+  if (!scaleMusicToneFilter && typeof window.WorshipFlowSearch.createToneFilter === "function") {
     scaleMusicToneFilter = window.WorshipFlowSearch.createToneFilter({
       button: "#scale-music-tone-filter",
       menu: "#scale-music-tone-menu",
