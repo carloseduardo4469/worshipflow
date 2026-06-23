@@ -11,6 +11,7 @@ import java.util.Set;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +39,7 @@ public class MusicaService {
         Pageable pageable = PageRequest.of(safePage(page), safeSize(size), Sort.by("titulo").ascending());
         String safeQuery = hasText(query) ? query.trim() : null;
         String safeTonalidade = hasText(tonalidade) ? normalizeTonalidade(tonalidade) : null;
-        List<Musica> musicas = musicaRepository.search(safeQuery, safeTonalidade, pageable).getContent();
+        List<Musica> musicas = musicaRepository.findAll(buildSearchSpec(safeQuery, safeTonalidade), pageable).getContent();
 
         return musicas.stream().map(this::toResponse).toList();
     }
@@ -99,6 +100,45 @@ public class MusicaService {
         musica.setTonalidade(normalizeTonalidade(request.tonalidade()));
         musica.setBpm(request.bpm());
         musica.setLinkCifra(request.linkCifra());
+    }
+
+    private Specification<Musica> buildSearchSpec(String query, String tonalidade) {
+        return (root, criteriaQuery, criteriaBuilder) -> {
+            var predicate = criteriaBuilder.conjunction();
+
+            if (hasText(query)) {
+                String normalizedQuery = "%" + query.toLowerCase() + "%";
+                var textPredicate = criteriaBuilder.or(
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("titulo")), normalizedQuery),
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("artista")), normalizedQuery),
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("tonalidade")), normalizedQuery)
+                );
+
+                Integer bpm = parseInteger(query);
+                if (bpm != null) {
+                    textPredicate = criteriaBuilder.or(textPredicate, criteriaBuilder.equal(root.get("bpm"), bpm));
+                }
+
+                predicate = criteriaBuilder.and(predicate, textPredicate);
+            }
+
+            if (hasText(tonalidade)) {
+                predicate = criteriaBuilder.and(
+                        predicate,
+                        criteriaBuilder.equal(criteriaBuilder.lower(root.get("tonalidade")), tonalidade.toLowerCase())
+                );
+            }
+
+            return predicate;
+        };
+    }
+
+    private Integer parseInteger(String value) {
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException exception) {
+            return null;
+        }
     }
 
     private String normalizeTonalidade(String tonalidade) {
