@@ -137,12 +137,23 @@ a {
 }
 
 .main {
+  min-width: 0;
   color: var(--wf-text);
 }
 
 .content,
 .public-content {
+  min-width: 0;
   view-transition-name: wf-content;
+}
+
+.page-stack,
+.wf-card,
+.wf-panel,
+.wf-hero,
+.music-layout {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .topbar {
@@ -183,6 +194,7 @@ a {
 .wf-panel-title {
   color: var(--wf-text) !important;
   font-family: var(--wf-font-display);
+  overflow-wrap: anywhere;
 }
 
 .wf-label,
@@ -1402,11 +1414,31 @@ a {
 }
 
 .music-record-list {
+  min-width: 0;
+  max-height: clamp(380px, 62dvh, 720px);
   display: grid;
   gap: 12px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 2px 6px 2px 2px;
+  overscroll-behavior: contain;
+  scroll-padding-block: 2px;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+
+.music-record-list::-webkit-scrollbar {
+  width: 7px;
+}
+
+.music-record-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wf-muted) 34%, transparent);
 }
 
 .music-record {
+  width: 100%;
+  min-width: 0;
   display: grid;
   gap: 14px;
   padding: 14px;
@@ -1482,9 +1514,12 @@ a {
 }
 
 .music-record-details {
+  width: 100%;
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+  margin: 0;
 }
 
 .music-record-details div {
@@ -2756,12 +2791,13 @@ img.brand-mark.wf-logo-image {
   }
 
   .content {
-    padding-bottom: calc(108px + env(safe-area-inset-bottom)) !important;
+    padding-bottom: 28px !important;
   }
 
   .topbar {
-    min-height: 70px !important;
-    padding: 10px 14px !important;
+    min-height: 74px !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
   }
 
   .wf-menu-button {
@@ -2796,7 +2832,11 @@ img.brand-mark.wf-logo-image {
   }
 
   .topbar .wf-page-title {
-    font-size: 24px;
+    overflow: visible !important;
+    font-size: clamp(19px, 5.5vw, 22px);
+    line-height: 1.05;
+    text-overflow: clip !important;
+    white-space: normal !important;
   }
 
   .topbar .wf-label {
@@ -2804,10 +2844,22 @@ img.brand-mark.wf-logo-image {
   }
 
   .wf-profile-pill {
-    width: 44px;
-    max-width: 44px;
+    width: 40px;
+    min-height: 40px !important;
+    max-width: 40px;
     justify-content: center;
     padding: 0 !important;
+  }
+
+  .topbar .wf-icon-button,
+  .topbar .wf-menu-button {
+    width: 40px !important;
+    height: 40px !important;
+    padding: 9px !important;
+  }
+
+  .topbar-actions {
+    gap: 4px !important;
   }
 
   .wf-profile-pill [data-user-name] {
@@ -2894,6 +2946,92 @@ img.brand-mark.wf-logo-image {
   }
 
   .wf-hero-title {
-    font-size: clamp(36px, 13vw, 56px) !important;
+    overflow-wrap: anywhere;
+    font-size: clamp(32px, 10.5vw, 44px) !important;
+    line-height: 1.02 !important;
+  }
+
+  .wf-panel-title {
+    font-size: clamp(24px, 7.5vw, 30px) !important;
+    line-height: 1.08;
+  }
+
+  .music-record-list {
+    max-height: min(56dvh, 540px);
+  }
+
+  .main > footer {
+    min-width: 0;
+    padding-bottom: calc(112px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .toast-root {
+    bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 479px) {
+  .content {
+    padding-right: 12px !important;
+    padding-left: 12px !important;
+  }
+
+  .wf-hero,
+  .wf-panel,
+  .wf-card {
+    padding-right: 16px !important;
+    padding-left: 16px !important;
+  }
+
+  .music-record {
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .music-record-main,
+  .music-record-details,
+  .music-record-details div,
+  .music-title-button {
+    max-width: 100%;
+  }
+
+  .search-actions-with-filter {
+    width: 100%;
+  }
+
+  .search-actions-with-filter .filter-menu-wrap {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .tone-filter-menu {
+    right: auto;
+    left: 0;
+    width: min(320px, 100%);
+    max-height: min(60dvh, 420px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .team-card,
+  .record-card,
+  .scale-card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 359px) {
+  .music-record-details,
+  .record-details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .music-record-details div:first-child {
+    grid-column: auto;
+  }
+
+  .team-card {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

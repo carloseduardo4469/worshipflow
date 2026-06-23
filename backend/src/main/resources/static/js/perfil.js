@@ -98,7 +98,13 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
-(async function init() {
+const cachedUser = App.getUser();
+if (cachedUser) {
+  App.setupShell(cachedUser, "perfil");
+  renderProfile(cachedUser);
+}
+
+(async function syncProfile() {
   const user = await App.requireAuth();
   if (!user) return;
   App.setupShell(user, "perfil");

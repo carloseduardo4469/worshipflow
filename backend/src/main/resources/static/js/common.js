@@ -180,25 +180,28 @@ function setupShell(user, activePage) {
     button.innerHTML = icon("logOut");
   });
 
-  shell.addEventListener("click", (event) => {
-    const actionTarget = event.target.closest("[data-action]");
-    if (!actionTarget) return;
+  if (!shell.dataset.shellReady) {
+    shell.dataset.shellReady = "true";
+    shell.addEventListener("click", (event) => {
+      const actionTarget = event.target.closest("[data-action]");
+      if (!actionTarget) return;
 
-    const action = actionTarget.dataset.action;
+      const action = actionTarget.dataset.action;
 
-    if (action === "open-drawer") shell.classList.add("drawer-open");
-    if (action === "close-drawer") shell.classList.remove("drawer-open");
-    if (action === "logout") {
-      WF.clearAuth();
-      location.href = loginUrl();
-    }
-    if (action === "toggle-theme") {
-      toggleTheme();
-    }
-    if (action === "back-to-top") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  });
+      if (action === "open-drawer") shell.classList.add("drawer-open");
+      if (action === "close-drawer") shell.classList.remove("drawer-open");
+      if (action === "logout") {
+        WF.clearAuth();
+        location.href = loginUrl();
+      }
+      if (action === "toggle-theme") {
+        toggleTheme();
+      }
+      if (action === "back-to-top") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
+  }
 }
 
 function confirmDelete(message = "Excluir registro?") {

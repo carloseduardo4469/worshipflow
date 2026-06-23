@@ -230,8 +230,8 @@ function scheduleSearch() {
 
 function setupInfiniteScroll() {
   if (!("IntersectionObserver" in window)) {
-    window.addEventListener("scroll", () => {
-      const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 600;
+    list.addEventListener("scroll", () => {
+      const nearBottom = list.scrollTop + list.clientHeight >= list.scrollHeight - 400;
       if (nearBottom) loadMusicas();
     }, { passive: true });
     return;
@@ -241,7 +241,7 @@ function setupInfiniteScroll() {
     if (entries.some((entry) => entry.isIntersecting)) {
       loadMusicas();
     }
-  }, { rootMargin: "520px 0px" });
+  }, { root: list, rootMargin: "520px 0px" });
 
   loadObserver.observe(loadMoreSentinel);
 }
