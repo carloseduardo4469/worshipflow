@@ -1,0 +1,88 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.ministerios (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  nome character varying NOT NULL,
+  descricao character varying,
+  ativo boolean NOT NULL DEFAULT true,
+  CONSTRAINT ministerios_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.musicas (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  titulo character varying NOT NULL,
+  artista character varying,
+  tonalidade character varying,
+  bpm integer,
+  link_cifra character varying,
+  ministerio_id bigint,
+  CONSTRAINT musicas_pkey PRIMARY KEY (id),
+  CONSTRAINT fk_musicas_ministerios FOREIGN KEY (ministerio_id) REFERENCES public.ministerios(id)
+);
+CREATE TABLE public.usuarios (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  nome character varying NOT NULL,
+  habilidades character varying,
+  status_ministerio character varying NOT NULL CHECK (status_ministerio::text = ANY (ARRAY['ATIVO'::character varying, 'BLOQUEADO'::character varying, 'DESLIGADO'::character varying, 'EM_PAUSA'::character varying, 'INATIVO'::character varying]::text[])),
+  email character varying NOT NULL UNIQUE,
+  senha_hash character varying NOT NULL,
+  telefone character varying,
+  instrumento_principal character varying,
+  perfil character varying NOT NULL CHECK (perfil::text = ANY (ARRAY['ADMIN'::character varying, 'LIDER'::character varying, 'MEMBRO'::character varying, 'MUSICO'::character varying]::text[])),
+  reset_token_hash character varying,
+  reset_token_expira_em timestamp without time zone,
+  api_token_hash character varying,
+  api_token_expira_em timestamp without time zone,
+  foto_perfil text,
+  foto_perfil_tipo character varying,
+  ministerio_id bigint,
+  CONSTRAINT usuarios_pkey PRIMARY KEY (id),
+  CONSTRAINT fk_usuarios_ministerios FOREIGN KEY (ministerio_id) REFERENCES public.ministerios(id)
+);
+CREATE TABLE public.escalas (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  titulo character varying NOT NULL,
+  status character varying NOT NULL CHECK (status::text = ANY (ARRAY['CANCELADA'::character varying, 'CONCLUIDA'::character varying, 'PUBLICADA'::character varying, 'RASCUNHO'::character varying]::text[])),
+  observacoes character varying,
+  ministerio_id bigint,
+  data_escala date,
+  funcoes_usuarios text,
+  CONSTRAINT escalas_pkey PRIMARY KEY (id),
+  CONSTRAINT fk_escalas_ministerios FOREIGN KEY (ministerio_id) REFERENCES public.ministerios(id)
+);
+CREATE TABLE public.repertorios (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  nome character varying NOT NULL,
+  descricao character varying,
+  ministerio_id bigint,
+  CONSTRAINT repertorios_pkey PRIMARY KEY (id),
+  CONSTRAINT fk_repertorios_ministerios FOREIGN KEY (ministerio_id) REFERENCES public.ministerios(id)
+);
+CREATE TABLE public.escala_musicas (
+  escala_id bigint NOT NULL,
+  musica_id bigint NOT NULL,
+  CONSTRAINT escala_musicas_pkey PRIMARY KEY (escala_id, musica_id),
+  CONSTRAINT fk_escala_musicas_escalas FOREIGN KEY (escala_id) REFERENCES public.escalas(id),
+  CONSTRAINT fk_escala_musicas_musicas FOREIGN KEY (musica_id) REFERENCES public.musicas(id)
+);
+CREATE TABLE public.escala_usuarios (
+  escala_id bigint NOT NULL,
+  usuario_id bigint NOT NULL,
+  CONSTRAINT escala_usuarios_pkey PRIMARY KEY (escala_id, usuario_id),
+  CONSTRAINT fk_escala_usuarios_escalas FOREIGN KEY (escala_id) REFERENCES public.escalas(id),
+  CONSTRAINT fk_escala_usuarios_usuarios FOREIGN KEY (usuario_id) REFERENCES public.usuarios(id)
+);
+CREATE TABLE public.repertorio_musicas (
+  repertorio_id bigint NOT NULL,
+  musica_id bigint NOT NULL,
+  CONSTRAINT repertorio_musicas_pkey PRIMARY KEY (repertorio_id, musica_id),
+  CONSTRAINT fk_repertorio_musicas_repertorios FOREIGN KEY (repertorio_id) REFERENCES public.repertorios(id),
+  CONSTRAINT fk_repertorio_musicas_musicas FOREIGN KEY (musica_id) REFERENCES public.musicas(id)
+);
+CREATE TABLE public.usuario_musicas_favoritas (
+  usuario_id bigint NOT NULL,
+  musica_id bigint NOT NULL,
+  CONSTRAINT usuario_musicas_favoritas_pkey PRIMARY KEY (usuario_id, musica_id),
+  CONSTRAINT fk_usuario_favoritos_usuarios FOREIGN KEY (usuario_id) REFERENCES public.usuarios(id),
+  CONSTRAINT fk_usuario_favoritos_musicas FOREIGN KEY (musica_id) REFERENCES public.musicas(id)
+);
