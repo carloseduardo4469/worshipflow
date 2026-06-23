@@ -2,6 +2,7 @@ package br.com.worshipflow.controller;
 
 import br.com.worshipflow.dto.ApiResponse;
 import br.com.worshipflow.dto.EscalaRequest;
+import br.com.worshipflow.dto.EscalaRepertorioRequest;
 import br.com.worshipflow.dto.EscalaResponse;
 import br.com.worshipflow.entity.PerfilUsuario;
 import br.com.worshipflow.entity.Usuario;
@@ -61,6 +62,14 @@ public class EscalaController {
     public ApiResponse<EscalaResponse> atualizar(@PathVariable("id") Long id, @Valid @RequestBody EscalaRequest request, HttpServletRequest httpRequest) {
         authService.requireAdmin(httpRequest);
         return ApiResponse.ok("Escala atualizada com sucesso.", escalaService.atualizar(id, request));
+    }
+
+    @PutMapping("/{id}/repertorio")
+    public ApiResponse<EscalaResponse> atualizarRepertorio(@PathVariable("id") Long id,
+                                                           @RequestBody EscalaRepertorioRequest request,
+                                                           HttpServletRequest httpRequest) {
+        Usuario usuario = authService.getAuthenticatedUser(httpRequest);
+        return ApiResponse.ok("Repertorio da escala atualizado com sucesso.", escalaService.atualizarRepertorio(id, request, usuario));
     }
 
     @DeleteMapping("/{id}")

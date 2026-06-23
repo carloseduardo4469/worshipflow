@@ -204,8 +204,65 @@ function setupShell(user, activePage) {
   }
 }
 
+function confirmDialog({
+  title = "Confirmar acao?",
+  message = "Deseja continuar?",
+  confirmText = "Confirmar",
+  cancelText = "Cancelar",
+  tone = "default",
+  iconName = "checkCircle"
+} = {}) {
+  return new Promise((resolve) => {
+    const backdrop = document.createElement("div");
+    const titleId = `wf-dialog-title-${Date.now()}`;
+    const toneClass = tone ? ` confirm-dialog-${tone}` : "";
+
+    backdrop.className = "confirm-dialog-backdrop";
+    backdrop.innerHTML = `
+      <section class="confirm-dialog${toneClass}" role="dialog" aria-modal="true" aria-labelledby="${titleId}">
+        <div class="confirm-dialog-icon">${icon(iconName)}</div>
+        <div class="confirm-dialog-copy">
+          <h2 id="${titleId}">${escapeHtml(title)}</h2>
+          <p>${escapeHtml(message)}</p>
+        </div>
+        <div class="confirm-dialog-actions">
+          <button class="button" type="button" data-dialog-action="cancel">${escapeHtml(cancelText)}</button>
+          <button class="button primary" type="button" data-dialog-action="confirm">${escapeHtml(confirmText)}</button>
+        </div>
+      </section>
+    `;
+
+    function close(result) {
+      backdrop.remove();
+      document.removeEventListener("keydown", onKeydown);
+      resolve(result);
+    }
+
+    function onKeydown(event) {
+      if (event.key === "Escape") close(false);
+    }
+
+    backdrop.addEventListener("click", (event) => {
+      const action = event.target.closest("[data-dialog-action]")?.dataset.dialogAction;
+      if (event.target === backdrop || action === "cancel") close(false);
+      if (action === "confirm") close(true);
+    });
+
+    document.addEventListener("keydown", onKeydown);
+    document.body.appendChild(backdrop);
+    backdrop.querySelector("[data-dialog-action='confirm']").focus();
+  });
+}
+
 function confirmDelete(message = "Excluir registro?") {
-  return Promise.resolve(window.confirm(message));
+  return confirmDialog({
+    title: "Excluir registro?",
+    message,
+    confirmText: "Excluir",
+    cancelText: "Cancelar",
+    tone: "danger",
+    iconName: "trash"
+  });
 }
 
 function formToObject(form) {
@@ -296,6 +353,7 @@ window.WorshipFlow = {
   updateThemeButtons,
   toggleTheme,
   showToast,
+  confirmDialog,
   confirmDelete,
   formToObject,
   selectedSkills,

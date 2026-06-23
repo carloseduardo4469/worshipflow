@@ -68,7 +68,7 @@
   --wf-sidebar: rgba(255, 255, 255, 0.9);
   --wf-text: #172033;
   --wf-muted: #667085;
-  --wf-border: rgba(16, 36, 63, 0.12);
+  --wf-border: rgba(16, 36, 63, 0.2);
   --wf-hero: #07111f;
   --wf-gold: #d7a927;
   --wf-gold-soft: #fff1bc;
@@ -89,7 +89,7 @@
   --wf-sidebar: rgba(7, 17, 31, 0.92);
   --wf-text: #f4f7fb;
   --wf-muted: #c7d2df;
-  --wf-border: rgba(255, 255, 255, 0.13);
+  --wf-border: rgba(255, 255, 255, 0.2);
   --wf-hero: #07111f;
   --wf-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
 }
@@ -584,6 +584,20 @@ a {
   box-shadow: var(--wf-shadow);
 }
 
+.wf-card,
+.wf-panel,
+.favorite-card,
+.team-card,
+.music-record,
+.scale-card,
+.record-card,
+.dashboard-feed-item,
+.dashboard-rank-item,
+.dashboard-insight,
+.dashboard-skill-grid article {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--wf-border) 72%, transparent);
+}
+
 .wf-panel a {
   color: inherit;
 }
@@ -981,11 +995,13 @@ a {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 10px;
+  min-width: 0;
 }
 
 .search-field {
   display: grid;
   gap: 8px;
+  min-width: 0;
 }
 
 .search-field span {
@@ -1026,22 +1042,29 @@ a {
 }
 
 .search-actions .result-count {
+  flex: 0 1 auto;
   margin-right: auto;
+  max-width: 100%;
+  white-space: nowrap;
 }
 
 .search-actions-with-filter {
   align-items: end;
+  justify-content: flex-start;
 }
 
 .filter-menu-wrap {
+  min-width: 0;
   position: relative;
   display: inline-flex;
 }
 
 .filter-toggle {
+  max-width: 100%;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
 }
 
 .filter-toggle svg {
@@ -1053,6 +1076,30 @@ a {
   border-color: rgba(215, 169, 39, 0.42);
   color: var(--wf-text);
   background: rgba(215, 169, 39, 0.14);
+}
+
+#escala-form .quick-search {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+}
+
+#escala-form .search-actions {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+#escala-form .search-actions .result-count {
+  flex: 1 1 120px;
+  justify-content: center;
+  margin-right: 0;
+}
+
+#escala-form .search-actions .button,
+#escala-form .filter-toggle {
+  flex: 0 0 auto;
+  min-width: max-content;
 }
 
 .tone-filter-menu {
@@ -1257,6 +1304,14 @@ a {
 .favorite-list {
   display: grid;
   gap: 10px;
+}
+
+.favorite-list {
+  max-height: min(430px, 52dvh);
+  overflow-y: auto;
+  padding-right: 6px;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .skill-list {
@@ -1594,6 +1649,22 @@ a {
   box-shadow: var(--wf-shadow);
 }
 
+.confirm-dialog-danger .confirm-dialog-icon {
+  color: #f97066;
+  background: rgba(217, 45, 32, 0.12);
+}
+
+.confirm-dialog-danger .button.primary {
+  color: #fff;
+  background: linear-gradient(135deg, #d92d20, #f97066);
+  box-shadow: 0 16px 34px rgba(217, 45, 32, 0.24);
+}
+
+.confirm-dialog-danger .button.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 40px rgba(217, 45, 32, 0.3);
+}
+
 .confirm-dialog-icon {
   width: 46px;
   height: 46px;
@@ -1685,7 +1756,7 @@ a {
   cursor: default;
 }
 
-.member-option:has(input[type="radio"]:checked):not(:has(.member-main-check input:checked)) {
+.member-option:has(input[name^="funcaoUsuario-"]:checked):not(:has(.member-main-check input:checked)) {
   border-color: transparent;
   background: color-mix(in srgb, var(--wf-surface-strong) 68%, transparent);
 }
@@ -2035,6 +2106,114 @@ a {
   border: 1px solid rgba(34, 200, 223, 0.24);
   border-radius: 16px;
   background: rgba(34, 200, 223, 0.08);
+}
+
+.scale-card-actions {
+  display: flex;
+  margin-top: 4px;
+}
+
+.scale-song-action {
+  width: 100%;
+  justify-content: center;
+  gap: 9px;
+  border-color: rgba(34, 200, 223, 0.34);
+  color: var(--wf-text);
+  background: rgba(34, 200, 223, 0.1);
+}
+
+.scale-song-action svg {
+  width: 18px;
+  height: 18px;
+}
+
+.scale-songs-dialog {
+  width: min(760px, calc(100vw - 28px));
+  max-height: min(760px, calc(100dvh - 28px));
+  overflow: hidden;
+}
+
+.scale-song-search {
+  width: 100%;
+}
+
+.scale-song-picker-list {
+  display: grid;
+  gap: 10px;
+  max-height: min(390px, 46dvh);
+  overflow: auto;
+  padding-right: 4px;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scale-song-picker-item {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(120px, 0.55fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--wf-border);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--wf-surface-strong) 68%, transparent);
+}
+
+.scale-song-picker-main {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  cursor: pointer;
+}
+
+.scale-song-picker-main input {
+  width: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  margin-top: 3px;
+}
+
+.scale-song-picker-main span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.scale-song-picker-main strong {
+  overflow-wrap: anywhere;
+  color: var(--wf-text);
+  font-weight: 900;
+}
+
+.scale-song-picker-main small,
+.scale-song-key-field span,
+.scale-song-no-cifra {
+  color: var(--wf-muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.scale-song-key-field {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.scale-song-key-field input {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--wf-border);
+  border-radius: 12px;
+  color: var(--wf-text);
+  background: rgba(4, 18, 34, 0.42);
+  font-weight: 850;
+}
+
+.scale-song-no-cifra {
+  justify-self: end;
 }
 
 .button.danger,
@@ -2476,6 +2655,20 @@ img.wf-logo-mark {
 img.auth-logo.wf-logo-image,
 img.auth-brand-mark.wf-logo-image,
 img.brand-mark.wf-logo-image {
+  width: clamp(82px, 16vw, 112px);
+  height: clamp(82px, 16vw, 112px);
+  flex-basis: clamp(82px, 16vw, 112px);
+  border-radius: 26px;
+}
+
+img.auth-brand-mark.wf-logo-image {
+  width: clamp(104px, 12vw, 148px);
+  height: clamp(104px, 12vw, 148px);
+  flex-basis: clamp(104px, 12vw, 148px);
+  border-radius: 32px;
+}
+
+.footer-brand img.brand-mark.wf-logo-image {
   width: 64px;
   height: 64px;
   flex-basis: 64px;
@@ -2567,6 +2760,35 @@ img.brand-mark.wf-logo-image {
   font-size: 13px;
 }
 
+.public-footer-main {
+  align-items: start;
+}
+
+.footer-contact-list {
+  display: grid;
+  gap: 10px;
+}
+
+.footer-contact-item {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 8px;
+  align-items: baseline;
+}
+
+.footer-contact-item span {
+  color: var(--wf-muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.footer-contact-item a {
+  min-width: 0;
+}
+
 .footer-column a,
 .footer-column span {
   overflow-wrap: anywhere;
@@ -2650,7 +2872,7 @@ img.brand-mark.wf-logo-image {
   }
 
   .app-footer-main {
-    grid-template-columns: minmax(220px, 1.2fr) minmax(160px, 0.8fr) minmax(220px, 1fr);
+    grid-template-columns: minmax(220px, 1fr) minmax(160px, 0.7fr) minmax(300px, 1.2fr);
     align-items: start;
   }
 
@@ -2956,8 +3178,34 @@ img.brand-mark.wf-logo-image {
     line-height: 1.08;
   }
 
+  img.auth-logo.wf-logo-image {
+    width: 84px;
+    height: 84px;
+    flex-basis: 84px;
+    border-radius: 24px;
+  }
+
+  img.auth-brand-mark.wf-logo-image {
+    width: 96px;
+    height: 96px;
+    flex-basis: 96px;
+    border-radius: 28px;
+  }
+
   .music-record-list {
     max-height: min(56dvh, 540px);
+  }
+
+  .scale-song-picker-item {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .scale-song-picker-item .button,
+  .scale-song-no-cifra {
+    justify-self: stretch;
+    justify-content: center;
+    text-align: center;
   }
 
   .main > footer {
@@ -2995,13 +3243,41 @@ img.brand-mark.wf-logo-image {
     max-width: 100%;
   }
 
+  .favorite-list {
+    max-height: min(360px, 48dvh);
+  }
+
   .search-actions-with-filter {
     width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .search-actions-with-filter .result-count,
+  .search-actions-with-filter .button,
+  .search-actions-with-filter .filter-toggle {
+    width: 100%;
+  }
+
+  .search-actions-with-filter .result-count {
+    justify-content: center;
+    margin-right: 0;
   }
 
   .search-actions-with-filter .filter-menu-wrap {
     width: 100%;
     max-width: 100%;
+  }
+
+  #escala-form .search-actions {
+    flex-direction: column;
+  }
+
+  #escala-form .search-actions .button,
+  #escala-form .filter-toggle {
+    width: 100%;
+    min-width: 0;
   }
 
   .tone-filter-menu {

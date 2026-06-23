@@ -46,6 +46,15 @@ cd backend
 mvn spring-boot:run
 ```
 
+Para desenvolver sem ficar limpando cache/reiniciando manualmente, rode com o perfil `dev`:
+
+```bash
+cd backend
+mvn spring-boot:run "-Dspring-boot.run.profiles=dev"
+```
+
+Esse perfil ativa o Spring Boot DevTools, desliga o cache dos arquivos estaticos e habilita LiveReload. Para o navegador atualizar sozinho quando HTML/CSS/JS mudar, use uma extensao LiveReload no browser ou mantenha a pagina aberta por uma ferramenta compativel com LiveReload.
+
 Depois acesse:
 
 ```text

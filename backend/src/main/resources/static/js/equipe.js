@@ -45,7 +45,6 @@ function renderTeam(items = equipe) {
     equipe = await API.getData("/usuarios/equipe");
     teamSearch = window.WorshipFlowSearch.create({
       input: "#team-search",
-      clearButton: "#team-search-clear",
       counter: "#team-search-count",
       fields: ["nome", "habilidades"],
       items: equipe,

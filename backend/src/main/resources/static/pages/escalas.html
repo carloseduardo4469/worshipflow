@@ -17,7 +17,7 @@
     <script src="/js/api.js" defer></script>
     <script src="/js/common.js" defer></script>
     <script src="/js/search.js?v=50" defer></script>
-    <script src="/js/escalas.js?v=50" defer></script>
+    <script src="/js/escalas.js?v=52" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -125,37 +125,9 @@
                     </label>
                     <div class="search-actions">
                       <span class="wf-result-count result-count" id="scale-member-search-count">0 registros</span>
-                      <button class="wf-secondary-button button small" type="button" id="scale-member-search-clear" hidden>Limpar</button>
                     </div>
                   </div>
                   <div class="checkbox-list" id="usuarios-options"></div>
-                </fieldset>
-                <fieldset class="checkbox-fieldset">
-                  <legend>Músicas</legend>
-                  <div class="quick-search option-search" role="search">
-                    <label class="search-field" for="scale-music-search">
-                      <span>Pesquisar músicas</span>
-                      <input id="scale-music-search" type="search" placeholder="Buscar por título, artista, tom ou BPM" autocomplete="off" />
-                    </label>
-                    <div class="search-actions search-actions-with-filter">
-                      <span class="wf-result-count result-count" id="scale-music-search-count">0 registros</span>
-                      <button class="wf-secondary-button button small" type="button" id="scale-music-search-clear" hidden>Limpar</button>
-                      <div class="filter-menu-wrap">
-                        <button class="wf-secondary-button button small filter-toggle" type="button" id="scale-music-tone-filter" aria-expanded="false" aria-controls="scale-music-tone-menu">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M7 12h10M10 18h4"/></svg>
-                          <span>Filtros</span>
-                        </button>
-                        <div class="tone-filter-menu" id="scale-music-tone-menu" hidden>
-                          <div class="tone-filter-header">
-                            <strong>Tom</strong>
-                            <button type="button" data-tone-clear>Todos</button>
-                          </div>
-                          <div class="tone-filter-grid" data-tone-options></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="checkbox-list" id="musicas-options"></div>
                 </fieldset>
                 <label>Observações<textarea name="observacoes"></textarea></label>
                 <div class="form-actions">

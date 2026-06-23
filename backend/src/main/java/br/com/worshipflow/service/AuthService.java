@@ -10,7 +10,6 @@ import br.com.worshipflow.dto.RedefinirSenhaRequest;
 import br.com.worshipflow.dto.UsuarioResponse;
 import br.com.worshipflow.entity.Musica;
 import br.com.worshipflow.entity.PerfilUsuario;
-import br.com.worshipflow.entity.StatusMinisterio;
 import br.com.worshipflow.entity.Usuario;
 import br.com.worshipflow.repository.UsuarioRepository;
 import br.com.worshipflow.security.AccessDeniedException;

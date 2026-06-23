@@ -1,11 +1,17 @@
 package br.com.worshipflow.service;
 
 import br.com.worshipflow.dto.EscalaRequest;
+import br.com.worshipflow.dto.EscalaRepertorioRequest;
 import br.com.worshipflow.dto.EscalaResponse;
+import br.com.worshipflow.dto.MusicaResponse;
 import br.com.worshipflow.entity.Escala;
+import br.com.worshipflow.entity.Musica;
+import br.com.worshipflow.entity.PerfilUsuario;
 import br.com.worshipflow.entity.StatusEscala;
+import br.com.worshipflow.entity.Usuario;
 import br.com.worshipflow.exception.ResourceNotFoundException;
 import br.com.worshipflow.repository.EscalaRepository;
+import br.com.worshipflow.security.AccessDeniedException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashSet;
@@ -93,6 +99,17 @@ public class EscalaService {
         escalaRepository.delete(escala);
     }
 
+    @Transactional
+    public EscalaResponse atualizarRepertorio(Long id, EscalaRepertorioRequest request, Usuario usuario) {
+        Escala escala = findById(id);
+        if (!canAtualizarRepertorio(escala, usuario)) {
+            throw new AccessDeniedException("Apenas o cantor principal desta escala pode adicionar musicas.");
+        }
+
+        aplicarRepertorio(escala, request.musicaIds(), request.tonalidadesMusicas());
+        return toResponse(escala);
+    }
+
     private Escala findById(Long id) {
         return escalaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Escala não encontrada."));
@@ -103,6 +120,7 @@ public class EscalaService {
     }
 
     private EscalaResponse toResponse(Escala escala) {
+        Map<Long, String> tonalidades = deserializeMap(escala.getTonalidadesMusicas());
         return new EscalaResponse(
                 escala.getId(),
                 escala.getTitulo(),
@@ -111,7 +129,7 @@ public class EscalaService {
                 escala.getObservacoes(),
                 escala.getUsuarios().stream().map(usuarioService::toResponse).toList(),
                 deserializeFuncoes(escala.getFuncoesUsuarios()),
-                escala.getMusicas().stream().map(musicaService::toResponse).toList()
+                escala.getMusicas().stream().map(musica -> toMusicaEscalaResponse(musica, tonalidades)).toList()
         );
     }
 
@@ -122,41 +140,81 @@ public class EscalaService {
         escala.setObservacoes(request.observacoes());
 
         List<Long> usuarioIds = request.usuarioIds() == null ? List.of() : request.usuarioIds();
-        List<Long> musicaIds = request.musicaIds() == null ? List.of() : request.musicaIds();
 
         escala.setUsuarios(new HashSet<>(usuarioService.findAllByIds(usuarioIds)));
         escala.setFuncoesUsuarios(serializeFuncoes(request.funcoesUsuarios(), usuarioIds));
 
-        escala.setMusicas(new HashSet<>(musicaService.findAllByIds(musicaIds)));
+        if (request.musicaIds() != null) {
+            aplicarRepertorio(escala, request.musicaIds(), request.tonalidadesMusicas());
+        }
+    }
+
+    private void aplicarRepertorio(Escala escala, List<Long> musicaIds, Map<Long, String> tonalidadesMusicas) {
+        List<Long> safeMusicaIds = musicaIds == null ? List.of() : musicaIds;
+        escala.setMusicas(new HashSet<>(musicaService.findAllByIds(safeMusicaIds)));
+        escala.setTonalidadesMusicas(serializeMap(tonalidadesMusicas, safeMusicaIds));
+    }
+
+    private MusicaResponse toMusicaEscalaResponse(Musica musica, Map<Long, String> tonalidades) {
+        String tonalidade = tonalidades.getOrDefault(musica.getId(), musica.getTonalidade());
+        return new MusicaResponse(
+                musica.getId(),
+                musica.getTitulo(),
+                musica.getArtista(),
+                tonalidade,
+                musica.getBpm(),
+                musica.getLinkCifra()
+        );
+    }
+
+    private boolean canAtualizarRepertorio(Escala escala, Usuario usuario) {
+        if (usuario == null) {
+            return false;
+        }
+
+        if (PerfilUsuario.ADMIN.equals(usuario.getPerfil())) {
+            return true;
+        }
+
+        String funcao = deserializeFuncoes(escala.getFuncoesUsuarios()).get(usuario.getId());
+        return funcao != null && funcao.toLowerCase().contains("cantor principal");
     }
 
     private String serializeFuncoes(Map<Long, String> funcoes, List<Long> usuarioIds) {
-        if (funcoes == null || funcoes.isEmpty() || usuarioIds.isEmpty()) {
+        return serializeMap(funcoes, usuarioIds);
+    }
+
+    private String serializeMap(Map<Long, String> values, List<Long> allowedIds) {
+        if (values == null || values.isEmpty() || allowedIds.isEmpty()) {
             return null;
         }
 
-        Set<Long> selecionados = new HashSet<>(usuarioIds);
+        Set<Long> selecionados = new HashSet<>(allowedIds);
         StringBuilder builder = new StringBuilder();
 
-        funcoes.forEach((usuarioId, funcao) -> {
-            if (usuarioId == null || !selecionados.contains(usuarioId) || funcao == null || funcao.isBlank()) {
+        values.forEach((id, value) -> {
+            if (id == null || !selecionados.contains(id) || value == null || value.isBlank()) {
                 return;
             }
 
             String encoded = Base64.getUrlEncoder()
                     .withoutPadding()
-                    .encodeToString(funcao.trim().getBytes(StandardCharsets.UTF_8));
+                    .encodeToString(value.trim().getBytes(StandardCharsets.UTF_8));
 
             if (!builder.isEmpty()) {
                 builder.append(";");
             }
-            builder.append(usuarioId).append(":").append(encoded);
+            builder.append(id).append(":").append(encoded);
         });
 
         return builder.isEmpty() ? null : builder.toString();
     }
 
     private Map<Long, String> deserializeFuncoes(String value) {
+        return deserializeMap(value);
+    }
+
+    private Map<Long, String> deserializeMap(String value) {
         Map<Long, String> funcoes = new LinkedHashMap<>();
         if (value == null || value.isBlank()) {
             return funcoes;

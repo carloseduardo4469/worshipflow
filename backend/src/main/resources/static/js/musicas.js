@@ -19,7 +19,6 @@ const form = document.getElementById("musica-form");
 const list = document.getElementById("musicas-list");
 const cancelButton = document.getElementById("cancel-edit");
 const searchInput = document.getElementById("music-search");
-const searchClearButton = document.getElementById("music-search-clear");
 const searchCounter = document.getElementById("music-search-count");
 const loadMoreSentinel = document.createElement("div");
 
@@ -223,7 +222,6 @@ function scheduleSearch() {
   window.clearTimeout(searchTimer);
   searchTimer = window.setTimeout(() => {
     currentQuery = String(searchInput?.value || "").trim();
-    if (searchClearButton) searchClearButton.hidden = !currentQuery;
     loadMusicas({ reset: true });
   }, 250);
 }
@@ -332,12 +330,6 @@ list.addEventListener("click", async (event) => {
 cancelButton.addEventListener("click", resetForm);
 
 searchInput?.addEventListener("input", scheduleSearch);
-searchClearButton?.addEventListener("click", () => {
-  searchInput.value = "";
-  currentQuery = "";
-  searchClearButton.hidden = true;
-  loadMusicas({ reset: true });
-});
 
 (async function init() {
   user = await App.requireAuth();

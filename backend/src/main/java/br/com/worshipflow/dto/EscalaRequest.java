@@ -21,7 +21,8 @@ public record EscalaRequest(
 
         List<Long> usuarioIds,
         Map<Long, String> funcoesUsuarios,
-        List<Long> musicaIds
+        List<Long> musicaIds,
+        Map<Long, String> tonalidadesMusicas
 ) {
 }
 

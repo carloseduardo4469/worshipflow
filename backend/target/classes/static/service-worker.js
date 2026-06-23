@@ -1,4 +1,4 @@
-const CACHE_NAME = "worshipflow-mvp-v53";
+const CACHE_NAME = "worshipflow-mvp-v68";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -18,7 +18,7 @@ const APP_SHELL = [
   "./js/equipe.js",
   "./js/search.js",
   "./js/musicas.js?v=50",
-  "./js/escalas.js?v=50",
+  "./js/escalas.js?v=52",
   "./js/search.js?v=50",
   "./pages/login.html",
   "./pages/cadastro.html",

@@ -41,6 +41,9 @@ public class Escala {
     @Column(name = "funcoes_usuarios", length = 2000)
     private String funcoesUsuarios;
 
+    @Column(name = "tonalidades_musicas", length = 2000)
+    private String tonalidadesMusicas;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ministerio_id")
     private Ministerio ministerio;
@@ -107,6 +110,14 @@ public class Escala {
 
     public void setFuncoesUsuarios(String funcoesUsuarios) {
         this.funcoesUsuarios = funcoesUsuarios;
+    }
+
+    public String getTonalidadesMusicas() {
+        return tonalidadesMusicas;
+    }
+
+    public void setTonalidadesMusicas(String tonalidadesMusicas) {
+        this.tonalidadesMusicas = tonalidadesMusicas;
     }
 
     public Ministerio getMinisterio() {

@@ -6,8 +6,6 @@ let usuarios = [];
 let musicas = [];
 let user = null;
 let memberSearch = null;
-let scaleMusicSearch = null;
-let scaleMusicToneFilter = null;
 
 const form = document.getElementById("escala-form");
 const cancelButton = document.getElementById("cancel-edit");
@@ -25,7 +23,7 @@ function resetForm() {
   form.elements.id.value = "";
   document.getElementById("form-title").textContent = "Nova escala";
   cancelButton.hidden = true;
-  document.querySelectorAll("#usuarios-options input, #musicas-options input").forEach((input) => {
+  document.querySelectorAll("#usuarios-options input").forEach((input) => {
     input.checked = false;
   });
   updateMemberRoleVisibility();
@@ -52,7 +50,7 @@ function memberRolePicker(usuario) {
     <div class="member-role-options">
       ${skills.map((skill) => `
         <label class="member-role-chip">
-          <input type="radio" name="funcaoUsuario-${usuario.id}" value="${App.escapeHtml(skill)}" />
+          <input type="checkbox" name="funcaoUsuario-${usuario.id}" value="${App.escapeHtml(skill)}" />
           <span>${App.escapeHtml(skill)}</span>
         </label>
       `).join("")}
@@ -69,22 +67,30 @@ function updateMemberRoleVisibility() {
     rolePicker.hidden = !checkbox.checked;
 
     if (!checkbox.checked) {
-      option.querySelectorAll('input[type="radio"]').forEach((radio) => {
-        radio.checked = false;
+      option.querySelectorAll('input[type="checkbox"][name^="funcaoUsuario-"]').forEach((roleInput) => {
+        roleInput.checked = false;
       });
       return;
     }
 
-    if (checkbox.checked && !option.querySelector('input[type="radio"]:checked')) {
-      const firstRole = option.querySelector('input[type="radio"]');
+    if (checkbox.checked && !option.querySelector('input[name^="funcaoUsuario-"]:checked')) {
+      const firstRole = option.querySelector('input[name^="funcaoUsuario-"]');
       if (firstRole) firstRole.checked = true;
     }
   });
 }
 
+function selectedRoleNames(value = "") {
+  return String(value)
+    .split(",")
+    .map((funcao) => funcao.trim())
+    .filter(Boolean);
+}
+
 function findRoleInput(usuarioId, funcao) {
+  const normalizedFuncao = App.formatSkills(funcao).trim();
   return Array.from(form.querySelectorAll(`input[name="funcaoUsuario-${usuarioId}"]`))
-    .find((input) => input.value === funcao);
+    .find((input) => App.formatSkills(input.value).trim() === normalizedFuncao);
 }
 
 function scaleDateLabel(value) {
@@ -113,19 +119,20 @@ function renderFormOptions() {
     </article>
   `).join("") : '<div class="empty compact">Nenhum membro cadastrado.</div>';
 
-  document.getElementById("musicas-options").innerHTML = musicas.length ? musicas.map((musica) => `
-    <label class="check-option" data-music-option data-music-id="${musica.id}">
-      <input type="checkbox" name="musicaIds" value="${musica.id}" />
-      <span>${optionLabel(musica, [musica.artista, musica.tonalidade ? `Tom ${musica.tonalidade}` : ""].filter(Boolean).join(" - "))}</span>
-    </label>
-  `).join("") : '<div class="empty compact">Nenhuma musica cadastrada.</div>';
 }
 
-function applyOptionVisibility(containerSelector, optionSelector, dataKey, items) {
+function applyOptionVisibility(containerSelector, optionSelector, dataKey, items, state = {}) {
+  const container = document.querySelector(containerSelector);
   const ids = new Set(items.map((item) => String(item.id)));
   document.querySelectorAll(`${containerSelector} ${optionSelector}`).forEach((option) => {
     option.hidden = !ids.has(String(option.dataset[dataKey]));
   });
+
+  if (!container) return;
+
+  const hasSearch = Boolean(String(state.query || "").trim());
+  const hasFilters = Object.values(state.filters || {}).some((value) => Boolean(String(value || "").trim()));
+  container.hidden = items.length === 0 && (hasSearch || hasFilters);
 }
 
 function setupFormSearches() {
@@ -134,37 +141,13 @@ function setupFormSearches() {
   if (!memberSearch) {
     memberSearch = window.WorshipFlowSearch.create({
       input: "#scale-member-search",
-      clearButton: "#scale-member-search-clear",
       counter: "#scale-member-search-count",
       fields: ["nome", "email", "habilidades", "instrumentoPrincipal"],
-      onChange: (items) => applyOptionVisibility("#usuarios-options", "[data-member-option]", "memberId", items)
-    });
-  }
-
-  if (!scaleMusicSearch) {
-    scaleMusicSearch = window.WorshipFlowSearch.create({
-      input: "#scale-music-search",
-      clearButton: "#scale-music-search-clear",
-      counter: "#scale-music-search-count",
-      fields: ["titulo", "artista", "tonalidade", "bpm"],
-      filter: (musica, filters) => {
-        if (!filters.tonalidade) return true;
-        return window.WorshipFlowSearch.normalizeTone(musica.tonalidade) === window.WorshipFlowSearch.normalizeTone(filters.tonalidade);
-      },
-      onChange: (items) => applyOptionVisibility("#musicas-options", "[data-music-option]", "musicId", items)
-    });
-  }
-
-  if (!scaleMusicToneFilter && typeof window.WorshipFlowSearch.createToneFilter === "function") {
-    scaleMusicToneFilter = window.WorshipFlowSearch.createToneFilter({
-      button: "#scale-music-tone-filter",
-      menu: "#scale-music-tone-menu",
-      onChange: (tone) => scaleMusicSearch?.setFilter("tonalidade", tone)
+      onChange: (items, state) => applyOptionVisibility("#usuarios-options", "[data-member-option]", "memberId", items, state)
     });
   }
 
   memberSearch.setItems(usuarios);
-  scaleMusicSearch.setItems(musicas);
 }
 
 function fillForm(escala) {
@@ -175,7 +158,6 @@ function fillForm(escala) {
   form.elements.observacoes.value = escala.observacoes || "";
 
   const selectedUsers = new Set((escala.usuarios || []).map((item) => String(item.id)));
-  const selectedSongs = new Set((escala.musicas || []).map((item) => String(item.id)));
   const funcoesUsuarios = escala.funcoesUsuarios || {};
 
   document.querySelectorAll("#usuarios-options input").forEach((input) => {
@@ -183,15 +165,14 @@ function fillForm(escala) {
       input.checked = selectedUsers.has(input.value);
     }
   });
-  document.querySelectorAll("#musicas-options input").forEach((input) => {
-    input.checked = selectedSongs.has(input.value);
-  });
-  document.querySelectorAll('#usuarios-options input[type="radio"]').forEach((input) => {
+  document.querySelectorAll('#usuarios-options input[name^="funcaoUsuario-"]').forEach((input) => {
     input.checked = false;
   });
   Object.entries(funcoesUsuarios).forEach(([usuarioId, funcao]) => {
-    const radio = findRoleInput(usuarioId, funcao);
-    if (radio) radio.checked = true;
+    selectedRoleNames(funcao).forEach((funcaoNome) => {
+      const roleInput = findRoleInput(usuarioId, funcaoNome);
+      if (roleInput) roleInput.checked = true;
+    });
   });
   updateMemberRoleVisibility();
 
@@ -260,6 +241,18 @@ function assignedMemberRole(funcoesUsuarios, usuarioId) {
   return funcoesUsuarios?.[usuarioId] || funcoesUsuarios?.[String(usuarioId)] || "Função não definida";
 }
 
+function isPrincipalSingerRole(value = "") {
+  return String(value).toLowerCase().includes("cantor principal");
+}
+
+function canManageScaleSongs(escala) {
+  if (!user?.id) return false;
+  const isScaleMember = (escala.usuarios || []).some((usuario) => Number(usuario.id) === Number(user.id));
+  if (!isScaleMember) return false;
+
+  return isPrincipalSingerRole(assignedMemberRole(escala.funcoesUsuarios || {}, user.id));
+}
+
 function memberScaleCard(usuario, funcoesUsuarios) {
   return `
     <article class="scale-person">
@@ -296,6 +289,7 @@ function card(escala, canManage) {
         </section>
       </div>
       ${escala.observacoes ? `<p class="scale-note">${App.escapeHtml(escala.observacoes)}</p>` : ""}
+      ${canManageScaleSongs(escala) ? `<div class="scale-card-actions"><button class="button scale-song-action" type="button" data-action="songs" data-id="${escala.id}">${App.icon("music")}Adicionar músicas</button></div>` : ""}
       ${canManage ? `<div class="form-actions"><button class="button small" type="button" data-action="edit" data-id="${escala.id}">Editar</button><button class="button small danger" type="button" data-action="delete" data-id="${escala.id}">Excluir</button></div>` : ""}
     </article>
   `;
@@ -311,15 +305,133 @@ async function loadEscalas() {
   escalas = await API.getData("/escalas");
 
   if (isAdminMode()) {
-    [usuarios, musicas] = await Promise.all([
-      API.getData("/usuarios/equipe"),
-      API.getData("/musicas")
-    ]);
+    usuarios = await API.getData("/usuarios/equipe");
     renderFormOptions();
     setupFormSearches();
   }
 
   renderLists();
+}
+
+async function ensureMusicasLoaded() {
+  if (musicas.length) return;
+  musicas = await API.getData("/musicas");
+}
+
+function selectedSongsFromScale(escala) {
+  return new Map((escala.musicas || []).map((musica) => [String(musica.id), musica]));
+}
+
+function normalizeSongKey(value) {
+  return String(value || "").trim();
+}
+
+function songDialogRow(musica, selected) {
+  const selectedSong = selected.get(String(musica.id));
+  const checked = Boolean(selectedSong);
+  const tonalidade = normalizeSongKey(selectedSong?.tonalidade || musica.tonalidade || "");
+  const cifraUrl = String(musica.linkCifra || "").trim();
+
+  return `
+    <article class="scale-song-picker-item" data-song-picker-item data-search-text="${App.escapeHtml(`${musica.titulo || ""} ${musica.artista || ""} ${musica.tonalidade || ""}`.toLowerCase())}">
+      <label class="scale-song-picker-main">
+        <input type="checkbox" name="songIds" value="${musica.id}" ${checked ? "checked" : ""} />
+        <span>
+          <strong>${App.escapeHtml(musica.titulo || "Música sem título")}</strong>
+          <small>Tom original: ${App.escapeHtml(musica.tonalidade || "-")}</small>
+        </span>
+      </label>
+      <label class="scale-song-key-field">
+        <span>Tom na escala</span>
+        <input type="text" name="songKey-${musica.id}" value="${App.escapeHtml(tonalidade)}" maxlength="12" />
+      </label>
+      ${cifraUrl ? `<a class="button small" href="${App.escapeHtml(cifraUrl)}" target="_blank" rel="noopener">Cifra</a>` : '<span class="scale-song-no-cifra">Sem cifra</span>'}
+    </article>
+  `;
+}
+
+async function showScaleSongsDialog(escala) {
+  await ensureMusicasLoaded();
+  const selected = selectedSongsFromScale(escala);
+
+  return new Promise((resolve) => {
+    const backdrop = document.createElement("div");
+    backdrop.className = "confirm-dialog-backdrop";
+    backdrop.innerHTML = `
+      <section class="confirm-dialog scale-songs-dialog" role="dialog" aria-modal="true" aria-labelledby="scale-songs-dialog-title">
+        <div class="confirm-dialog-copy">
+          <h2 id="scale-songs-dialog-title">Adicionar músicas</h2>
+          <p>Escolha as músicas da escala e ajuste o tom sem alterar o cadastro original.</p>
+        </div>
+        <label class="search-field scale-song-search">
+          <span>Pesquisar música</span>
+          <input type="search" data-song-search placeholder="Nome, artista ou tom" autocomplete="off" />
+        </label>
+        <div class="scale-song-picker-list">
+          ${musicas.length ? musicas.map((musica) => songDialogRow(musica, selected)).join("") : '<div class="empty compact">Nenhuma música cadastrada.</div>'}
+        </div>
+        <div class="confirm-dialog-actions">
+          <button class="button" type="button" data-dialog-action="cancel">Cancelar</button>
+          <button class="button primary" type="button" data-dialog-action="confirm">Salvar músicas</button>
+        </div>
+      </section>
+    `;
+
+    const searchInput = backdrop.querySelector("[data-song-search]");
+
+    function close(result) {
+      backdrop.remove();
+      document.removeEventListener("keydown", onKeydown);
+      resolve(result);
+    }
+
+    function onKeydown(event) {
+      if (event.key === "Escape") close(null);
+    }
+
+    function payloadFromDialog() {
+      const musicaIds = Array.from(backdrop.querySelectorAll('input[name="songIds"]:checked')).map((input) => Number(input.value));
+      const tonalidadesMusicas = {};
+
+      musicaIds.forEach((musicaId) => {
+        const tonalidade = normalizeSongKey(backdrop.querySelector(`input[name="songKey-${musicaId}"]`)?.value);
+        if (tonalidade) tonalidadesMusicas[musicaId] = tonalidade;
+      });
+
+      return { musicaIds, tonalidadesMusicas };
+    }
+
+    backdrop.addEventListener("input", (event) => {
+      if (event.target !== searchInput) return;
+      const query = String(searchInput.value || "").trim().toLowerCase();
+      backdrop.querySelectorAll("[data-song-picker-item]").forEach((item) => {
+        item.hidden = query && !String(item.dataset.searchText || "").includes(query);
+      });
+    });
+
+    backdrop.addEventListener("click", (event) => {
+      const action = event.target.closest("[data-dialog-action]")?.dataset.dialogAction;
+      if (event.target === backdrop || action === "cancel") close(null);
+      if (action === "confirm") close(payloadFromDialog());
+    });
+
+    document.addEventListener("keydown", onKeydown);
+    document.body.appendChild(backdrop);
+    searchInput.focus();
+  });
+}
+
+async function updateScaleSongs(escala) {
+  const payload = await showScaleSongsDialog(escala);
+  if (!payload) return;
+
+  try {
+    const response = await API.putData(`/escalas/${escala.id}/repertorio`, payload);
+    App.showToast(response.message || "Repertório atualizado com sucesso.");
+    await loadEscalas();
+  } catch (error) {
+    App.showToast(error.message, "error");
+  }
 }
 
 form.addEventListener("submit", async (event) => {
@@ -328,8 +440,10 @@ form.addEventListener("submit", async (event) => {
   const id = formData.get("id");
   const funcoesUsuarios = {};
   formData.getAll("usuarioIds").forEach((usuarioId) => {
-    const funcao = formData.get(`funcaoUsuario-${usuarioId}`);
-    if (funcao) funcoesUsuarios[usuarioId] = funcao;
+    const funcoes = formData.getAll(`funcaoUsuario-${usuarioId}`)
+      .map((funcao) => String(funcao).trim())
+      .filter(Boolean);
+    if (funcoes.length) funcoesUsuarios[usuarioId] = funcoes.join(", ");
   });
 
   const payload = {
@@ -338,8 +452,7 @@ form.addEventListener("submit", async (event) => {
     status: formData.get("status"),
     observacoes: formData.get("observacoes"),
     usuarioIds: formData.getAll("usuarioIds").map(Number),
-    funcoesUsuarios,
-    musicaIds: formData.getAll("musicaIds").map(Number)
+    funcoesUsuarios
   };
 
   try {
@@ -360,6 +473,7 @@ adminList.addEventListener("click", async (event) => {
   const escala = escalas.find((item) => item.id === id);
 
   if (button.dataset.action === "edit" && escala) fillForm(escala);
+  if (button.dataset.action === "songs" && escala) await updateScaleSongs(escala);
 
   if (button.dataset.action === "delete" && await App.confirmDelete("Excluir escala?")) {
     try {
@@ -370,6 +484,15 @@ adminList.addEventListener("click", async (event) => {
       App.showToast(error.message, "error");
     }
   }
+});
+
+list.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-action]");
+  if (!button) return;
+
+  const id = Number(button.dataset.id);
+  const escala = escalas.find((item) => item.id === id);
+  if (button.dataset.action === "songs" && escala) await updateScaleSongs(escala);
 });
 
 cancelButton.addEventListener("click", resetForm);
