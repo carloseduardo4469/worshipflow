@@ -34,9 +34,10 @@ public class MusicaController {
 
     @GetMapping
     public ApiResponse<List<MusicaResponse>> listar(@RequestParam(value = "query", required = false) String query,
+                                                    @RequestParam(value = "tonalidade", required = false) String tonalidade,
                                                     @RequestParam(value = "page", defaultValue = "0") int page,
                                                     @RequestParam(value = "size", defaultValue = "200") int size) {
-        return ApiResponse.ok("Musicas listadas com sucesso.", musicaService.listar(query, page, size));
+        return ApiResponse.ok("Musicas listadas com sucesso.", musicaService.listar(query, tonalidade, page, size));
     }
 
     @GetMapping("/{id}")

@@ -16,6 +16,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/js/api.js" defer></script>
     <script src="/js/common.js" defer></script>
+    <script src="/js/search.js" defer></script>
     <script src="/js/musicas.js" defer></script>
   </head>
   <body>
@@ -149,7 +150,22 @@
                     <span>Pesquisar músicas</span>
                     <input id="music-search" type="search" placeholder="Buscar por título, artista, tom ou BPM" autocomplete="off" />
                   </label>
-                  <button class="wf-secondary-button button small" type="button" id="music-search-clear" hidden>Limpar</button>
+                  <div class="search-actions search-actions-with-filter">
+                    <button class="wf-secondary-button button small" type="button" id="music-search-clear" hidden>Limpar</button>
+                    <div class="filter-menu-wrap">
+                      <button class="wf-secondary-button button small filter-toggle" type="button" id="music-tone-filter" aria-expanded="false" aria-controls="music-tone-menu">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M7 12h10M10 18h4"/></svg>
+                        <span>Filtros</span>
+                      </button>
+                      <div class="tone-filter-menu" id="music-tone-menu" hidden>
+                        <div class="tone-filter-header">
+                          <strong>Tom</strong>
+                          <button type="button" data-tone-clear>Todos</button>
+                        </div>
+                        <div class="tone-filter-grid" data-tone-options></div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="music-record-list mt-6" id="musicas-list">

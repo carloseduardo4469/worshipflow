@@ -8,8 +8,10 @@ let hasMore = true;
 let loading = false;
 let pendingReset = false;
 let currentQuery = "";
+let currentTone = "";
 let loadObserver = null;
 let searchTimer = null;
+let toneFilter = null;
 
 const PAGE_SIZE = 20;
 
@@ -112,7 +114,8 @@ function showCifraDialog(musica) {
 function updateCounter() {
   if (!searchCounter) return;
   const suffix = hasMore ? "carregados" : "registros";
-  searchCounter.textContent = currentQuery
+  const filtered = Boolean(currentQuery || currentTone);
+  searchCounter.textContent = filtered
     ? `${musicas.length} resultados ${suffix}`
     : `${musicas.length} ${suffix}`;
 }
@@ -132,7 +135,7 @@ function renderList() {
   if (!musicas.length) {
     list.innerHTML = loading
       ? '<div class="empty compact">Carregando musicas...</div>'
-      : currentQuery
+      : currentQuery || currentTone
         ? '<div class="empty compact">Nenhuma musica encontrada para a pesquisa.</div>'
         : '<div class="empty compact">Nenhuma musica cadastrada.</div>';
     updateLoadState();
@@ -172,6 +175,7 @@ function buildEndpoint() {
   });
 
   if (currentQuery) params.set("query", currentQuery);
+  if (currentTone) params.set("tonalidade", currentTone);
   return `/musicas?${params.toString()}`;
 }
 
@@ -240,6 +244,19 @@ function setupInfiniteScroll() {
   }, { rootMargin: "520px 0px" });
 
   loadObserver.observe(loadMoreSentinel);
+}
+
+function setupToneFilter() {
+  if (!window.WorshipFlowSearch) return;
+
+  toneFilter = window.WorshipFlowSearch.createToneFilter({
+    button: "#music-tone-filter",
+    menu: "#music-tone-menu",
+    onChange: (tone) => {
+      currentTone = tone;
+      loadMusicas({ reset: true });
+    }
+  });
 }
 
 form.addEventListener("submit", async (event) => {
@@ -326,6 +343,7 @@ searchClearButton?.addEventListener("click", () => {
   user = await App.requireAuth();
   if (!user) return;
   App.setupShell(user, "musicas");
+  setupToneFilter();
   setupInfiniteScroll();
   await loadMusicas({ reset: true });
 })();

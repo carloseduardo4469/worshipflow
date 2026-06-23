@@ -25,20 +25,20 @@ public class MusicaService {
 
     @Transactional(readOnly = true)
     public List<MusicaResponse> listar() {
-        return listar(null, 0, 200);
+        return listar(null, null, 0, 200);
     }
 
     @Transactional(readOnly = true)
     public List<MusicaResponse> listar(String query, int page, int size) {
+        return listar(query, null, page, size);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MusicaResponse> listar(String query, String tonalidade, int page, int size) {
         Pageable pageable = PageRequest.of(safePage(page), safeSize(size), Sort.by("titulo").ascending());
-        List<Musica> musicas = hasText(query)
-                ? musicaRepository.findByTituloContainingIgnoreCaseOrArtistaContainingIgnoreCaseOrTonalidadeContainingIgnoreCase(
-                        query.trim(),
-                        query.trim(),
-                        query.trim(),
-                        pageable
-                ).getContent()
-                : musicaRepository.findAll(pageable).getContent();
+        String safeQuery = hasText(query) ? query.trim() : null;
+        String safeTonalidade = hasText(tonalidade) ? normalizeTonalidade(tonalidade) : null;
+        List<Musica> musicas = musicaRepository.search(safeQuery, safeTonalidade, pageable).getContent();
 
         return musicas.stream().map(this::toResponse).toList();
     }

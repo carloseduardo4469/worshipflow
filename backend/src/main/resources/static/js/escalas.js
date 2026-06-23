@@ -5,6 +5,9 @@ let escalas = [];
 let usuarios = [];
 let musicas = [];
 let user = null;
+let memberSearch = null;
+let scaleMusicSearch = null;
+let scaleMusicToneFilter = null;
 
 const form = document.getElementById("escala-form");
 const cancelButton = document.getElementById("cancel-edit");
@@ -98,7 +101,7 @@ function scaleDateLabel(value) {
 
 function renderFormOptions() {
   document.getElementById("usuarios-options").innerHTML = usuarios.length ? usuarios.map((usuario) => `
-    <article class="check-option member-option" data-member-option>
+    <article class="check-option member-option" data-member-option data-member-id="${usuario.id}">
       <label class="member-main-check">
         <input type="checkbox" name="usuarioIds" value="${usuario.id}" />
         <span>${optionLabel(usuario, App.formatSkills(usuario.habilidades) || "Habilidades não informadas")}</span>
@@ -111,11 +114,57 @@ function renderFormOptions() {
   `).join("") : '<div class="empty compact">Nenhum membro cadastrado.</div>';
 
   document.getElementById("musicas-options").innerHTML = musicas.length ? musicas.map((musica) => `
-    <label class="check-option">
+    <label class="check-option" data-music-option data-music-id="${musica.id}">
       <input type="checkbox" name="musicaIds" value="${musica.id}" />
       <span>${optionLabel(musica, [musica.artista, musica.tonalidade ? `Tom ${musica.tonalidade}` : ""].filter(Boolean).join(" - "))}</span>
     </label>
   `).join("") : '<div class="empty compact">Nenhuma musica cadastrada.</div>';
+}
+
+function applyOptionVisibility(containerSelector, optionSelector, dataKey, items) {
+  const ids = new Set(items.map((item) => String(item.id)));
+  document.querySelectorAll(`${containerSelector} ${optionSelector}`).forEach((option) => {
+    option.hidden = !ids.has(String(option.dataset[dataKey]));
+  });
+}
+
+function setupFormSearches() {
+  if (!window.WorshipFlowSearch) return;
+
+  if (!memberSearch) {
+    memberSearch = window.WorshipFlowSearch.create({
+      input: "#scale-member-search",
+      clearButton: "#scale-member-search-clear",
+      counter: "#scale-member-search-count",
+      fields: ["nome", "email", "habilidades", "instrumentoPrincipal"],
+      onChange: (items) => applyOptionVisibility("#usuarios-options", "[data-member-option]", "memberId", items)
+    });
+  }
+
+  if (!scaleMusicSearch) {
+    scaleMusicSearch = window.WorshipFlowSearch.create({
+      input: "#scale-music-search",
+      clearButton: "#scale-music-search-clear",
+      counter: "#scale-music-search-count",
+      fields: ["titulo", "artista", "tonalidade", "bpm"],
+      filter: (musica, filters) => {
+        if (!filters.tonalidade) return true;
+        return window.WorshipFlowSearch.normalizeTone(musica.tonalidade) === window.WorshipFlowSearch.normalizeTone(filters.tonalidade);
+      },
+      onChange: (items) => applyOptionVisibility("#musicas-options", "[data-music-option]", "musicId", items)
+    });
+  }
+
+  if (!scaleMusicToneFilter) {
+    scaleMusicToneFilter = window.WorshipFlowSearch.createToneFilter({
+      button: "#scale-music-tone-filter",
+      menu: "#scale-music-tone-menu",
+      onChange: (tone) => scaleMusicSearch?.setFilter("tonalidade", tone)
+    });
+  }
+
+  memberSearch.setItems(usuarios);
+  scaleMusicSearch.setItems(musicas);
 }
 
 function fillForm(escala) {
@@ -267,6 +316,7 @@ async function loadEscalas() {
       API.getData("/musicas")
     ]);
     renderFormOptions();
+    setupFormSearches();
   }
 
   renderLists();
