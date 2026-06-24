@@ -57,7 +57,8 @@ public class CorsConfig implements WebMvcConfigurer {
                         "/api/auth/cadastro",
                         "/api/auth/login",
                         "/api/auth/esqueci-senha",
-                        "/api/auth/redefinir-senha"
+                        "/api/auth/redefinir-senha",
+                        "/api/contato"
                 );
     }
 }

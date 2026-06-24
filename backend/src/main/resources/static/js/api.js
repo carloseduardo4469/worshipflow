@@ -1,6 +1,6 @@
 const API_BASE_URL = "/api";
 const AUTH_STORAGE_KEY = "worshipflow:auth";
-const DATA_CACHE_PREFIX = "worshipflow:data-cache:v2:";
+const DATA_CACHE_PREFIX = "worshipflow:data-cache:v3:";
 
 const memoryCache = new Map();
 const pendingRequests = new Map();
@@ -26,7 +26,15 @@ function cacheScope() {
 }
 
 function cacheKey(endpoint) {
-  return `${DATA_CACHE_PREFIX}${cacheScope()}:${endpoint}`;
+  const epoch = endpoint.startsWith("/escalas")
+    ? new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Sao_Paulo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).format(new Date())
+    : "session";
+  return `${DATA_CACHE_PREFIX}${cacheScope()}:${endpoint}:${epoch}`;
 }
 
 function readCachedData(endpoint) {

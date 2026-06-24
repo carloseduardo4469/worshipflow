@@ -54,12 +54,6 @@ function cifraStatus(musica) {
     : `<span class="cifra-status cifra-status-missing" title="Sem cifra cadastrada" aria-label="Sem cifra cadastrada">${App.icon("xCircle")}</span>`;
 }
 
-function normalizeUrl(value) {
-  const url = String(value || "").trim();
-  if (!url) return "";
-  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
-}
-
 function normalizeKey(value) {
   const key = String(value || "").trim();
   if (!key) return "";
@@ -298,7 +292,7 @@ list.addEventListener("click", async (event) => {
   if (button.dataset.action === "open-cifra") {
     if (!hasCifra(musica)) return;
     if (await showCifraDialog(musica)) {
-      window.open(normalizeUrl(musica.linkCifra), "_blank", "noopener,noreferrer");
+      window.open(App.cifraClubUrlForTone(musica.linkCifra, musica.tonalidade), "_blank", "noopener,noreferrer");
     }
   }
 

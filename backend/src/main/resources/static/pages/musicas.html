@@ -7,24 +7,24 @@
     <meta name="theme-color" content="#10243f" />
     <title>WorshipFlow | Músicas</title>
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/assets/LogoWorshipFlow.png" />
-    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" href="/assets/LogoWorshipFlowIcon.png" />
+    <link rel="stylesheet" href="/css/style.css?v=89" />
     <script>
       const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
     </script>
     <script src="/js/tailwind-theme.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/js/api.js" defer></script>
-    <script src="/js/common.js" defer></script>
+    <script src="/js/common.js?v=83" defer></script>
     <script src="/js/search.js?v=50" defer></script>
-    <script src="/js/musicas.js?v=50" defer></script>
+    <script src="/js/musicas.js?v=51" defer></script>
   </head>
   <body>
     <div class="app-shell">
       <aside class="sidebar fixed inset-y-0 left-0 z-40 flex w-20 flex-col border-r px-3 py-5 backdrop-blur-2xl lg:w-72 lg:px-5">
         <button class="wf-drawer-close wf-icon-button size-10 place-items-center rounded-full transition" type="button" data-action="close-drawer" data-drawer-close-icon aria-label="Fechar menu"></button>
         <a class="mb-8 flex items-center justify-center gap-3 lg:justify-start" href="/pages/dashboard.html" aria-label="WorshipFlow">
-          <img class="wf-logo-mark" src="/assets/LogoWorshipFlow.png" alt="" width="48" height="48" />
+          <img class="wf-logo-mark" src="/assets/LogoWorshipFlowIcon.png" alt="" width="48" height="48" />
           <span class="wf-brand-copy hidden min-w-0 lg:grid">
             <strong class="wf-brand-title text-2xl leading-none">WorshipFlow</strong>
             <small class="wf-label mt-1 text-[10px] font-bold wf-muted">Ministério de louvor</small>
@@ -53,6 +53,10 @@
             <a class="wf-nav-link nav-link flex min-h-12 items-center justify-center gap-3 rounded-2xl border px-3 transition lg:justify-start" data-page="escalas" href="/pages/escalas.html">
               <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="m9 16 2 2 4-5"/></svg>
               <span class="wf-nav-text hidden font-bold lg:inline">Escalas</span>
+            </a>
+            <a class="wf-nav-link nav-link flex min-h-12 items-center justify-center gap-3 rounded-2xl border px-3 transition lg:justify-start" data-page="historico" href="/pages/historico.html">
+              <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>
+              <span class="wf-nav-text hidden font-bold lg:inline">Histórico</span>
             </a>
           </div>
 
@@ -181,6 +185,7 @@
             <div class="flex flex-wrap gap-4">
               <a class="hover:text-gold-500" href="/pages/termos.html">Termos</a>
               <a class="hover:text-gold-500" href="/pages/privacidade.html">Privacidade</a>
+              <a class="hover:text-gold-500" href="/pages/termos.html#contato">Contato</a>
               <button class="font-bold hover:text-gold-500" type="button" data-action="back-to-top">Voltar ao topo</button>
             </div>
           </div>

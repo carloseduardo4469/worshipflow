@@ -65,14 +65,149 @@ function pageUrl(name) {
   return `/pages/${name}.html`;
 }
 
+const cifraClubKeyByTone = {
+  A: 0,
+  "A#": 1,
+  Bb: 1,
+  B: 2,
+  C: 3,
+  "C#": 4,
+  Db: 4,
+  D: 5,
+  "D#": 6,
+  Eb: 6,
+  E: 7,
+  F: 8,
+  "F#": 9,
+  Gb: 9,
+  G: 10,
+  "G#": 11,
+  Ab: 11
+};
+
+function normalizeExternalUrl(value) {
+  const rawUrl = String(value || "").trim();
+  if (!rawUrl) return "";
+
+  try {
+    const parsed = new URL(/^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`);
+    return ["http:", "https:"].includes(parsed.protocol) ? parsed.href : "";
+  } catch {
+    return "";
+  }
+}
+
+function toneRoot(value) {
+  const match = String(value || "").trim().match(/^([A-Ga-g])([#b]?)(m?)$/);
+  if (!match) return "";
+  return `${match[1].toUpperCase()}${match[2]}`;
+}
+
+function cifraClubUrlForTone(link, tone) {
+  const normalizedUrl = normalizeExternalUrl(link);
+  const root = toneRoot(tone);
+  const key = cifraClubKeyByTone[root];
+
+  if (!normalizedUrl || key === undefined) return normalizedUrl;
+
+  try {
+    const parsed = new URL(normalizedUrl);
+    const hostname = parsed.hostname.toLowerCase().replace(/^www\./, "");
+    if (hostname !== "cifraclub.com.br" && !hostname.endsWith(".cifraclub.com.br")) {
+      return normalizedUrl;
+    }
+
+    parsed.hash = `key=${key}`;
+    return parsed.href;
+  } catch {
+    return normalizedUrl;
+  }
+}
+
 function loginUrl(extra = "") {
   return `/pages/login.html${extra}`;
 }
 
+function activePageFromLocation() {
+  const page = location.pathname.split("/").pop()?.replace(/\.html$/, "") || "dashboard";
+  if (page === "escalas" && new URLSearchParams(location.search).get("modo") === "admin") {
+    return "registro-escalas";
+  }
+  return page;
+}
+
+function currentPageRequiresAdmin() {
+  return ["usuarios", "registro-escalas"].includes(activePageFromLocation());
+}
+
+let authRefreshPromise = null;
+let dataWarmupScheduled = false;
+
+function redirectToDashboardForMissingAdmin() {
+  showToast("Acesso permitido apenas para administradores.", "error");
+  setTimeout(() => {
+    location.href = pageUrl("dashboard");
+  }, 600);
+}
+
+function refreshAuthInBackground() {
+  if (authRefreshPromise) return authRefreshPromise;
+
+  authRefreshPromise = WF.getFreshData("/auth/me")
+    .then((freshUser) => {
+      updateStoredUser(freshUser);
+      setupShell(freshUser, activePageFromLocation());
+
+      if (currentPageRequiresAdmin() && !isAdmin(freshUser)) {
+        redirectToDashboardForMissingAdmin();
+      }
+
+      return freshUser;
+    })
+    .catch(() => {
+      if (!WF.getStoredAuth()) location.href = loginUrl();
+      return null;
+    });
+
+  return authRefreshPromise;
+}
+
+function warmSharedData(user) {
+  if (dataWarmupScheduled) return;
+  dataWarmupScheduled = true;
+
+  const endpoints = ["/musicas", "/usuarios/equipe", "/escalas", "/escalas/historico"];
+  if (isAdmin(user)) endpoints.push("/usuarios");
+
+  const warmup = () => {
+    Promise.allSettled(endpoints.map((endpoint) => WF.getData(endpoint)));
+  };
+
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(warmup, { timeout: 800 });
+  } else {
+    setTimeout(warmup, 200);
+  }
+}
+
 async function requireAuth({ admin = false } = {}) {
-  if (!WF.getStoredAuth()) {
+  const storedAuth = WF.getStoredAuth();
+  if (!storedAuth) {
     location.href = loginUrl();
     return null;
+  }
+
+  const cachedUser = storedAuth.usuario || null;
+  if (cachedUser) {
+    if (admin && !isAdmin(cachedUser)) {
+      redirectToDashboardForMissingAdmin();
+      return null;
+    }
+
+    setupShell(cachedUser, activePageFromLocation());
+    warmSharedData(cachedUser);
+    void refreshAuthInBackground();
+    return cachedUser;
   }
 
   try {
@@ -80,13 +215,11 @@ async function requireAuth({ admin = false } = {}) {
     updateStoredUser(user);
 
     if (admin && !isAdmin(user)) {
-      showToast("Acesso permitido apenas para administradores.", "error");
-      setTimeout(() => {
-        location.href = pageUrl("dashboard");
-      }, 600);
+      redirectToDashboardForMissingAdmin();
       return null;
     }
 
+    warmSharedData(user);
     return user;
   } catch (error) {
     WF.clearAuth();
@@ -196,9 +329,6 @@ function setupShell(user, activePage) {
       }
       if (action === "toggle-theme") {
         toggleTheme();
-      }
-      if (action === "back-to-top") {
-        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     });
   }
@@ -330,10 +460,20 @@ function setSelectedSkills(form, value = "") {
 initTheme();
 updateThemeButtons();
 
+const cachedShellUser = getUser();
+if (cachedShellUser && document.querySelector(".app-shell")) {
+  setupShell(cachedShellUser, activePageFromLocation());
+  warmSharedData(cachedShellUser);
+}
+
 document.addEventListener("click", (event) => {
   const actionTarget = event.target.closest("[data-action]");
   if (actionTarget?.dataset.action === "toggle-theme" && !actionTarget.closest(".app-shell")) {
     toggleTheme();
+  }
+  if (actionTarget?.dataset.action === "back-to-top") {
+    event.preventDefault();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 });
 
@@ -347,6 +487,8 @@ window.WorshipFlow = {
   updateStoredUser,
   isAdmin,
   pageUrl,
+  normalizeExternalUrl,
+  cifraClubUrlForTone,
   loginUrl,
   requireAuth,
   setupShell,

@@ -7,13 +7,13 @@
     <meta name="theme-color" content="#10243f" />
     <title>WorshipFlow | Cadastro</title>
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/assets/LogoWorshipFlow.png" />
+    <link rel="icon" href="/assets/LogoWorshipFlowIcon.png" />
     <script>
       const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
     </script>
-    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/style.css?v=89" />
     <script src="/js/api.js" defer></script>
-    <script src="/js/common.js" defer></script>
+    <script src="/js/common.js?v=83" defer></script>
     <script src="/js/cadastro.js" defer></script>
   </head>
   <body>
@@ -23,7 +23,7 @@
         <section class="auth-card auth-accent-left" aria-label="Cadastro no WorshipFlow">
           <section class="auth-form-panel">
             <div class="auth-title">
-              <img class="auth-logo wf-logo-image" src="/assets/LogoWorshipFlow.png" alt="" width="48" height="48" />
+              <span class="auth-logo auth-logo-frame"><img src="/assets/LogoWorshipFlowIcon.png" alt="WorshipFlow" /></span>
               <p class="wf-label auth-eyebrow auth-eyebrow-gold">Novo membro</p>
               <h1>Criar conta</h1>
             </div>
@@ -45,7 +45,10 @@
                 <span class="field-label">Telefone <span class="required-field"><span class="required-marker" tabindex="0" title="Este campo é obrigatório." aria-describedby="cadastro-telefone-required">*</span><span class="required-tooltip" id="cadastro-telefone-required" role="tooltip">Este campo é obrigatório.</span></span></span>
                 <input name="telefone" type="text" inputmode="numeric" autocomplete="tel" maxlength="30" pattern="[0-9]*" placeholder="Somente números" required />
               </label>
-              <button class="button primary auth-submit" type="submit">Cadastrar</button>
+              <div class="auth-primary-actions">
+                <button class="button primary auth-submit" type="submit">Cadastrar</button>
+                <a class="button auth-switch-button" href="/pages/login.html">Entrar</a>
+              </div>
               <p class="auth-consent">
                 Ao criar conta, você concorda com os <a href="/pages/termos.html">Termos de Uso</a> e a
                 <a href="/pages/privacidade.html">Política de Privacidade</a>.
@@ -54,14 +57,21 @@
           </section>
 
           <aside class="auth-hero-panel">
-            <img class="auth-brand-mark wf-logo-image" src="/assets/LogoWorshipFlow.png" alt="" width="48" height="48" />
+            <img class="auth-brand-mark wf-logo-image" src="/assets/LogoWorshipFlowIcon.png" alt="" width="48" height="48" />
             <h2>Já faz parte da equipe?</h2>
             <p>Entre com sua conta para acompanhar escalas, ensaios e repertórios do ministério.</p>
             <a class="button outline-light" href="/pages/login.html">Entrar</a>
           </aside>
         </section>
 
-        
+        <footer class="auth-utility-footer">
+          <nav aria-label="Links do rodapé">
+            <a href="/pages/termos.html">Termos de Uso</a>
+            <a href="/pages/privacidade.html">Privacidade</a>
+            <a href="/pages/termos.html#contato">Contato</a>
+            <button type="button" data-action="back-to-top">Voltar ao topo</button>
+          </nav>
+        </footer>
       </div>
     </main>
     <div id="toast-root" class="toast-root" aria-live="polite"></div>

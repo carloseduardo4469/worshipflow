@@ -13,6 +13,8 @@ import br.com.worshipflow.exception.ResourceNotFoundException;
 import br.com.worshipflow.repository.EscalaRepository;
 import br.com.worshipflow.security.AccessDeniedException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -22,15 +24,28 @@ import java.util.Set;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class EscalaService {
 
+    private static final ZoneId MINISTRY_ZONE = ZoneId.of("America/Sao_Paulo");
+    private static final List<StatusEscala> ACTIVE_ADMIN_STATUSES = List.of(
+            StatusEscala.RASCUNHO,
+            StatusEscala.PUBLICADA
+    );
+    private static final List<StatusEscala> ACTIVE_MEMBER_STATUSES = List.of(StatusEscala.PUBLICADA);
+    private static final List<StatusEscala> HISTORY_STATUSES = List.of(
+            StatusEscala.CONCLUIDA,
+            StatusEscala.CANCELADA
+    );
+
     private final EscalaRepository escalaRepository;
     private final MusicaService musicaService;
     private final UsuarioService usuarioService;
+    private volatile LocalDate ultimaDataReconciliada;
 
     public EscalaService(
             EscalaRepository escalaRepository,
@@ -42,26 +57,55 @@ public class EscalaService {
         this.usuarioService = usuarioService;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<EscalaResponse> listar() {
         return listar(0, 200);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<EscalaResponse> listar(int page, int size) {
-        Pageable pageable = PageRequest.of(safePage(page), safeSize(size), Sort.by("id").descending());
-        return escalaRepository.findAll(pageable).getContent().stream().map(this::toResponse).toList();
+        concluirEscalasAnteriores();
+        Pageable pageable = PageRequest.of(
+                safePage(page),
+                safeSize(size),
+                Sort.by("dataEscala").ascending().and(Sort.by("id").ascending())
+        );
+        return escalaRepository.findByStatusInAndDataEscalaGreaterThanEqual(
+                ACTIVE_ADMIN_STATUSES,
+                hoje(),
+                pageable
+        ).getContent().stream().map(this::toResponse).toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<EscalaResponse> listarVisiveis() {
         return listarVisiveis(0, 200);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<EscalaResponse> listarVisiveis(int page, int size) {
-        Pageable pageable = PageRequest.of(safePage(page), safeSize(size), Sort.by("id").descending());
-        return escalaRepository.findByStatusNot(StatusEscala.RASCUNHO, pageable).getContent().stream()
+        concluirEscalasAnteriores();
+        Pageable pageable = PageRequest.of(
+                safePage(page),
+                safeSize(size),
+                Sort.by("dataEscala").ascending().and(Sort.by("id").ascending())
+        );
+        return escalaRepository.findByStatusInAndDataEscalaGreaterThanEqual(
+                ACTIVE_MEMBER_STATUSES,
+                hoje(),
+                pageable
+        ).getContent().stream().map(this::toResponse).toList();
+    }
+
+    @Transactional
+    public List<EscalaResponse> listarHistorico(int page, int size) {
+        concluirEscalasAnteriores();
+        Pageable pageable = PageRequest.of(
+                safePage(page),
+                safeSize(size),
+                Sort.by("dataEscala").descending().and(Sort.by("id").descending())
+        );
+        return escalaRepository.findByStatusIn(HISTORY_STATUSES, pageable).getContent().stream()
                 .map(this::toResponse).toList();
     }
 
@@ -81,6 +125,7 @@ public class EscalaService {
 
     @Transactional
     public EscalaResponse criar(EscalaRequest request) {
+        validarDataDaEscala(request.dataEscala());
         Escala escala = new Escala();
         aplicarDados(escala, request);
         return toResponse(escalaRepository.save(escala));
@@ -88,6 +133,7 @@ public class EscalaService {
 
     @Transactional
     public EscalaResponse atualizar(Long id, EscalaRequest request) {
+        validarDataDaEscala(request.dataEscala());
         Escala escala = findById(id);
         aplicarDados(escala, request);
         return toResponse(escala);
@@ -116,7 +162,37 @@ public class EscalaService {
     }
 
     private boolean isVisivelParaMembros(Escala escala) {
-        return StatusEscala.RASCUNHO != escala.getStatus();
+        return StatusEscala.PUBLICADA == escala.getStatus()
+                && escala.getDataEscala() != null
+                && !escala.getDataEscala().isBefore(hoje());
+    }
+
+    @Scheduled(cron = "0 0 0 * * *", zone = "America/Sao_Paulo")
+    @Transactional
+    public void concluirEscalasDoDiaAnterior() {
+        concluirEscalasAnteriores();
+    }
+
+    private void concluirEscalasAnteriores() {
+        LocalDate hoje = hoje();
+        if (hoje.equals(ultimaDataReconciliada)) {
+            return;
+        }
+        escalaRepository.concluirEscalasAnteriores(hoje, ACTIVE_ADMIN_STATUSES);
+        ultimaDataReconciliada = hoje;
+    }
+
+    private void validarDataDaEscala(LocalDate dataEscala) {
+        if (dataEscala == null) {
+            throw new IllegalArgumentException("A data da escala é obrigatória.");
+        }
+        if (dataEscala.isBefore(hoje())) {
+            throw new IllegalArgumentException("Não é permitido cadastrar ou mover uma escala para uma data passada.");
+        }
+    }
+
+    private LocalDate hoje() {
+        return LocalDate.now(MINISTRY_ZONE);
     }
 
     private EscalaResponse toResponse(Escala escala) {

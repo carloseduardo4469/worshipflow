@@ -14,6 +14,18 @@ const adminList = document.getElementById("admin-escalas-list");
 const adminLayout = document.getElementById("admin-scale-layout");
 const publicPanel = document.getElementById("public-scale-panel");
 
+function todayIso() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function configureScaleDate() {
+  form.elements.dataEscala.min = todayIso();
+}
+
 function isAdminMode() {
   return App.isAdmin(user) && new URLSearchParams(location.search).get("modo") === "admin";
 }
@@ -23,6 +35,7 @@ function resetForm() {
   form.elements.id.value = "";
   document.getElementById("form-title").textContent = "Nova escala";
   cancelButton.hidden = true;
+  configureScaleDate();
   document.querySelectorAll("#usuarios-options input").forEach((input) => {
     input.checked = false;
   });
@@ -214,27 +227,57 @@ function statusInfo(value) {
 }
 
 function songCard(musica) {
-  return `
-    <li class="scale-song-card">
-      <div class="scale-song-card-header">
-        <strong>${App.escapeHtml(musica.titulo || "Musica sem titulo")}</strong>
+  const hasCifra = Boolean(String(musica.linkCifra || "").trim());
+  const content = `
+    <div class="scale-song-card-header">
+      <strong>${App.escapeHtml(musica.titulo || "Musica sem titulo")}</strong>
+      ${hasCifra ? `<span class="scale-song-cifra-icon" title="Cifra disponível" aria-hidden="true">${App.icon("externalLink")}</span>` : ""}
+    </div>
+    <dl class="scale-song-meta">
+      <div>
+        <dt>Artista</dt>
+        <dd>${App.escapeHtml(musica.artista || "Artista não informado")}</dd>
       </div>
-      <dl class="scale-song-meta">
-        <div>
-          <dt>Artista</dt>
-          <dd>${App.escapeHtml(musica.artista || "Artista não informado")}</dd>
-        </div>
-        <div>
-          <dt>Tom</dt>
-          <dd>${App.escapeHtml(musica.tonalidade || "-")}</dd>
-        </div>
-        <div>
-          <dt>BPM</dt>
-          <dd>${App.escapeHtml(musica.bpm || "-")}</dd>
-        </div>
-      </dl>
+      <div>
+        <dt>Tom</dt>
+        <dd>${App.escapeHtml(musica.tonalidade || "-")}</dd>
+      </div>
+      <div>
+        <dt>BPM</dt>
+        <dd>${App.escapeHtml(musica.bpm || "-")}</dd>
+      </div>
+    </dl>
+  `;
+
+  return `
+    <li class="scale-song-card${hasCifra ? " has-cifra" : ""}">
+      ${hasCifra
+        ? `<a class="scale-song-card-content" href="#" data-action="open-cifra" data-music-id="${musica.id}" aria-label="Abrir cifra de ${App.escapeHtml(musica.titulo || "música")}">${content}</a>`
+        : `<div class="scale-song-card-content">${content}</div>`}
     </li>
   `;
+}
+
+function findScaleSong(musicId) {
+  for (const escala of escalas) {
+    const musica = (escala.musicas || []).find((item) => Number(item.id) === Number(musicId));
+    if (musica) return musica;
+  }
+  return null;
+}
+
+async function requestOpenCifra(musica) {
+  const cifraUrl = App.cifraClubUrlForTone(musica?.linkCifra, musica?.tonalidade);
+  if (!cifraUrl) return;
+
+  const confirmed = await App.confirmDialog({
+    title: "Abrir cifra?",
+    message: `Deseja acessar a cifra de “${musica.titulo || "esta música"}”?`,
+    confirmText: "Abrir cifra",
+    cancelText: "Cancelar",
+    iconName: "externalLink"
+  });
+  if (confirmed) window.open(cifraUrl, "_blank", "noopener,noreferrer");
 }
 
 function assignedMemberRole(funcoesUsuarios, usuarioId) {
@@ -283,9 +326,9 @@ function card(escala, canManage) {
           <h3>Equipe</h3>
           ${escalaUsuarios.length ? escalaUsuarios.map((usuario) => memberScaleCard(usuario, funcoesUsuarios)).join("") : '<p class="muted-text">Nenhum membro selecionado.</p>'}
         </section>
-        <section class="scale-section">
+        <section class="scale-section scale-repertoire-panel">
           <h3>Repert&oacute;rio</h3>
-          ${escalaMusicas.length ? `<ul class="scale-song-list">${escalaMusicas.map(songCard).join("")}</ul>` : '<p class="muted-text">Nenhuma musica selecionada.</p>'}
+          ${escalaMusicas.length ? `<ul class="scale-song-list${escalaMusicas.length > 4 ? " is-scrollable" : ""}">${escalaMusicas.map(songCard).join("")}</ul>` : '<p class="muted-text">Nenhuma musica selecionada.</p>'}
         </section>
       </div>
       ${escala.observacoes ? `<p class="scale-note">${App.escapeHtml(escala.observacoes)}</p>` : ""}
@@ -330,7 +373,7 @@ function songDialogRow(musica, selected) {
   const selectedSong = selected.get(String(musica.id));
   const checked = Boolean(selectedSong);
   const tonalidade = normalizeSongKey(selectedSong?.tonalidade || musica.tonalidade || "");
-  const cifraUrl = String(musica.linkCifra || "").trim();
+  const cifraUrl = App.cifraClubUrlForTone(musica.linkCifra, tonalidade || musica.tonalidade);
 
   return `
     <article class="scale-song-picker-item" data-song-picker-item data-search-text="${App.escapeHtml(`${musica.titulo || ""} ${musica.artista || ""} ${musica.tonalidade || ""}`.toLowerCase())}">
@@ -345,7 +388,7 @@ function songDialogRow(musica, selected) {
         <span>Tom na escala</span>
         <input type="text" name="songKey-${musica.id}" value="${App.escapeHtml(tonalidade)}" maxlength="12" />
       </label>
-      ${cifraUrl ? `<a class="button small" href="${App.escapeHtml(cifraUrl)}" target="_blank" rel="noopener">Cifra</a>` : '<span class="scale-song-no-cifra">Sem cifra</span>'}
+      ${cifraUrl ? `<button class="button small" type="button" data-action="open-picker-cifra" data-song-id="${musica.id}">Cifra</button>` : '<span class="scale-song-no-cifra">Sem cifra</span>'}
     </article>
   `;
 }
@@ -410,6 +453,15 @@ async function showScaleSongsDialog(escala) {
     });
 
     backdrop.addEventListener("click", (event) => {
+      const cifraButton = event.target.closest("[data-action='open-picker-cifra']");
+      if (cifraButton) {
+        const musica = musicas.find((item) => Number(item.id) === Number(cifraButton.dataset.songId));
+        const tonalidade = normalizeSongKey(backdrop.querySelector(`input[name="songKey-${cifraButton.dataset.songId}"]`)?.value) || musica?.tonalidade;
+        const cifraUrl = App.cifraClubUrlForTone(musica?.linkCifra, tonalidade);
+        if (cifraUrl) window.open(cifraUrl, "_blank", "noopener,noreferrer");
+        return;
+      }
+
       const action = event.target.closest("[data-dialog-action]")?.dataset.dialogAction;
       if (event.target === backdrop || action === "cancel") close(null);
       if (action === "confirm") close(payloadFromDialog());
@@ -469,6 +521,12 @@ adminList.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-action]");
   if (!button) return;
 
+  if (button.dataset.action === "open-cifra") {
+    event.preventDefault();
+    await requestOpenCifra(findScaleSong(button.dataset.musicId));
+    return;
+  }
+
   const id = Number(button.dataset.id);
   const escala = escalas.find((item) => item.id === id);
 
@@ -490,6 +548,12 @@ list.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-action]");
   if (!button) return;
 
+  if (button.dataset.action === "open-cifra") {
+    event.preventDefault();
+    await requestOpenCifra(findScaleSong(button.dataset.musicId));
+    return;
+  }
+
   const id = Number(button.dataset.id);
   const escala = escalas.find((item) => item.id === id);
   if (button.dataset.action === "songs" && escala) await updateScaleSongs(escala);
@@ -504,6 +568,7 @@ document.getElementById("usuarios-options").addEventListener("change", updateMem
 
   const manage = isAdminMode();
   App.setupShell(user, manage ? "registro-escalas" : "escalas");
+  configureScaleDate();
   adminLayout.hidden = !manage;
   publicPanel.hidden = manage;
   document.getElementById("page-description").textContent = manage

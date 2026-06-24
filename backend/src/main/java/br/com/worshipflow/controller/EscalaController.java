@@ -51,6 +51,19 @@ public class EscalaController {
         return ApiResponse.ok("Escala encontrada com sucesso.", escala);
     }
 
+    @GetMapping("/historico")
+    public ApiResponse<List<EscalaResponse>> listarHistorico(
+            HttpServletRequest httpRequest,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "200") int size
+    ) {
+        authService.getAuthenticatedUser(httpRequest);
+        return ApiResponse.ok(
+                "Histórico de escalas listado com sucesso.",
+                escalaService.listarHistorico(page, size)
+        );
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<EscalaResponse> criar(@Valid @RequestBody EscalaRequest request, HttpServletRequest httpRequest) {

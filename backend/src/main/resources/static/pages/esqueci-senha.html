@@ -7,13 +7,13 @@
     <meta name="theme-color" content="#10243f" />
     <title>WorshipFlow | Esqueci a senha</title>
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/assets/LogoWorshipFlow.png" />
+    <link rel="icon" href="/assets/LogoWorshipFlowIcon.png" />
     <script>
       const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
     </script>
-    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/style.css?v=89" />
     <script src="/js/api.js" defer></script>
-    <script src="/js/common.js" defer></script>
+    <script src="/js/common.js?v=83" defer></script>
     <script src="/js/esqueci-senha.js" defer></script>
   </head>
   <body>
@@ -23,7 +23,7 @@
         <section class="auth-card auth-accent-right" aria-label="Recuperação de senha">
           <section class="auth-form-panel auth-form-panel-narrow">
             <div class="auth-title">
-              <img class="auth-logo wf-logo-image" src="/assets/LogoWorshipFlow.png" alt="" width="48" height="48" />
+              <img class="auth-logo wf-logo-image" src="/assets/LogoWorshipFlowIcon.png" alt="" width="48" height="48" />
               <p class="wf-label auth-eyebrow">Recuperação</p>
               <h1>Redefinir senha</h1>
             </div>
@@ -41,7 +41,7 @@
           </section>
 
           <aside class="auth-hero-panel">
-            <img class="auth-brand-mark wf-logo-image" src="/assets/LogoWorshipFlow.png" alt="" width="48" height="48" />
+            <img class="auth-brand-mark wf-logo-image" src="/assets/LogoWorshipFlowIcon.png" alt="" width="48" height="48" />
             <h2>Acesso protegido.</h2>
             <p>Recupere sua senha com segurança e continue acompanhando a rotina do ministério.</p>
             <a class="button outline-light" href="/pages/cadastro.html">Criar cadastro</a>
@@ -61,6 +61,7 @@
               <strong>Legal</strong>
               <a href="/pages/termos.html">Termos de Uso</a>
               <a href="/pages/privacidade.html">Política de Privacidade</a>
+              <a href="/pages/termos.html#contato">Canal de contato</a>
               <span>Direitos Autorais 2026 WorshipFlow</span>
             </nav>
             <div class="footer-column">
@@ -70,6 +71,7 @@
               <a href="tel:+5511985520784">+55 (11) 98552-0784</a>
             </div>
           </div>
+          <button class="footer-back-to-top" type="button" data-action="back-to-top">↑ Voltar ao topo</button>
         </footer>
       </div>
     </main>

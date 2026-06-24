@@ -7,23 +7,23 @@
     <meta name="theme-color" content="#10243f" />
     <title>WorshipFlow | Login</title>
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/assets/LogoWorshipFlow.png" />
+    <link rel="icon" href="/assets/LogoWorshipFlowIcon.png" />
     <script>
       const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
     </script>
-    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/style.css?v=89" />
     <script src="/js/api.js" defer></script>
-    <script src="/js/common.js" defer></script>
+    <script src="/js/common.js?v=83" defer></script>
     <script src="/js/login.js" defer></script>
   </head>
   <body>
     <button class="wf-icon-button public-theme-toggle" type="button" data-action="toggle-theme" aria-label="Alternar tema"></button>
-    <main class="login-page">
+    <main class="login-page login-page-centered">
       <div class="auth-page-inner">
         <section class="auth-card auth-accent-right" aria-label="Login no WorshipFlow">
           <section class="auth-form-panel">
             <div class="auth-title">
-              <img class="auth-logo wf-logo-image" src="/assets/LogoWorshipFlow.png" alt="" width="48" height="48" />
+              <span class="auth-logo auth-logo-frame"><img src="/assets/LogoWorshipFlowIcon.png" alt="WorshipFlow" /></span>
               <p class="wf-label auth-eyebrow">Acesso ministerial</p>
               <h1>Entrar</h1>
             </div>
@@ -37,7 +37,10 @@
                 <span>Senha</span>
                 <input name="senha" type="password" autocomplete="current-password" placeholder="Digite sua senha" required />
               </label>
-              <button class="button primary auth-submit" type="submit">Entrar</button>
+              <div class="auth-primary-actions">
+                <button class="button primary auth-submit" type="submit">Entrar</button>
+                <a class="button auth-switch-button" href="/pages/cadastro.html">Cadastre-se</a>
+              </div>
               <p class="auth-consent">
                 Ao entrar, você concorda com os <a href="/pages/termos.html">Termos de Uso</a> e a
                 <a href="/pages/privacidade.html">Política de Privacidade</a>.
@@ -49,14 +52,21 @@
           </section>
 
           <aside class="auth-hero-panel">
-            <img class="auth-brand-mark wf-logo-image" src="/assets/LogoWorshipFlow.png" alt="" width="48" height="48" />
+            <img class="auth-brand-mark wf-logo-image" src="/assets/LogoWorshipFlowIcon.png" alt="" width="48" height="48" />
             <h2>Bem-vindo ao WorshipFlow.</h2>
             <p>Organize escalas, repertórios e equipes do ministério de louvor em um único ambiente.</p>
             <a class="button outline-light" href="/pages/cadastro.html">Criar cadastro</a>
           </aside>
         </section>
 
-        
+        <footer class="auth-utility-footer">
+          <nav aria-label="Links do rodapé">
+            <a href="/pages/termos.html">Termos de Uso</a>
+            <a href="/pages/privacidade.html">Privacidade</a>
+            <a href="/pages/termos.html#contato">Contato</a>
+            <button type="button" data-action="back-to-top">Voltar ao topo</button>
+          </nav>
+        </footer>
       </div>
     </main>
     <div id="toast-root" class="toast-root" aria-live="polite"></div>

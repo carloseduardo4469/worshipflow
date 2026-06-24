@@ -8,14 +8,15 @@
   <meta name="theme-color" content="#10243f" />
   <title>WorshipFlow | Termos de Uso</title>
   <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="icon" href="/assets/LogoWorshipFlow.png" />
+  <link rel="icon" href="/assets/LogoWorshipFlowIcon.png" />
   <script>
     const theme = localStorage.getItem("worshipflow:theme") || "dark";
     document.documentElement.classList.toggle("dark", theme === "dark");
     document.documentElement.dataset.theme = theme;
   </script>
-  <link rel="stylesheet" href="/css/style.css" />
-  <script src="/js/common.js" defer></script>
+  <link rel="stylesheet" href="/css/style.css?v=89" />
+  <script src="/js/common.js?v=83" defer></script>
+  <script src="/js/contato.js?v=78" defer></script>
 </head>
 
 <body>
@@ -54,7 +55,7 @@
         <a href="#limitacoes">Limitações de responsabilidade</a>
         <a href="#contas">Suspensão ou encerramento</a>
         <a href="#alteracoes">Alterações futuras</a>
-        <a href="#contato">Canal de contato</a>
+        <a href="#contato" data-contact-recipient="lucasavilagodoi43@gmail.com">Canal de contato</a>
       </nav>
 
       <section class="legal-grid">
@@ -165,6 +166,32 @@
 
 
       </section>
+      <section class="panel contact-panel" id="contato" aria-labelledby="contact-title">
+        <div class="contact-heading">
+          <div>
+            <span class="eyebrow">Fale com a equipe</span>
+            <h2 id="contact-title">Canal de contato</h2>
+            <p>Envie uma mensagem simples. A resposta será encaminhada para o e-mail informado por você.</p>
+          </div>
+          <span class="contact-secure-note">Envio protegido</span>
+        </div>
+        <form class="contact-form" data-contact-form>
+          <label>Seu nome<input name="nome" autocomplete="name" maxlength="100" required /></label>
+          <label>Seu e-mail<input name="email" type="email" autocomplete="email" maxlength="160" required /></label>
+          <label class="contact-recipient-field">Enviar para
+            <select name="destinatario" required>
+              <option value="lucasavilagodoi43@gmail.com">Lucas — lucasavilagodoi43@gmail.com</option>
+              <option value="caduwerneck42@gmail.com">Cadu — caduwerneck42@gmail.com</option>
+            </select>
+          </label>
+          <label class="contact-message-field">Mensagem<textarea name="mensagem" minlength="10" maxlength="2000" rows="5" placeholder="Escreva sua mensagem..." required></textarea></label>
+          <label class="contact-honeypot" aria-hidden="true">Não preencha<input name="website" tabindex="-1" autocomplete="off" /></label>
+          <div class="contact-actions">
+            <p class="contact-status" data-contact-status aria-live="polite"></p>
+            <button class="button primary" type="submit">Enviar mensagem</button>
+          </div>
+        </form>
+      </section>
     </section>
 
     <footer class="app-footer app-footer-compact">
@@ -180,6 +207,7 @@
           <strong>Legal</strong>
           <a href="/pages/termos.html">Termos de Uso</a>
           <a href="/pages/privacidade.html">Política de Privacidade</a>
+          <a href="#contato">Canal de contato</a>
           <span>Direitos Autorais 2026 WorshipFlow</span>
         </nav>
         <div class="footer-column">
@@ -187,19 +215,20 @@
           <div class="footer-contact-list">
             <div class="footer-contact-item">
               <span>Email</span>
-              <a href="mailto:lucasavilagodoi43@gmail.com">lucasavilagodoi43@gmail.com</a>
+              <a href="#contato" data-contact-recipient="lucasavilagodoi43@gmail.com">lucasavilagodoi43@gmail.com</a>
               <span>Fone</span>
               <a href="tel:+5511985520784">+55 (11) 98552-0784</a>
             </div>
             <div class="footer-contact-item">
               <span>Email</span>
-              <a href="mailto:caduwerneck42@gmail.com">caduwerneck42@gmail.com</a>
+              <a href="#contato" data-contact-recipient="caduwerneck42@gmail.com">caduwerneck42@gmail.com</a>
               <span>Fone</span>
               <a href="tel:+5511973289270">+55 (11) 97328-9270</a>
             </div>
           </div>
         </div>
       </div>
+      <button class="footer-back-to-top" type="button" data-action="back-to-top">↑ Voltar ao topo</button>
     </footer>
   </main>
 </body>
