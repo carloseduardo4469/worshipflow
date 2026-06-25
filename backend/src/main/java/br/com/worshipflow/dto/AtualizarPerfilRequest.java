@@ -7,10 +7,11 @@ import jakarta.validation.constraints.Size;
 public record AtualizarPerfilRequest(
         @NotBlank(message = "Nome e obrigatorio.")
         @Size(max = 120, message = "Nome deve ter no maximo 120 caracteres.")
+        @Pattern(regexp = "^[\\p{L}][\\p{L} .'-]{1,119}$", message = "Nome deve conter apenas letras e espacos.")
         String nome,
 
-        @Size(max = 30, message = "Telefone deve ter no maximo 30 caracteres.")
-        @Pattern(regexp = "\\d*", message = "Telefone deve conter apenas numeros.")
+        @Size(max = 11, message = "Telefone deve ter 11 digitos com DDD.")
+        @Pattern(regexp = "^$|\\d{11}", message = "Telefone deve conter 11 numeros, incluindo DDD.")
         String telefone,
 
         @Size(max = 300, message = "Habilidades devem ter no maximo 300 caracteres.")

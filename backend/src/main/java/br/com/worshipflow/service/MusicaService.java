@@ -5,6 +5,9 @@ import br.com.worshipflow.dto.MusicaResponse;
 import br.com.worshipflow.entity.Musica;
 import br.com.worshipflow.exception.ResourceNotFoundException;
 import br.com.worshipflow.repository.MusicaRepository;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Locale;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,6 +20,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MusicaService {
+
+    private static final Set<String> ALLOWED_MUSIC_LINK_DOMAINS = Set.of(
+            "cifraclub.com.br",
+            "letras.mus.br",
+            "cifra.com.br",
+            "songsterr.com",
+            "youtube.com",
+            "youtu.be",
+            "spotify.com",
+            "open.spotify.com");
 
     private final MusicaRepository musicaRepository;
 
@@ -39,7 +52,8 @@ public class MusicaService {
         Pageable pageable = PageRequest.of(safePage(page), safeSize(size), Sort.by("titulo").ascending());
         String safeQuery = hasText(query) ? query.trim() : null;
         String safeTonalidade = hasText(tonalidade) ? normalizeTonalidade(tonalidade) : null;
-        List<Musica> musicas = musicaRepository.findAll(buildSearchSpec(safeQuery, safeTonalidade), pageable).getContent();
+        List<Musica> musicas = musicaRepository.findAll(buildSearchSpec(safeQuery, safeTonalidade), pageable)
+                .getContent();
 
         return musicas.stream().map(this::toResponse).toList();
     }
@@ -90,8 +104,7 @@ public class MusicaService {
                 musica.getArtista(),
                 musica.getTonalidade(),
                 musica.getBpm(),
-                musica.getLinkCifra()
-        );
+                musica.getLinkCifra());
     }
 
     private void aplicarDados(Musica musica, MusicaRequest request) {
@@ -99,7 +112,7 @@ public class MusicaService {
         musica.setArtista(request.artista().trim());
         musica.setTonalidade(normalizeTonalidade(request.tonalidade()));
         musica.setBpm(request.bpm());
-        musica.setLinkCifra(request.linkCifra());
+        musica.setLinkCifra(normalizeMusicLink(request.linkCifra()));
     }
 
     private Specification<Musica> buildSearchSpec(String query, String tonalidade) {
@@ -111,8 +124,7 @@ public class MusicaService {
                 var textPredicate = criteriaBuilder.or(
                         criteriaBuilder.like(criteriaBuilder.lower(root.get("titulo")), normalizedQuery),
                         criteriaBuilder.like(criteriaBuilder.lower(root.get("artista")), normalizedQuery),
-                        criteriaBuilder.like(criteriaBuilder.lower(root.get("tonalidade")), normalizedQuery)
-                );
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("tonalidade")), normalizedQuery));
 
                 Integer bpm = parseInteger(query);
                 if (bpm != null) {
@@ -125,8 +137,7 @@ public class MusicaService {
             if (hasText(tonalidade)) {
                 predicate = criteriaBuilder.and(
                         predicate,
-                        criteriaBuilder.equal(criteriaBuilder.lower(root.get("tonalidade")), tonalidade.toLowerCase())
-                );
+                        criteriaBuilder.equal(criteriaBuilder.lower(root.get("tonalidade")), tonalidade.toLowerCase()));
             }
 
             return predicate;
@@ -139,6 +150,70 @@ public class MusicaService {
         } catch (NumberFormatException exception) {
             return null;
         }
+    }
+
+    private String normalizeMusicLink(String link) {
+        if (!hasText(link)) {
+            return "";
+        }
+
+        String trimmed = link.trim();
+        try {
+            URI uri = new URI(trimmed);
+            String scheme = uri.getScheme();
+            String host = uri.getHost();
+            if (scheme == null || host == null || !Set.of("http", "https").contains(scheme.toLowerCase(Locale.ROOT))) {
+                throw new IllegalArgumentException("Link da cifra deve iniciar com http ou https.");
+            }
+
+            String normalizedHost = host.toLowerCase(Locale.ROOT).replaceFirst("^www\\.", "");
+            boolean allowed = ALLOWED_MUSIC_LINK_DOMAINS.stream()
+                    .anyMatch(domain -> normalizedHost.equals(domain) || normalizedHost.endsWith("." + domain));
+            if (!allowed) {
+                throw new IllegalArgumentException(
+                        "Link da cifra deve ser de uma plataforma musical reconhecida, como Cifra Club, Letras, Cifra, Songsterr, Spotify ou YouTube.");
+            }
+
+            return removeCifraClubCapoParams(uri, normalizedHost).toString();
+        } catch (URISyntaxException exception) {
+            throw new IllegalArgumentException("Link da cifra deve ser uma URL válida.");
+        }
+    }
+
+    private URI removeCifraClubCapoParams(URI uri, String normalizedHost) throws URISyntaxException {
+        if (!normalizedHost.equals("cifraclub.com.br") && !normalizedHost.endsWith(".cifraclub.com.br")) {
+            return uri;
+        }
+
+        return new URI(
+                uri.getScheme(),
+                uri.getUserInfo(),
+                uri.getHost(),
+                uri.getPort(),
+                uri.getPath(),
+                removeCapoParams(uri.getRawQuery()),
+                removeCapoParams(uri.getRawFragment()));
+    }
+
+    private String removeCapoParams(String params) {
+        if (params == null || params.isBlank()) {
+            return params;
+        }
+
+        StringBuilder sanitized = new StringBuilder();
+        for (String param : params.split("&")) {
+            String key = param.split("=", 2)[0].toLowerCase(Locale.ROOT);
+            if (key.equals("capo") || key.equals("capotraste")) {
+                continue;
+            }
+
+            if (sanitized.length() > 0) {
+                sanitized.append("&");
+            }
+            sanitized.append(param);
+        }
+
+        return sanitized.length() > 0 ? sanitized.toString() : null;
     }
 
     private String normalizeTonalidade(String tonalidade) {
@@ -162,4 +237,3 @@ public class MusicaService {
         return value != null && !value.isBlank();
     }
 }
-

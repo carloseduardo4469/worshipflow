@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -8,15 +8,15 @@
     <title>WorshipFlow | Usuários</title>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/assets/LogoWorshipFlowIcon.png" />
-    <link rel="stylesheet" href="/css/style.css?v=89" />
+    <link rel="stylesheet" href="/css/style.css?v=93" />
     <script>
       const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
     </script>
     <script src="/js/tailwind-theme.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/js/api.js" defer></script>
-    <script src="/js/common.js?v=83" defer></script>
-    <script src="/js/usuarios.js" defer></script>
+    <script src="/js/common.js?v=91" defer></script>
+    <script src="/js/usuarios.js?v=80" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -111,13 +111,13 @@
               <form class="wf-panel wf-form rounded-[1.5rem] p-5 sm:p-6" id="usuario-form">
                 <div class="mb-2">
                   <p class="wf-label text-[10px] font-extrabold text-gold-500">Edição</p>
-                  <h2 class="wf-panel-title mt-2 text-3xl font-black">Editar cadastro</h2>
+                  <h2 class="wf-panel-title mt-2 text-3xl font-black">Editar usuário</h2>
                 </div>
                 <input name="id" type="hidden" />
                 <div class="grid gap-4 sm:grid-cols-2">
-                  <label>Nome<input name="nome" required /></label>
+                  <label>Nome<input name="nome" maxlength="120" title="Use apenas letras e espaços." required /><small class="field-hint">Use nome completo, sem números.</small></label>
                   <label>E-mail<input name="email" type="email" required /></label>
-                  <label>Telefone<input name="telefone" type="tel" inputmode="tel" /></label>
+                  <label>Telefone<input name="telefone" type="tel" inputmode="numeric" maxlength="15" placeholder="(11) 98552-0784" title="Digite DDD + número, com 11 dígitos." /><small class="field-hint">DDD + número, com 11 dígitos.</small></label>
                   <label>Perfil<select name="perfil"><option value="ADMIN">ADMIN</option><option value="USER">USER</option></select></label>
                   <label>Status ministerial<select name="statusMinisterio"><option>ATIVO</option><option>INATIVO</option></select></label>
                 </div>

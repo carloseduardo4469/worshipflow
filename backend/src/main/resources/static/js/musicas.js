@@ -25,6 +25,35 @@ const loadMoreSentinel = document.createElement("div");
 loadMoreSentinel.className = "empty compact";
 loadMoreSentinel.id = "musicas-load-sentinel";
 
+App.setupTextField(form.elements.titulo, {
+  maxLength: 140,
+  placeholder: "Ex.: Grande e o Senhor"
+});
+App.setupTextField(form.elements.artista, {
+  maxLength: 120,
+  placeholder: "Ex.: Adhemar de Campos"
+});
+form.elements.linkCifra.maxLength = 500;
+form.elements.linkCifra.placeholder = "https://www.cifraclub.com.br/...";
+form.elements.linkCifra.title = "Use links de Cifra Club, Letras, Cifra, Songsterr, Spotify ou YouTube.";
+form.elements.linkCifra.addEventListener("input", () => {
+  form.elements.linkCifra.setCustomValidity("");
+});
+form.elements.linkCifra.addEventListener("blur", () => {
+  form.elements.linkCifra.value = App.normalizeMusicLinkUrl(form.elements.linkCifra.value, {
+    sourceMode: form.elements.cifraModoMenor?.checked ? "minor" : "major"
+  });
+  App.validateMusicLinkField(form.elements.linkCifra);
+});
+form.elements.cifraModoMenor?.addEventListener("change", () => {
+  form.elements.linkCifra.value = App.normalizeMusicLinkUrl(form.elements.linkCifra.value, {
+    sourceMode: form.elements.cifraModoMenor.checked ? "minor" : "major"
+  });
+});
+form.elements.bpm.addEventListener("input", () => {
+  form.elements.bpm.setCustomValidity("");
+});
+
 function resetForm() {
   form.reset();
   form.elements.id.value = "";
@@ -39,6 +68,9 @@ function fillForm(musica) {
   form.elements.tonalidade.value = musica.tonalidade || "";
   form.elements.bpm.value = musica.bpm || "";
   form.elements.linkCifra.value = musica.linkCifra || "";
+  if (form.elements.cifraModoMenor) {
+    form.elements.cifraModoMenor.checked = App.cifraClubSourceMode(musica.linkCifra) === "minor";
+  }
   document.getElementById("form-title").textContent = "Editar louvor";
   cancelButton.hidden = false;
   form.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -116,7 +148,7 @@ function updateCounter() {
 function updateLoadState() {
   loadMoreSentinel.hidden = !musicas.length && !loading;
   loadMoreSentinel.textContent = loading
-    ? "Carregando mais musicas..."
+    ? "Carregando mais músicas..."
     : hasMore
       ? "Continue descendo para carregar mais."
       : "Fim da lista.";
@@ -127,10 +159,10 @@ function renderList() {
 
   if (!musicas.length) {
     list.innerHTML = loading
-      ? '<div class="empty compact">Carregando musicas...</div>'
+      ? '<div class="empty compact">Carregando músicas...</div>'
       : currentQuery || currentTone
-        ? '<div class="empty compact">Nenhuma musica encontrada para a pesquisa.</div>'
-        : '<div class="empty compact">Nenhuma musica cadastrada.</div>';
+        ? '<div class="empty compact">Nenhuma música encontrada para a pesquisa.</div>'
+        : '<div class="empty compact">Nenhuma música cadastrada.</div>';
     updateLoadState();
     return;
   }
@@ -253,13 +285,38 @@ function setupToneFilter() {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  const validTitle = App.validateTextField(form.elements.titulo, {
+    required: true,
+    minLength: 2,
+    maxLength: 140,
+    label: "Título"
+  });
+  const validArtist = App.validateTextField(form.elements.artista, {
+    required: true,
+    minLength: 2,
+    maxLength: 120,
+    label: "Artista"
+  });
+  const validBpm = App.validateNumberField(form.elements.bpm, {
+    required: true,
+    min: 30,
+    max: 240,
+    label: "BPM"
+  });
+  const validUrl = App.validateMusicLinkField(form.elements.linkCifra);
+  if (!validTitle || !validArtist || !validBpm || !validUrl || !form.reportValidity()) return;
+
   const data = App.formToObject(form);
   const id = data.id;
   delete data.id;
-  data.titulo = String(data.titulo || "").trim();
-  data.artista = String(data.artista || "").trim();
+  data.titulo = App.compactText(data.titulo);
+  data.artista = App.compactText(data.artista);
   data.tonalidade = normalizeKey(data.tonalidade);
   data.bpm = data.bpm ? Number(data.bpm) : null;
+  data.linkCifra = App.normalizeMusicLinkUrl(data.linkCifra, {
+    sourceMode: form.elements.cifraModoMenor?.checked ? "minor" : "major"
+  });
+  delete data.cifraModoMenor;
 
   if (!data.titulo || !data.artista || !data.tonalidade || !data.bpm) {
     App.showToast("Título, artista, tom e BPM são obrigatórios.", "error");
@@ -298,10 +355,10 @@ list.addEventListener("click", async (event) => {
 
   if (button.dataset.action === "edit") fillForm(musica);
 
-  if (button.dataset.action === "delete" && await App.confirmDelete("Excluir musica?")) {
+  if (button.dataset.action === "delete" && await App.confirmDelete("Excluir música?")) {
     try {
       const response = await API.deleteData(`/musicas/${id}`);
-      App.showToast(response.message || "Musica removida com sucesso.");
+      App.showToast(response.message || "Música removida com sucesso.");
       await loadMusicas({ reset: true });
     } catch (error) {
       App.showToast(error.message, "error");
@@ -313,7 +370,7 @@ list.addEventListener("click", async (event) => {
       const response = await API.postData(`/auth/favoritos/musicas/${id}`, {});
       user = response.data;
       App.updateStoredUser(user);
-      App.showToast(response.message || "Musica favorita atualizada.");
+      App.showToast(response.message || "Música favorita atualizada.");
       renderList();
     } catch (error) {
       App.showToast(error.message, "error");

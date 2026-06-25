@@ -1,4 +1,262 @@
 const WF = window.WorshipFlowApi;
+const PERSON_NAME_PATTERN = /^[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ .'’-]{1,119}$/;
+
+function onlyDigits(value = "") {
+  return String(value || "").replace(/\D/g, "");
+}
+
+function normalizePersonName(value = "") {
+  return String(value || "")
+    .replace(/[0-9]/g, "")
+    .replace(/\s+/g, " ")
+    .trimStart();
+}
+
+function isValidPersonName(value = "") {
+  return PERSON_NAME_PATTERN.test(String(value || "").trim());
+}
+
+function phoneDigits(value = "") {
+  return onlyDigits(value).slice(0, 11);
+}
+
+function formatPhone(value = "") {
+  const digits = phoneDigits(value);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
+function isValidBrazilPhone(value = "", { required = true } = {}) {
+  const digits = onlyDigits(value);
+  if (!digits) return !required;
+  return digits.length === 11;
+}
+
+function normalizeEmail(value = "") {
+  return String(value || "").trim().toLowerCase();
+}
+
+function isValidRegistrationEmail(value = "") {
+  const email = normalizeEmail(value);
+  const [localPart, domain] = email.split("@");
+  if (!localPart || !domain || email.split("@").length !== 2) return false;
+  if (localPart.length < 5 || email.length > 160) return false;
+  if (/\s|[.]{2}/.test(email)) return false;
+  if (!/^[a-z0-9][a-z0-9._%+-]*[a-z0-9]$/i.test(localPart)) return false;
+  return /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/i.test(domain);
+}
+
+function setupNameField(input) {
+  if (!input) return;
+  input.maxLength = 120;
+  input.addEventListener("input", () => {
+    const normalized = normalizePersonName(input.value);
+    if (input.value !== normalized) input.value = normalized;
+    input.setCustomValidity("");
+  });
+  input.addEventListener("blur", () => {
+    input.value = String(input.value || "").trim().replace(/\s+/g, " ");
+  });
+}
+
+function setupPhoneField(input, { required = false } = {}) {
+  if (!input) return;
+  input.type = "tel";
+  input.inputMode = "numeric";
+  input.autocomplete = "tel";
+  input.maxLength = 15;
+  input.placeholder = "(11) 98552-0784";
+  input.addEventListener("input", () => {
+    input.value = formatPhone(input.value);
+    input.setCustomValidity("");
+  });
+  input.addEventListener("blur", () => {
+    input.value = formatPhone(input.value);
+    validatePhoneField(input, { required });
+  });
+}
+
+function setupEmailField(input) {
+  if (!input) return;
+  input.type = "email";
+  input.autocomplete = "email";
+  input.maxLength = 160;
+  input.addEventListener("input", () => {
+    input.value = normalizeEmail(input.value);
+    input.setCustomValidity("");
+  });
+  input.addEventListener("blur", () => {
+    input.value = normalizeEmail(input.value);
+    validateRegistrationEmail(input);
+  });
+}
+
+function validateNameField(input) {
+  if (!input) return true;
+  const valid = isValidPersonName(input.value);
+  input.setCustomValidity(valid ? "" : "Informe um nome válido, usando apenas letras e espaços.");
+  return valid;
+}
+
+function validatePhoneField(input, { required = false } = {}) {
+  if (!input) return true;
+  const valid = isValidBrazilPhone(input.value, { required });
+  input.setCustomValidity(valid ? "" : "Informe o telefone com 11 números, incluindo DDD.");
+  return valid;
+}
+
+function validateRegistrationEmail(input) {
+  if (!input) return true;
+  const valid = isValidRegistrationEmail(input.value);
+  input.setCustomValidity(valid ? "" : "Informe um e-mail válido, com pelo menos 5 caracteres antes do @.");
+  return valid;
+}
+
+function compactText(value = "") {
+  return String(value || "").trim().replace(/\s+/g, " ");
+}
+
+function setupTextField(input, { maxLength, placeholder, hint } = {}) {
+  if (!input) return;
+  if (maxLength) input.maxLength = maxLength;
+  if (placeholder) input.placeholder = placeholder;
+  if (hint) input.title = hint;
+  input.addEventListener("input", () => {
+    input.setCustomValidity("");
+  });
+  input.addEventListener("blur", () => {
+    input.value = compactText(input.value);
+  });
+}
+
+function validateTextField(input, { required = false, minLength = 1, maxLength = Infinity, label = "Campo" } = {}) {
+  if (!input) return true;
+  const value = compactText(input.value);
+  const valid = (!required && !value) || (value.length >= minLength && value.length <= maxLength);
+  input.setCustomValidity(valid ? "" : `${label} deve ter entre ${minLength} e ${maxLength} caracteres.`);
+  return valid;
+}
+
+function todayIsoDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function setupFutureDateField(input) {
+  if (!input) return;
+  input.min = todayIsoDate();
+  input.addEventListener("input", () => {
+    input.setCustomValidity("");
+  });
+}
+
+function validateFutureDateField(input, { required = true, label = "Data" } = {}) {
+  if (!input) return true;
+  const value = String(input.value || "");
+  const today = todayIsoDate();
+  const valid = (!required && !value) || (value && value >= today);
+  input.setCustomValidity(valid ? "" : `${label} deve ser hoje ou uma data futura.`);
+  return valid;
+}
+
+function isValidHttpUrl(value = "") {
+  const rawUrl = String(value || "").trim();
+  if (!rawUrl) return true;
+  try {
+    const parsed = new URL(/^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`);
+    return ["http:", "https:"].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
+function normalizeHttpUrl(value = "") {
+  const rawUrl = String(value || "").trim();
+  if (!rawUrl) return "";
+  try {
+    const parsed = new URL(/^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`);
+    return ["http:", "https:"].includes(parsed.protocol) ? parsed.href : "";
+  } catch {
+    return rawUrl;
+  }
+}
+
+const allowedMusicLinkDomains = [
+  "cifraclub.com.br",
+  "letras.mus.br",
+  "cifra.com.br",
+  "songsterr.com",
+  "youtube.com",
+  "youtu.be",
+  "spotify.com",
+  "open.spotify.com"
+];
+
+function isAllowedMusicLink(value = "") {
+  const normalizedUrl = normalizeHttpUrl(value);
+  if (!normalizedUrl) return true;
+
+  try {
+    const parsed = new URL(normalizedUrl);
+    const hostname = parsed.hostname.toLowerCase().replace(/^www\./, "");
+    return allowedMusicLinkDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
+  } catch {
+    return false;
+  }
+}
+
+function validateUrlField(input, { label = "Link" } = {}) {
+  if (!input) return true;
+  const valid = isValidHttpUrl(input.value);
+  input.setCustomValidity(valid ? "" : `${label} deve ser uma URL válida, iniciando com http ou https.`);
+  return valid;
+}
+
+function validateMusicLinkField(input) {
+  if (!input) return true;
+  const validUrl = isValidHttpUrl(input.value);
+  const validDomain = isAllowedMusicLink(input.value);
+  input.setCustomValidity(validUrl && validDomain ? "" : "Informe um link musical válido: Cifra Club, Letras, Cifra, Songsterr, Spotify ou YouTube.");
+  return validUrl && validDomain;
+}
+
+function validateNumberField(input, { min, max, required = false, label = "Número" } = {}) {
+  if (!input) return true;
+  const value = String(input.value || "").trim();
+  const number = Number(value);
+  const valid = (!required && !value) || (Number.isFinite(number) && number >= min && number <= max);
+  input.setCustomValidity(valid ? "" : `${label} deve estar entre ${min} e ${max}.`);
+  return valid;
+}
+
+async function disableLocalDevelopmentCaches() {
+  const isLocalHost = ["localhost", "127.0.0.1", "::1"].includes(location.hostname);
+  if (!isLocalHost) return;
+
+  try {
+    if ("serviceWorker" in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((registration) => registration.unregister()));
+    }
+
+    if ("caches" in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(
+        cacheNames
+          .filter((cacheName) => cacheName.startsWith("worshipflow-"))
+          .map((cacheName) => caches.delete(cacheName))
+      );
+    }
+  } catch {
+    // Cache cleanup is best-effort and must not block page initialization.
+  }
+}
+
+void disableLocalDevelopmentCaches();
 
 const icons = {
   calendar: '<path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/>',
@@ -65,7 +323,7 @@ function pageUrl(name) {
   return `/pages/${name}.html`;
 }
 
-const cifraClubKeyByTone = {
+const toneSemitoneByRoot = {
   A: 0,
   "A#": 1,
   Bb: 1,
@@ -85,6 +343,31 @@ const cifraClubKeyByTone = {
   Ab: 11
 };
 
+const cifraClubKeyByTone = { ...toneSemitoneByRoot };
+const toneRootBySemitone = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"];
+const relativeMinorByMajorRoot = {
+  C: "A",
+  "C#": "A#",
+  Db: "A#",
+  D: "B",
+  "D#": "C",
+  Eb: "C",
+  E: "C#",
+  F: "D",
+  "F#": "D#",
+  Gb: "D#",
+  G: "E",
+  "G#": "F",
+  Ab: "F",
+  A: "F#",
+  "A#": "G",
+  Bb: "G",
+  B: "G#"
+};
+const relativeMajorByMinorRoot = Object.fromEntries(
+  Object.entries(relativeMinorByMajorRoot).map(([majorRoot, minorRoot]) => [minorRoot, majorRoot])
+);
+
 function normalizeExternalUrl(value) {
   const rawUrl = String(value || "").trim();
   if (!rawUrl) return "";
@@ -97,27 +380,160 @@ function normalizeExternalUrl(value) {
   }
 }
 
-function toneRoot(value) {
+function parseTone(value) {
   const match = String(value || "").trim().match(/^([A-Ga-g])([#b]?)(m?)$/);
-  if (!match) return "";
-  return `${match[1].toUpperCase()}${match[2]}`;
+  if (!match) return null;
+
+  const root = `${match[1].toUpperCase()}${match[2]}`;
+  const semitone = toneSemitoneByRoot[root];
+  if (semitone === undefined) return null;
+
+  return {
+    root,
+    semitone,
+    minor: match[3] === "m"
+  };
+}
+
+function toneRoot(value) {
+  return parseTone(value)?.root || "";
+}
+
+function wrapSemitone(value) {
+  return ((value % 12) + 12) % 12;
+}
+
+function relativeMajorRoot(minorTone) {
+  return relativeMajorByMinorRoot[minorTone.root] || toneRootBySemitone[wrapSemitone(minorTone.semitone + 3)];
+}
+
+function relativeMinorRoot(majorTone) {
+  return relativeMinorByMajorRoot[majorTone.root] || toneRootBySemitone[wrapSemitone(majorTone.semitone - 3)];
+}
+
+function isCifraClubUrl(parsed) {
+  const hostname = parsed.hostname.toLowerCase().replace(/^www\./, "");
+  return hostname === "cifraclub.com.br" || hostname.endsWith(".cifraclub.com.br");
+}
+
+function hashParams(hash = "") {
+  const value = String(hash || "").replace(/^#/, "");
+  return value.includes("=") ? new URLSearchParams(value) : new URLSearchParams();
+}
+
+function removeCifraClubCapoParams(parsed) {
+  parsed.searchParams.delete("capo");
+  parsed.searchParams.delete("capotraste");
+
+  if (!parsed.hash) return;
+
+  const params = hashParams(parsed.hash);
+  params.delete("capo");
+  params.delete("capotraste");
+  parsed.hash = params.toString();
+}
+
+function parseToneValue(value) {
+  const rawValue = String(value || "").trim();
+  if (!rawValue) return null;
+
+  const numericValue = Number(rawValue);
+  if (Number.isInteger(numericValue) && numericValue >= 0 && numericValue <= 11) {
+    return {
+      root: toneRootBySemitone[numericValue],
+      semitone: numericValue,
+      minor: null
+    };
+  }
+
+  return parseTone(rawValue);
+}
+
+function detectCifraClubSourceMode(parsed) {
+  const params = new URLSearchParams(parsed.searchParams);
+  for (const [key, value] of hashParams(parsed.hash)) {
+    params.append(key, value);
+  }
+
+  const worshipFlowMode = String(params.get("wfMode") || "").toLowerCase();
+  if (worshipFlowMode === "minor" || worshipFlowMode === "major") return worshipFlowMode;
+
+  for (const paramName of ["tone", "tom", "key", "originalTone", "originalTom"]) {
+    const parsedTone = parseToneValue(params.get(paramName));
+    if (parsedTone?.minor === true) return "minor";
+    if (parsedTone?.minor === false) return "major";
+  }
+
+  return "major";
+}
+
+function cifraClubRootForTone(targetTone, sourceMode) {
+  if (!targetTone) return "";
+  if (sourceMode === "minor" && !targetTone.minor) return relativeMinorRoot(targetTone);
+  if (sourceMode !== "minor" && targetTone.minor) return relativeMajorRoot(targetTone);
+  return targetTone.root;
+}
+
+function setCifraClubSourceMode(parsed, sourceMode) {
+  if (!sourceMode) return;
+
+  const params = hashParams(parsed.hash);
+  params.delete("wfMode");
+  if (sourceMode === "minor" || sourceMode === "major") params.set("wfMode", sourceMode);
+  parsed.hash = params.toString();
+}
+
+function cifraClubSourceMode(link) {
+  const normalizedUrl = normalizeExternalUrl(link);
+  if (!normalizedUrl) return "major";
+
+  try {
+    const parsed = new URL(normalizedUrl);
+    if (!isCifraClubUrl(parsed)) return "major";
+    return detectCifraClubSourceMode(parsed);
+  } catch {
+    return "major";
+  }
+}
+
+function normalizeMusicLinkUrl(value = "", { sourceMode } = {}) {
+  const normalizedUrl = normalizeHttpUrl(value);
+  if (!normalizedUrl) return "";
+
+  try {
+    const parsed = new URL(normalizedUrl);
+    if (isCifraClubUrl(parsed)) {
+      removeCifraClubCapoParams(parsed);
+      setCifraClubSourceMode(parsed, sourceMode);
+    }
+    return parsed.href;
+  } catch {
+    return normalizedUrl;
+  }
 }
 
 function cifraClubUrlForTone(link, tone) {
   const normalizedUrl = normalizeExternalUrl(link);
-  const root = toneRoot(tone);
-  const key = cifraClubKeyByTone[root];
+  const targetTone = parseTone(tone);
 
-  if (!normalizedUrl || key === undefined) return normalizedUrl;
+  if (!normalizedUrl) return "";
 
   try {
     const parsed = new URL(normalizedUrl);
-    const hostname = parsed.hostname.toLowerCase().replace(/^www\./, "");
-    if (hostname !== "cifraclub.com.br" && !hostname.endsWith(".cifraclub.com.br")) {
+    if (!isCifraClubUrl(parsed)) {
       return normalizedUrl;
     }
 
-    parsed.hash = `key=${key}`;
+    removeCifraClubCapoParams(parsed);
+
+    const root = cifraClubRootForTone(targetTone, detectCifraClubSourceMode(parsed));
+    const key = cifraClubKeyByTone[root];
+    if (key === undefined) return parsed.href;
+
+    const params = hashParams(parsed.hash);
+    params.delete("wfMode");
+    params.set("key", String(key));
+    parsed.hash = params.toString();
     return parsed.href;
   } catch {
     return normalizedUrl;
@@ -284,7 +700,7 @@ function setupShell(user, activePage) {
   if (!shell) return;
 
   document.querySelectorAll("[data-user-name]").forEach((element) => {
-    element.textContent = user?.nome || "Usuario";
+    element.textContent = user?.nome || "Usuário";
   });
 
   document.querySelectorAll("[data-user-avatar]").forEach((element) => {
@@ -480,6 +896,32 @@ document.addEventListener("click", (event) => {
 window.WorshipFlow = {
   icon,
   escapeHtml,
+  onlyDigits,
+  normalizeEmail,
+  isValidRegistrationEmail,
+  normalizePersonName,
+  isValidPersonName,
+  phoneDigits,
+  formatPhone,
+  isValidBrazilPhone,
+  setupNameField,
+  setupPhoneField,
+  setupEmailField,
+  validateNameField,
+  validatePhoneField,
+  validateRegistrationEmail,
+  compactText,
+  setupTextField,
+  validateTextField,
+  todayIsoDate,
+  setupFutureDateField,
+  validateFutureDateField,
+  isValidHttpUrl,
+  normalizeHttpUrl,
+  isAllowedMusicLink,
+  validateUrlField,
+  validateMusicLinkField,
+  validateNumberField,
   formatDateTime,
   toDatetimeLocal,
   countLabel,
@@ -488,6 +930,8 @@ window.WorshipFlow = {
   isAdmin,
   pageUrl,
   normalizeExternalUrl,
+  normalizeMusicLinkUrl,
+  cifraClubSourceMode,
   cifraClubUrlForTone,
   loginUrl,
   requireAuth,

@@ -7,6 +7,10 @@ const contactForm = document.querySelector("[data-contact-form]");
 const contactStatus = document.querySelector("[data-contact-status]");
 const contactRecipient = contactForm?.elements.destinatario;
 
+if (contactForm?.elements.nome) {
+  App.setupNameField(contactForm.elements.nome);
+}
+
 function setContactRecipient(email) {
   const normalized = String(email || "").trim().toLowerCase();
   if (!contactRecipient || !CONTACT_RECIPIENTS.has(normalized)) return;
@@ -31,6 +35,11 @@ document.addEventListener("click", (event) => {
 contactForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const payload = Object.fromEntries(new FormData(contactForm).entries());
+  const validName = App.validateNameField(contactForm.elements.nome);
+  if (!validName || !contactForm.reportValidity()) return;
+
+  payload.nome = App.compactText(payload.nome);
+  payload.mensagem = String(payload.mensagem || "").trim();
   const confirmed = await App.confirmDialog({
     title: "Enviar mensagem?",
     message: `Confirme o envio da sua mensagem para ${payload.destinatario}.`,

@@ -92,11 +92,17 @@ public class AuthEmailService implements InitializingBean {
         PasswordResetProvider selectedProvider = selectedProvider();
 
         if (selectedProvider == PasswordResetProvider.SUPABASE) {
-            return enviarViaSupabaseAuth(destinatario, nome, link);
+            if (enviarViaSupabaseAuth(destinatario, nome, link)) {
+                return true;
+            }
+            return isSmtpConfigured() && enviarViaSmtp(destinatario, nome, link);
         }
 
         if (selectedProvider == PasswordResetProvider.SMTP) {
-            return enviarViaSmtp(destinatario, nome, link);
+            if (enviarViaSmtp(destinatario, nome, link)) {
+                return true;
+            }
+            return isSupabaseConfigured() && enviarViaSupabaseAuth(destinatario, nome, link);
         }
 
         if (isSmtpConfigured() && enviarViaSmtp(destinatario, nome, link)) {

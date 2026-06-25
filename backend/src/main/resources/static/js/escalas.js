@@ -14,16 +14,19 @@ const adminList = document.getElementById("admin-escalas-list");
 const adminLayout = document.getElementById("admin-scale-layout");
 const publicPanel = document.getElementById("public-scale-panel");
 
-function todayIso() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
+App.setupTextField(form.elements.titulo, {
+  maxLength: 140,
+  placeholder: "Ex.: Culto de domingo",
+  hint: "Informe um título claro para a escala."
+});
+App.setupTextField(form.elements.observacoes, {
+  maxLength: 600,
+  placeholder: "Observações para equipe, repertório ou ensaio."
+});
+App.setupFutureDateField(form.elements.dataEscala);
 
 function configureScaleDate() {
-  form.elements.dataEscala.min = todayIso();
+  form.elements.dataEscala.min = App.todayIsoDate();
 }
 
 function isAdminMode() {
@@ -230,7 +233,7 @@ function songCard(musica) {
   const hasCifra = Boolean(String(musica.linkCifra || "").trim());
   const content = `
     <div class="scale-song-card-header">
-      <strong>${App.escapeHtml(musica.titulo || "Musica sem titulo")}</strong>
+      <strong>${App.escapeHtml(musica.titulo || "Música sem título")}</strong>
       ${hasCifra ? `<span class="scale-song-cifra-icon" title="Cifra disponível" aria-hidden="true">${App.icon("externalLink")}</span>` : ""}
     </div>
     <dl class="scale-song-meta">
@@ -328,7 +331,7 @@ function card(escala, canManage) {
         </section>
         <section class="scale-section scale-repertoire-panel">
           <h3>Repert&oacute;rio</h3>
-          ${escalaMusicas.length ? `<ul class="scale-song-list${escalaMusicas.length > 4 ? " is-scrollable" : ""}">${escalaMusicas.map(songCard).join("")}</ul>` : '<p class="muted-text">Nenhuma musica selecionada.</p>'}
+          ${escalaMusicas.length ? `<ul class="scale-song-list${escalaMusicas.length > 4 ? " is-scrollable" : ""}">${escalaMusicas.map(songCard).join("")}</ul>` : '<p class="muted-text">Nenhuma música selecionada.</p>'}
         </section>
       </div>
       ${escala.observacoes ? `<p class="scale-note">${App.escapeHtml(escala.observacoes)}</p>` : ""}
@@ -488,6 +491,24 @@ async function updateScaleSongs(escala) {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  const validTitle = App.validateTextField(form.elements.titulo, {
+    required: true,
+    minLength: 3,
+    maxLength: 140,
+    label: "Título"
+  });
+  const validDate = App.validateFutureDateField(form.elements.dataEscala, {
+    required: true,
+    label: "Data da escala"
+  });
+  const validNotes = App.validateTextField(form.elements.observacoes, {
+    required: false,
+    minLength: 1,
+    maxLength: 600,
+    label: "Observações"
+  });
+  if (!validTitle || !validDate || !validNotes || !form.reportValidity()) return;
+
   const formData = new FormData(form);
   const id = formData.get("id");
   const funcoesUsuarios = {};
@@ -499,10 +520,10 @@ form.addEventListener("submit", async (event) => {
   });
 
   const payload = {
-    titulo: formData.get("titulo"),
+    titulo: App.compactText(formData.get("titulo")),
     dataEscala: formData.get("dataEscala") || null,
     status: formData.get("status"),
-    observacoes: formData.get("observacoes"),
+    observacoes: App.compactText(formData.get("observacoes")),
     usuarioIds: formData.getAll("usuarioIds").map(Number),
     funcoesUsuarios
   };
@@ -572,8 +593,8 @@ document.getElementById("usuarios-options").addEventListener("change", updateMem
   adminLayout.hidden = !manage;
   publicPanel.hidden = manage;
   document.getElementById("page-description").textContent = manage
-    ? "Relacione equipe e repert\u00f3rio em uma escala publicavel."
-    : "Consulte a equipe, o repert\u00f3rio e as observacoes das proximas escalas.";
+    ? "Relacione equipe e repertório em uma escala publicável."
+    : "Consulte a equipe, o repertório e as observações das próximas escalas.";
 
   await loadEscalas();
 })();

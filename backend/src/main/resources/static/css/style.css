@@ -604,6 +604,10 @@ img.wf-logo-mark {
   color: rgba(255, 255, 255, 0.76) !important;
 }
 
+.wf-hero img[src*="stage-celebration"] {
+  display: none !important;
+}
+
 .wf-card,
 .wf-panel {
   background: var(--wf-surface) !important;
@@ -3216,7 +3220,7 @@ img.wf-logo-mark {
   height: 48px;
   display: grid;
   place-items: center;
-  border-radius: 16px;
+  border-radius: 999px;
   color: #07111f;
   background: linear-gradient(135deg, #f6d96b, #22c8df 72%, #9b7cff);
   font-family: var(--wf-font-display);
@@ -3281,6 +3285,18 @@ img.wf-logo-mark {
   text-transform: none;
 }
 
+.field-hint {
+  display: block;
+  margin-top: -2px;
+  color: var(--wf-muted);
+  font-family: var(--wf-font-body) !important;
+  font-size: 11px !important;
+  font-weight: 750;
+  letter-spacing: 0 !important;
+  line-height: 1.35;
+  text-transform: none !important;
+}
+
 .auth-form input,
 .auth-form textarea {
   width: 100%;
@@ -3310,6 +3326,49 @@ img.wf-logo-mark {
 .auth-submit {
   width: 100%;
   margin-top: 4px;
+}
+
+.auth-submit:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.auth-feedback {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--wf-border);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--wf-surface-strong) 72%, transparent);
+  color: var(--wf-muted);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.auth-feedback[hidden] {
+  display: none;
+}
+
+.auth-feedback strong {
+  color: var(--wf-text);
+}
+
+.auth-feedback a {
+  width: fit-content;
+  color: var(--wf-cyan);
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.auth-feedback-success {
+  border-color: rgba(34, 197, 94, 0.34);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.auth-feedback-error {
+  border-color: rgba(217, 45, 32, 0.34);
+  background: rgba(217, 45, 32, 0.1);
 }
 
 .auth-primary-actions {
@@ -4032,7 +4091,7 @@ img.auth-brand-mark.wf-logo-image {
     width: 64px;
     height: 64px;
     flex-basis: 64px;
-    border-radius: 19px;
+    border-radius: 999px;
   }
 
   .auth-subtitle {

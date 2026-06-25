@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -8,14 +8,14 @@
     <title>WorshipFlow | Perfil</title>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/assets/LogoWorshipFlowIcon.png" />
-    <link rel="stylesheet" href="/css/style.css?v=89" />
+    <link rel="stylesheet" href="/css/style.css?v=93" />
     <script>
       const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
     </script>
     <script src="/js/tailwind-theme.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/js/api.js" defer></script>
-    <script src="/js/common.js?v=83" defer></script>
+    <script src="/js/common.js?v=91" defer></script>
     <script src="/js/perfil.js" defer></script>
   </head>
   <body>
@@ -139,8 +139,8 @@
                 <h2 class="wf-panel-title mt-2 text-3xl font-black">Alterar perfil</h2>
               </div>
               <div class="grid gap-4 lg:grid-cols-2">
-                <label>Nome<input name="nome" maxlength="120" required /></label>
-                <label>Telefone<input name="telefone" type="text" inputmode="numeric" maxlength="30" pattern="[0-9]*" /></label>
+                <label>Nome<input name="nome" maxlength="120" title="Use apenas letras e espaços." required /><small class="field-hint">Use seu nome completo, sem números.</small></label>
+                <label>Telefone<input name="telefone" type="tel" inputmode="numeric" maxlength="15" placeholder="(11) 98552-0784" title="Digite DDD + número, com 11 dígitos." /><small class="field-hint">DDD + número, com 11 dígitos.</small></label>
                 <div class="file-picker">
                   <span class="file-picker-label">Foto de perfil</span>
                   <div class="file-picker-control">

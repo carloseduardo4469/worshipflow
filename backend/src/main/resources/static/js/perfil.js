@@ -5,13 +5,8 @@ const form = document.getElementById("profile-form");
 const photoInput = document.getElementById("profile-photo-input");
 const photoFileName = document.getElementById("profile-photo-file-name");
 
-function onlyDigits(value) {
-  return String(value || "").replace(/\D/g, "");
-}
-
-form.elements.telefone.addEventListener("input", (event) => {
-  event.currentTarget.value = onlyDigits(event.currentTarget.value);
-});
+App.setupNameField(form.elements.nome);
+App.setupPhoneField(form.elements.telefone);
 
 photoInput.addEventListener("change", () => {
   photoFileName.hidden = !photoInput.files?.length;
@@ -47,7 +42,7 @@ function renderProfile(user) {
     : '<div class="empty compact">Marque musicas como favoritas pelo icone de estrela na tela de Musicas.</div>';
 
   form.elements.nome.value = user.nome || "";
-  form.elements.telefone.value = user.telefone || "";
+  form.elements.telefone.value = App.formatPhone(user.telefone || "");
   photoInput.value = "";
   photoFileName.hidden = true;
   App.setSelectedSkills(form, user.habilidades || "");
@@ -67,8 +62,8 @@ async function payloadFromForm() {
   const formData = new FormData(form);
   const file = formData.get("foto");
   const payload = {
-    nome: formData.get("nome"),
-    telefone: onlyDigits(formData.get("telefone")),
+    nome: String(formData.get("nome") || "").trim().replace(/\s+/g, " "),
+    telefone: App.phoneDigits(formData.get("telefone")),
     habilidades: App.selectedSkillsText(form),
     removerFoto: formData.get("removerFoto") === "true"
   };
@@ -87,6 +82,10 @@ async function payloadFromForm() {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  const validName = App.validateNameField(form.elements.nome);
+  const validPhone = App.validatePhoneField(form.elements.telefone);
+  if (!validName || !validPhone || !form.reportValidity()) return;
+
   try {
     const response = await API.putData("/auth/me", await payloadFromForm());
     App.updateStoredUser(response.data);

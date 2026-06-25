@@ -7,6 +7,9 @@ const form = document.getElementById("usuario-form");
 const list = document.getElementById("usuarios-list");
 const cancelButton = document.getElementById("cancel-edit");
 
+App.setupNameField(form.elements.nome);
+App.setupPhoneField(form.elements.telefone);
+
 function statusClass(status) {
   return {
     ATIVO: "status-success",
@@ -35,7 +38,7 @@ function fillForm(usuario) {
   form.elements.id.value = usuario.id;
   form.elements.nome.value = usuario.nome || "";
   form.elements.email.value = usuario.email || "";
-  form.elements.telefone.value = usuario.telefone || "";
+  form.elements.telefone.value = App.formatPhone(usuario.telefone || "");
   form.elements.perfil.value = usuario.perfil === "ADMIN" ? "ADMIN" : "USER";
   form.elements.statusMinisterio.value = usuario.statusMinisterio || "ATIVO";
   cancelButton.hidden = false;
@@ -44,7 +47,7 @@ function fillForm(usuario) {
 
 function renderList() {
   if (!usuarios.length) {
-    list.innerHTML = '<div class="empty">Nenhum usuario cadastrado.</div>';
+    list.innerHTML = '<div class="empty">Nenhum usuário cadastrado.</div>';
     return;
   }
 
@@ -74,16 +77,22 @@ async function loadUsuarios() {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  const validName = App.validateNameField(form.elements.nome);
+  const validPhone = App.validatePhoneField(form.elements.telefone);
+  if (!validName || !validPhone || !form.reportValidity()) return;
+
   const data = App.formToObject(form);
   const id = data.id;
   if (!id) {
-    App.showToast("Selecione um usuario para editar.", "error");
+    App.showToast("Selecione um usuário para editar.", "error");
     return;
   }
   delete data.id;
+  data.nome = String(data.nome || "").trim().replace(/\s+/g, " ");
+  data.telefone = App.phoneDigits(data.telefone);
   try {
     const response = await API.putData(`/usuarios/${id}`, data);
-    App.showToast(response.message || "Usuario salvo com sucesso.");
+    App.showToast(response.message || "Usuário salvo com sucesso.");
     resetForm();
     await loadUsuarios();
   } catch (error) {
@@ -100,10 +109,10 @@ list.addEventListener("click", async (event) => {
 
   if (button.dataset.action === "edit" && usuario) fillForm(usuario);
 
-  if (button.dataset.action === "delete" && await App.confirmDelete("Excluir usuario?")) {
+  if (button.dataset.action === "delete" && await App.confirmDelete("Excluir usuário?")) {
     try {
       const response = await API.deleteData(`/usuarios/${id}`);
-      App.showToast(response.message || "Usuario removido com sucesso.");
+      App.showToast(response.message || "Usuário removido com sucesso.");
       await loadUsuarios();
     } catch (error) {
       App.showToast(error.message, "error");

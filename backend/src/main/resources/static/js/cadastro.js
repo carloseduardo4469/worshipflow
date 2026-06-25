@@ -2,18 +2,21 @@ const API = window.WorshipFlowApi;
 const App = window.WorshipFlow;
 const form = document.getElementById("cadastro-form");
 
-function onlyDigits(value) {
-  return String(value || "").replace(/\D/g, "");
-}
-
-form.elements.telefone.addEventListener("input", (event) => {
-  event.currentTarget.value = onlyDigits(event.currentTarget.value);
-});
+App.setupNameField(form.elements.nome);
+App.setupEmailField(form.elements.email);
+App.setupPhoneField(form.elements.telefone, { required: true });
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  form.elements.telefone.value = onlyDigits(form.elements.telefone.value);
+  const validName = App.validateNameField(form.elements.nome);
+  const validEmail = App.validateRegistrationEmail(form.elements.email);
+  const validPhone = App.validatePhoneField(form.elements.telefone, { required: true });
+  if (!validName || !validEmail || !validPhone || !form.reportValidity()) return;
+
   const data = App.formToObject(event.currentTarget);
+  data.nome = String(data.nome || "").trim().replace(/\s+/g, " ");
+  data.email = App.normalizeEmail(data.email);
+  data.telefone = App.phoneDigits(data.telefone);
 
   try {
     const response = await API.postData("/auth/cadastro", data);

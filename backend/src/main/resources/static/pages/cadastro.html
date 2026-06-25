@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -11,10 +11,10 @@
     <script>
       const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
     </script>
-    <link rel="stylesheet" href="/css/style.css?v=89" />
+    <link rel="stylesheet" href="/css/style.css?v=93" />
     <script src="/js/api.js" defer></script>
-    <script src="/js/common.js?v=83" defer></script>
-    <script src="/js/cadastro.js" defer></script>
+    <script src="/js/common.js?v=91" defer></script>
+    <script src="/js/cadastro.js?v=51" defer></script>
   </head>
   <body>
     <button class="wf-icon-button public-theme-toggle" type="button" data-action="toggle-theme" aria-label="Alternar tema"></button>
@@ -31,11 +31,13 @@
             <form id="cadastro-form" class="auth-form auth-form-register">
               <label>
                 <span class="field-label">Nome <span class="required-field"><span class="required-marker" tabindex="0" title="Este campo é obrigatório." aria-describedby="cadastro-nome-required">*</span><span class="required-tooltip" id="cadastro-nome-required" role="tooltip">Este campo é obrigatório.</span></span></span>
-                <input name="nome" autocomplete="name" placeholder="Nome completo" required />
+                <input name="nome" autocomplete="name" maxlength="120" placeholder="Nome completo" title="Use apenas letras e espaços." required />
+                <small class="field-hint">Use seu nome completo, sem números.</small>
               </label>
               <label>
                 <span class="field-label">E-mail <span class="required-field"><span class="required-marker" tabindex="0" title="Este campo é obrigatório." aria-describedby="cadastro-email-required">*</span><span class="required-tooltip" id="cadastro-email-required" role="tooltip">Este campo é obrigatório.</span></span></span>
-                <input name="email" type="email" autocomplete="email" placeholder="Digite seu e-mail" required />
+                <input name="email" type="email" autocomplete="email" maxlength="160" placeholder="nome.sobrenome@email.com" title="Use um e-mail válido, com pelo menos 5 caracteres antes do @." required />
+                <small class="field-hint">Use um e-mail real, com pelo menos 5 caracteres antes do @.</small>
               </label>
               <label>
                 <span class="field-label">Senha <span class="required-field"><span class="required-marker" tabindex="0" title="Este campo é obrigatório." aria-describedby="cadastro-senha-required">*</span><span class="required-tooltip" id="cadastro-senha-required" role="tooltip">Este campo é obrigatório.</span></span></span>
@@ -43,7 +45,8 @@
               </label>
               <label>
                 <span class="field-label">Telefone <span class="required-field"><span class="required-marker" tabindex="0" title="Este campo é obrigatório." aria-describedby="cadastro-telefone-required">*</span><span class="required-tooltip" id="cadastro-telefone-required" role="tooltip">Este campo é obrigatório.</span></span></span>
-                <input name="telefone" type="text" inputmode="numeric" autocomplete="tel" maxlength="30" pattern="[0-9]*" placeholder="Somente números" required />
+                <input name="telefone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="15" placeholder="(11) 98552-0784" title="Digite DDD + número, com 11 dígitos." required />
+                <small class="field-hint">DDD + número, com 11 dígitos.</small>
               </label>
               <div class="auth-primary-actions">
                 <button class="button primary auth-submit" type="submit">Cadastrar</button>
