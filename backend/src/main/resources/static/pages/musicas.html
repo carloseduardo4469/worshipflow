@@ -8,7 +8,7 @@
     <title>WorshipFlow | Músicas</title>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/assets/LogoWorshipFlowIcon.png" />
-    <link rel="stylesheet" href="/css/style.css?v=93" />
+    <link rel="stylesheet" href="/css/style.css?v=94" />
     <script>
       const theme = localStorage.getItem("worshipflow:theme") || "dark"; document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme;
     </script>
@@ -134,7 +134,14 @@
                   </label>
                 </div>
                 <label>Link da cifra<input name="linkCifra" type="url" /><small class="field-hint">Aceita Cifra Club, Letras, Cifra, Songsterr, Spotify e YouTube.</small></label>
-                <label class="checkbox-item"><input name="cifraModoMenor" type="checkbox" /> <span>A cifra original do Cifra Club está em tom menor</span></label>
+                <label class="minor-tone-toggle">
+                  <input name="cifraModoMenor" type="checkbox" />
+                  <span class="minor-tone-toggle__switch" aria-hidden="true"></span>
+                  <span class="minor-tone-toggle__copy">
+                    <strong>Cifra em tom menor</strong>
+                    <small>Use quando o Cifra Club abrir a música em modo menor.</small>
+                  </span>
+                </label>
                 <div class="form-actions">
                   <button class="wf-secondary-button button" type="button" id="cancel-edit" hidden>Cancelar</button>
                   <button class="wf-primary-button button primary" type="submit">Salvar louvor</button>
