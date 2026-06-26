@@ -105,7 +105,7 @@ public class AuthService {
                     boolean emailEnviado = authEmailService.enviarLinkRedefinicao(usuario.getEmail(), usuario.getNome(), resetLink);
                     String linkExposto = !emailEnviado && exposeResetLink ? resetLink : null;
                     if (!emailEnviado && linkExposto == null) {
-                        throw new IllegalStateException("Redefinicao de senha sem provedor configurado. Configure Supabase Auth ou SMTP direto para enviar o e-mail.");
+                        throw new IllegalStateException("Redefinicao de senha sem SMTP configurado para enviar o e-mail.");
                     }
                     return new RedefinicaoSenhaResponse(emailEnviado, linkExposto);
                 })

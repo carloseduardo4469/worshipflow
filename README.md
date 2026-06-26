@@ -1,59 +1,44 @@
 # WorshipFlow MVP
 
-Aplicacao web para gestao de ministerio de louvor. O projeto foi reorganizado em frontend Vanilla JS e backend Java Spring Boot com PostgreSQL/Supabase.
+Aplicacao web para gestao de ministerio de louvor da igreja Bola de Neve Braganca Paulista.
+
+O projeto usa:
+
+- Backend Java Spring Boot.
+- Frontend HTML, CSS e JavaScript puro servido pelo proprio Spring Boot.
+- Banco de dados MySQL local pelo XAMPP.
+
+Nao ha dependencia de Supabase, PostgreSQL ou H2 no caminho principal do projeto.
 
 ## Arquitetura
 
 - `backend/`: API REST Spring Boot em camadas (`controller`, `service`, `repository`, `entity`, `dto`, `config`, `exception`, `security`).
-- `backend/src/main/resources/static/`: frontend mobile-first em HTML, CSS e JavaScript puro, servido pelo Spring Boot.
-- `database/`: dump e scripts SQL incrementais para ambientes locais.
+- `backend/src/main/resources/static/`: frontend mobile-first servido pelo backend.
+- `database/mysql/`: scripts SQL para MySQL/XAMPP.
 
-## Funcionalidades do MVP
+## Requisitos
 
-- Login local com senha criptografada, token de sessao e protecao basica contra tentativas repetidas.
-- Gestão de usuarios/membros, musicas e escalas.
-- Respostas JSON padronizadas.
-- Tema claro/escuro, toasts e estados de loading.
-- Layout responsivo com sidebar no desktop e navegacao inferior no mobile.
+- JDK 21 LTS.
+- Maven.
+- XAMPP com MySQL ativo.
 
-## Banco modelado
+## Como executar
 
-Entidades iniciais:
-
-- usuarios
-- usuarios/membros
-- escalas
-- musicas
-- ministerios
-- repertorios
-
-As escalas se relacionam com varios usuarios/membros e varias musicas.
-
-## Como executar pelo Spring Boot
-
-O frontend foi colocado dentro do proprio Spring Web. Voce nao precisa rodar `npm`, `node server.js` nem Docker para abrir a tela.
-
-Requisito recomendado para o backend:
-
-```text
-JDK 21 LTS
-```
-
-Rode apenas o backend:
+1. Abra o XAMPP.
+2. Inicie o servico `MySQL`.
+3. Rode o backend:
 
 ```bash
 cd backend
-mvn spring-boot:run
+..\mvn-local.cmd spring-boot:run
 ```
 
-Para desenvolver sem ficar limpando cache/reiniciando manualmente, rode com o perfil `dev`:
+Para desenvolvimento com cache estatico desativado:
 
 ```bash
 cd backend
-mvn spring-boot:run "-Dspring-boot.run.profiles=dev"
+..\mvn-local.cmd spring-boot:run "-Dspring-boot.run.profiles=dev"
 ```
-
-Esse perfil ativa o Spring Boot DevTools, desliga o cache dos arquivos estaticos e habilita LiveReload. Para o navegador atualizar sozinho quando HTML/CSS/JS mudar, use uma extensao LiveReload no browser ou mantenha a pagina aberta por uma ferramenta compativel com LiveReload.
 
 Depois acesse:
 
@@ -67,100 +52,71 @@ API:
 http://localhost:8080/api
 ```
 
-Se estiver usando Eclipse, IntelliJ ou Spring Tools, abra a classe:
+No VS Code, execute a classe:
 
 ```text
 backend/src/main/java/br/com/worshipflow/WorshipFlowApplication.java
 ```
 
-E execute como aplicacao Java/Spring Boot.
+O MySQL do XAMPP precisa estar ativo antes de iniciar o backend.
 
 ## Banco configurado
 
-O projeto esta configurado para usar PostgreSQL, pronto para Supabase:
+Padrao local:
 
 ```text
-Banco padrao: postgres
-Usuario padrao: postgres
-Host local padrao: localhost
-Porta padrao: 5432
-SSL: require
+Banco: worshipflow
+Host: localhost
+Porta: 3306
+Usuario: root
+Senha: vazia
+Driver: com.mysql.cj.jdbc.Driver
 ```
 
-Configuracao local padrao:
+Configuracao padrao do Spring:
 
-```bash
-DB_URL=jdbc:postgresql://localhost:5432/postgres?sslmode=require
+```text
+DB_URL=jdbc:mysql://localhost:3306/worshipflow?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Sao_Paulo
 DB_HOST=localhost
-DB_PORT=5432
-DB_DATABASE=postgres
-DB_USERNAME=postgres
+DB_PORT=3306
+DB_DATABASE=worshipflow
+DB_USERNAME=root
 DB_PASSWORD=
-DB_SSLMODE=require
-JPA_DDL_AUTO=validate
+JPA_DDL_AUTO=update
 ```
 
-## Supabase e importacao SQL
+Com `createDatabaseIfNotExist=true`, o backend consegue criar o banco `worshipflow` automaticamente quando o usuario MySQL tem permissao. Mesmo assim, o servidor MySQL precisa estar rodando.
 
-No Supabase, execute os scripts pelo SQL Editor nesta ordem:
+Se quiser configurar manualmente pelo phpMyAdmin, execute:
 
 ```text
-database/postgresql/001_schema.sql
-database/postgresql/002_seed_current_data.sql
-database/postgresql/003_seed_100_musicas_usuarios.sql
+database/mysql/001_schema.sql
 ```
 
-Tambem existe um arquivo consolidado, util para um banco limpo:
+## Primeiro administrador
+
+O cadastro publico cria usuario comum. Para liberar acesso administrativo no ambiente local:
+
+1. Cadastre o primeiro usuario pela tela do sistema.
+2. No phpMyAdmin, execute o script:
 
 ```text
-database/postgresql/worshipflow-postgresql-full.sql
+database/mysql/002_promover_primeiro_admin.sql
 ```
 
-Depois configure o backend Spring Boot com os dados do seu banco Supabase:
+Antes de executar, altere o e-mail do script para o e-mail cadastrado.
 
-```text
-DB_URL=jdbc:postgresql://db.SEUPROJETO.supabase.co:5432/postgres?sslmode=require
-DB_HOST=db.SEUPROJETO.supabase.co
-DB_PORT=5432
-DB_DATABASE=postgres
-DB_USERNAME=postgres
-DB_PASSWORD=sua-senha-do-banco
-DB_SSLMODE=require
-JPA_DDL_AUTO=validate
-```
+## Variaveis locais
 
-Use a senha do banco definida em Supabase > Project Settings > Database. Nao use a anon key como senha do banco.
+O arquivo `backend/.env` local e carregado automaticamente pela aplicacao, caso exista. Ele nao deve ser versionado.
+
+Use `backend/.env.example` como referencia para alterar porta, credenciais do MySQL, CORS, URL do frontend e SMTP.
 
 ## Envio de e-mail para redefinicao de senha
 
-O fluxo de redefinicao gera um token local do WorshipFlow e envia um link temporario para `/api/auth/redefinir-senha?token=...`. Essa rota valida o formato do acesso e redireciona o navegador para `/pages/redefinir-senha.html?token=...`.
+O fluxo de redefinicao de senha usa SMTP direto.
 
-O provedor e definido por:
-
-```text
-PASSWORD_RESET_PROVIDER=auto
-```
-
-Valores aceitos:
-
-- `supabase`: usa a API do Supabase Auth para disparar o e-mail pelo SMTP configurado no painel do Supabase.
-- `smtp`: usa SMTP direto configurado no backend.
-- `auto`: tenta Supabase quando configurado; caso contrario, tenta SMTP direto.
-
-Configuracao recomendada com Supabase Auth:
-
-```text
-PASSWORD_RESET_PROVIDER=supabase
-SUPABASE_URL=https://seu-projeto.supabase.co
-SUPABASE_ANON_KEY=sua-chave-publica-ou-anon
-SUPABASE_SERVICE_ROLE_KEY=sua-chave-service-role-opcional
-FRONTEND_BASE_URL=http://localhost:8080
-EXPOSE_RESET_LINK=false
-```
-
-`SUPABASE_SERVICE_ROLE_KEY` e opcional, mas recomendada no backend: ela permite criar/confirmar automaticamente um usuario espelho no Supabase Auth antes do envio. Sem ela, o e-mail so sera enviado se o e-mail ja existir no Supabase Auth.
-
-Configuracao alternativa com SMTP direto:
+Configuracao:
 
 ```text
 PASSWORD_RESET_PROVIDER=smtp
@@ -174,19 +130,21 @@ MAIL_SMTP_STARTTLS=true
 MAIL_SMTP_STARTTLS_REQUIRED=true
 ```
 
-As chaves e senhas devem ficar em variaveis de ambiente ou em `backend/.env`. O arquivo `.env` local e carregado automaticamente ao iniciar a aplicacao e nao deve ser enviado para o Git.
+Sem SMTP configurado, o endpoint de esqueci senha nao consegue enviar e-mail.
 
 ## Endpoints principais
 
+- `POST /api/auth/cadastro`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
 - `GET /api/usuarios`
 - `GET /api/usuarios/equipe`
 - `PUT /api/usuarios/{id}`
 - `DELETE /api/usuarios/{id}`
-
-O mesmo padrao vale para:
-
-- `/api/musicas`
-- `/api/escalas`
+- `GET /api/musicas`
+- `POST /api/musicas`
+- `GET /api/escalas`
+- `POST /api/escalas`
 
 As listagens aceitam parametros opcionais de paginacao:
 
@@ -200,10 +158,11 @@ As listagens de usuarios e musicas tambem aceitam busca textual:
 ?query=violao
 ```
 
-## Decisoes importantes
+## Decisoes tecnicas
 
 - A regra de negocio fica nos services para manter controllers pequenos.
 - DTOs protegem as entidades e concentram validacoes de entrada.
-- Credenciais ficam em variaveis de ambiente, com valores locais apenas para desenvolvimento.
-- O frontend nao usa framework para cumprir a proposta do TCC e manter o codigo acessivel.
-- A autenticacao usa cadastro, login com senha criptografada, token de sessao e redefinicao de senha por link.
+- Credenciais ficam em variaveis de ambiente ou em `backend/.env`.
+- O frontend nao usa framework para manter o MVP simples e adequado ao TCC.
+- O banco local oficial do projeto e MySQL via XAMPP.
+- `JPA_DDL_AUTO=update` e pratico para desenvolvimento; para producao, o correto e evoluir para migrations versionadas.
